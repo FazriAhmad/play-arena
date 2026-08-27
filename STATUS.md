@@ -80,6 +80,13 @@ C:\Users\Fazri\portofolio\rec-center-book\
 - Routing: `/` dan `/venue/:id` publik (di luar `ProtectedRoute`), redirect pasca-login beda per role (pelanggan → `/`, owner/staff → `/dashboard`)
 - **Sudah teruji end-to-end di browser sungguhan**: buka `/` tanpa login → 2 venue demo tampil → filter olahraga lewat dropdown asli (bukan curl) → hasil ke-filter benar → klik venue → peta Leaflet render dengan marker + attribution OSM → daftar lapangan & harga tampil benar, tanpa error console
 
+### Api-PlayArena & Ui-PlayArena — Modul 03 (Kelola Data Lapangan) selesai, teruji end-to-end
+- Backend: `VenueController::ownerIndex/ownerShow/update` (lihat &amp; kelola semua venue milik sendiri, termasuk yang nonaktif — beda dari `/venues` publik yang cuma tampilkan yang aktif), `CourtController::update/destroy` (lengkapi stub Modul 02) — semua di bawah `/owner/venues` &amp; `/owner/courts`, role `owner` saja
+- Upload foto lapangan: `Storage::disk('public')`, endpoint update court pakai `POST` bukan `PUT` (PHP tidak parse file upload di request `PUT` multipart tanpa method-spoofing tambahan — daripada ribet, langsung `POST` saja)
+- **Bug ditemukan &amp; diperbaiki**: kolom "cover" foto di direktori publik (`VenueController::summarize`) sempat ambil lapangan pertama tanpa urutan pasti dari DB — kalau lapangan yang kebetulan "pertama" belum ada fotonya padahal lapangan lain di venue sama sudah, cover ikut kosong. Diperbaiki: cari eksplisit lapangan aktif pertama yang **punya** foto, bukan sekadar lapangan pertama.
+- Frontend: `ManageVenuesPage` (`/owner/venues` — daftar &amp; tambah venue), `ManageVenueDetailPage` (`/owner/venues/:id` — edit venue, toggle aktif venue, tambah lapangan dengan upload foto via `FormData`, toggle aktif/nonaktif &amp; hapus lapangan)
+- **Sudah teruji end-to-end di browser sungguhan** (bukan cuma curl): login owner → buka Kelola Lapangan → masuk detail venue → nonaktifkan lapangan lewat tombol asli → status berubah jadi "Nonaktif" → aktifkan lagi → isi form Tambah Lapangan (nama, harga) → submit → lapangan baru muncul di daftar → hapus lapangan itu (lewat dialog konfirmasi) → hilang dari daftar — semua tanpa error console
+
 ### Ui-PlayArena (frontend) — Modul 01 (Pengguna & Role) selesai, teruji end-to-end di branch `dev`
 - Vite + React 19 + TypeScript + Tailwind CSS v4 + Framer Motion + React Router + lucide-react (persis stack `referensi-play-arena/`, cuma versi production yang disambungkan ke API asli, bukan mock)
 - Port dev: **5180**, sudah didaftarkan di `.claude/launch.json` sebagai `playarena-ui`
@@ -102,8 +109,9 @@ C:\Users\Fazri\portofolio\rec-center-book\
 - [x] Repo di-push ke GitHub: github.com/FazriAhmad/play-arena, branch `main` (2026-08-27)
 - [x] **Modul 01 — Pengguna & Role (frontend)**: Login, Register, Forgot/Reset Password, Dashboard, Kelola Staff — teruji end-to-end di browser, di-push ke branch `dev` (2026-08-27)
 - [x] **Modul 02 — Direktori & Pencarian Lapangan** (backend + frontend): tabel `courts`, direktori publik dengan filter, halaman detail venue + peta Leaflet — teruji end-to-end, di-push ke branch `dev` (2026-08-27)
-- [ ] **Modul 01 + 02 selesai** — merge `dev` ke `main` kalau user sudah oke, lalu **lanjut Modul 03** (Kelola Data Lapangan — CRUD venue/lapangan penuh untuk Owner: foto, fasilitas terstruktur, jam operasional per hari)
-- [ ] Modul 04–10 — sisa Fase 1 (Inti Booking, termasuk Modul 05 yang paling kritis: deteksi bentrok)
+- [x] **Modul 03 — Kelola Data Lapangan** (backend + frontend): CRUD venue &amp; lapangan penuh untuk Owner (edit, toggle aktif, upload foto, hapus) — teruji end-to-end, di-push ke branch `dev` (2026-08-27)
+- [ ] **Modul 01 + 02 + 03 selesai** — merge `dev` ke `main` kalau user sudah oke, lalu **lanjut Modul 04** (Kalender Ketersediaan &amp; Blokir Slot)
+- [ ] Modul 05–10 — sisa Fase 1 (Inti Booking, termasuk Modul 05 yang paling kritis: deteksi bentrok)
 - [ ] Fase 2 — Fitur Bisnis & Pertumbuhan (Modul 11–19)
 - [ ] Fase 3 — Nice-to-have (Modul 20–21)
 
