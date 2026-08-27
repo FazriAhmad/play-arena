@@ -6,6 +6,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
 import ManageVenueDetailPage from './pages/ManageVenueDetailPage';
 import ManageVenuesPage from './pages/ManageVenuesPage';
+import MyBookingsPage from './pages/MyBookingsPage';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
 import SearchPage from './pages/SearchPage';
@@ -31,10 +32,13 @@ function App() {
 
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/bookings" element={<MyBookingsPage />} />
               <Route element={<RoleRoute role="owner" />}>
                 <Route path="/staff" element={<StaffPage />} />
-                <Route path="/owner/venues" element={<ManageVenuesPage />} />
-                <Route path="/owner/venues/:id" element={<ManageVenueDetailPage />} />
+              </Route>
+              <Route element={<RoleRoute role={['owner', 'staff']} />}>
+                <Route path="/manage/venues" element={<ManageVenuesPage />} />
+                <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
               </Route>
             </Route>
           </Route>

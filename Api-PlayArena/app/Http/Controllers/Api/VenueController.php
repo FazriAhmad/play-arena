@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AuthorizesVenue;
 use App\Http\Controllers\Controller;
 use App\Models\Venue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Modul 02 (direktori publik) & stub Modul 01 (dropdown penugasan staff).
- * CRUD lengkap venue — fasilitas, jam operasional per hari, dsb — dibangun
- * di Modul 03.
+ * Direktori publik (Modul 02) & CRUD venue (Modul 03). Endpoint "manage/*"
+ * dipakai Owner (CRUD penuh) maupun Staff (lihat + kelola kalender/blokir
+ * slot di Modul 04) — dibedakan lewat AuthorizesVenue, bukan lewat route
+ * middleware role terpisah, karena kombinasi aksesnya beririsan.
  */
 class VenueController extends Controller
 {
+    use AuthorizesVenue;
+
     /** Direktori publik — filter jenis olahraga, kota, rentang harga (PRD Modul 02). */
     public function index(Request $request): JsonResponse
     {
@@ -61,18 +65,25 @@ class VenueController extends Controller
         return response()->json(['data' => $request->user()->ownedVenues()->orderBy('name')->get(['id', 'name', 'city'])]);
     }
 
-    /** Daftar venue milik sendiri untuk dikelola — termasuk yang nonaktif, beda dari direktori publik. */
-    public function ownerIndex(Request $request): JsonResponse
+    /**
+     * Daftar venue yang bisa dikelola user login — Owner lihat semua venue
+     * miliknya, Staff lihat venue tempat dia ditugaskan. Termasuk yang
+     * nonaktif, beda dari direktori publik.
+     */
+    public function manageIndex(Request $request): JsonResponse
     {
-        $venues = $request->user()->ownedVenues()->withCount('courts')->orderBy('name')->get();
+        $user = $request->user();
+        $venues = $user->hasRole('owner')
+            ? $user->ownedVenues()->withCount('courts')->orderBy('name')->get()
+            : $user->venues()->withCount('courts')->orderBy('name')->get();
 
         return response()->json(['data' => $venues]);
     }
 
-    /** Detail venue milik sendiri untuk form edit — semua lapangan, termasuk yang nonaktif. */
-    public function ownerShow(Request $request, Venue $venue): JsonResponse
+    /** Detail venue untuk dikelola — semua lapangan termasuk yang nonaktif. Owner atau staff venue ini. */
+    public function manageShow(Request $request, Venue $venue): JsonResponse
     {
-        $this->authorizeOwner($request, $venue);
+        $this->authorizeVenueStaff($request->user(), $venue);
         $venue->load(['courts' => fn ($q) => $q->orderBy('name')]);
 
         return response()->json(['data' => $venue]);
@@ -88,7 +99,7 @@ class VenueController extends Controller
 
     public function update(Request $request, Venue $venue): JsonResponse
     {
-        $this->authorizeOwner($request, $venue);
+        $this->authorizeOwner($request->user(), $venue);
         $data = $this->validated($request, sometimes: true);
         if ($request->has('is_active')) {
             $data['is_active'] = $request->boolean('is_active');
@@ -111,11 +122,6 @@ class VenueController extends Controller
             'open_hour' => ['nullable', 'integer', 'min:0', 'max:23'],
             'close_hour' => ['nullable', 'integer', 'min:1', 'max:24'],
         ]);
-    }
-
-    private function authorizeOwner(Request $request, Venue $venue): void
-    {
-        abort_unless($venue->owner_id === $request->user()->id, 403, 'Bukan venue milik Anda.');
     }
 
     private function summarize(Venue $venue): array

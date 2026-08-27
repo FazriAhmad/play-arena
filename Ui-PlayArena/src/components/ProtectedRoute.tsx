@@ -9,11 +9,12 @@ export function ProtectedRoute() {
   return <Outlet />;
 }
 
-export function RoleRoute({ role }: { role: Role }) {
+export function RoleRoute({ role }: { role: Role | Role[] }) {
   const { user, loading } = useAuth();
   if (loading) return <FullscreenLoading />;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role !== role) return <Navigate to="/" replace />;
+  const allowed = Array.isArray(role) ? role.includes(user.role) : user.role === role;
+  if (!allowed) return <Navigate to="/" replace />;
   return <Outlet />;
 }
 

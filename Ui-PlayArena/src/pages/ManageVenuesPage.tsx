@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import type { OwnerVenue } from '../lib/types';
+import { useAuth } from '../store/AuthContext';
 import { Badge, Button, Card, Field, Input } from '../components/ui';
 
 export default function ManageVenuesPage() {
+  const { user } = useAuth();
   const [venues, setVenues] = useState<OwnerVenue[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -13,7 +15,7 @@ export default function ManageVenuesPage() {
   const load = () => {
     setLoading(true);
     api
-      .get<{ data: OwnerVenue[] }>('/owner/venues')
+      .get<{ data: OwnerVenue[] }>('/manage/venues')
       .then((res) => setVenues(res.data))
       .finally(() => setLoading(false));
   };
@@ -25,11 +27,15 @@ export default function ManageVenuesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Kelola Lapangan</h1>
-          <p className="mt-1 text-sm text-slate-500">Venue dan lapangan yang tampil di direktori publik.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {user?.role === 'owner' ? 'Venue dan lapangan yang tampil di direktori publik.' : 'Venue tempat Anda ditugaskan.'}
+          </p>
         </div>
-        <Button onClick={() => setShowForm((v) => !v)}>
-          <Plus size={16} /> {showForm ? 'Tutup Form' : 'Tambah Venue'}
-        </Button>
+        {user?.role === 'owner' && (
+          <Button onClick={() => setShowForm((v) => !v)}>
+            <Plus size={16} /> {showForm ? 'Tutup Form' : 'Tambah Venue'}
+          </Button>
+        )}
       </div>
 
       {showForm && (
@@ -47,7 +53,7 @@ export default function ManageVenuesPage() {
           <p className="text-sm text-slate-400">Belum ada venue. Tambahkan lewat tombol di atas.</p>
         )}
         {venues.map((v) => (
-          <Link key={v.id} to={`/owner/venues/${v.id}`}>
+          <Link key={v.id} to={`/manage/venues/${v.id}`}>
             <Card className="p-4 transition hover:shadow-md">
               <div className="flex items-start justify-between">
                 <div>
@@ -78,7 +84,7 @@ function VenueForm({ onCreated }: { onCreated: () => void }) {
     setError('');
     setLoading(true);
     try {
-      await api.post('/owner/venues', {
+      await api.post('/manage/venues', {
         name: form.name,
         city: form.city || null,
         address: form.address || null,

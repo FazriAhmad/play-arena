@@ -21,15 +21,20 @@ export default function AppLayout() {
           <nav className="flex items-center gap-4">
             {user ? (
               <>
+                {(user.role === 'owner' || user.role === 'staff') && (
+                  <Link to="/manage/venues" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                    Kelola Lapangan
+                  </Link>
+                )}
                 {user.role === 'owner' && (
-                  <>
-                    <Link to="/owner/venues" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Kelola Lapangan
-                    </Link>
-                    <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Kelola Staff
-                    </Link>
-                  </>
+                  <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                    Kelola Staff
+                  </Link>
+                )}
+                {user.role === 'pelanggan' && (
+                  <Link to="/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                    Booking Saya
+                  </Link>
                 )}
                 <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
                   <div className="text-right">

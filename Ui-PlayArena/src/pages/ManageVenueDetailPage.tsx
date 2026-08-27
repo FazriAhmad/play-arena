@@ -1,12 +1,18 @@
-import { Plus, Trash2 } from 'lucide-react';
+import { CalendarClock, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import { rupiah, SPORTS, type OwnerVenueDetail } from '../lib/types';
+import { rupiah, SPORTS, type BlockedSlot, type OwnerVenueDetail, type Slot } from '../lib/types';
+import { useAuth } from '../store/AuthContext';
+import SlotGrid from '../components/SlotGrid';
 import { Badge, Button, Card, Field, Input } from '../components/ui';
+
+const todayISO = () => new Date().toISOString().slice(0, 10);
 
 export default function ManageVenueDetailPage() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const isOwner = user?.role === 'owner';
   const [venue, setVenue] = useState<OwnerVenueDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCourtForm, setShowCourtForm] = useState(false);
@@ -14,7 +20,7 @@ export default function ManageVenueDetailPage() {
   const load = () => {
     setLoading(true);
     api
-      .get<{ data: OwnerVenueDetail }>(`/owner/venues/${id}`)
+      .get<{ data: OwnerVenueDetail }>(`/manage/venues/${id}`)
       .then((res) => setVenue(res.data))
       .finally(() => setLoading(false));
   };
@@ -22,13 +28,13 @@ export default function ManageVenueDetailPage() {
   useEffect(load, [id]);
 
   const toggleCourt = async (courtId: number, isActive: boolean) => {
-    await api.post(`/owner/courts/${courtId}`, { is_active: !isActive });
+    await api.post(`/manage/courts/${courtId}`, { is_active: !isActive });
     load();
   };
 
   const deleteCourt = async (courtId: number) => {
     if (!confirm('Hapus lapangan ini? Tindakan tidak bisa dibatalkan.')) return;
-    await api.delete(`/owner/courts/${courtId}`);
+    await api.delete(`/manage/courts/${courtId}`);
     load();
   };
 
@@ -37,7 +43,7 @@ export default function ManageVenueDetailPage() {
 
   return (
     <div>
-      <Link to="/owner/venues" className="text-sm font-medium text-[#1d5fc4] hover:underline">
+      <Link to="/manage/venues" className="text-sm font-medium text-[#1d5fc4] hover:underline">
         ← Kembali ke Kelola Lapangan
       </Link>
 
@@ -46,16 +52,27 @@ export default function ManageVenueDetailPage() {
         <Badge tone={venue.is_active ? 'success' : 'danger'}>{venue.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
       </div>
 
-      <VenueEditForm venue={venue} onSaved={load} />
+      {isOwner ? (
+        <VenueEditForm venue={venue} onSaved={load} />
+      ) : (
+        <Card className="mt-4 p-5 text-sm text-slate-600">
+          {venue.address && <p>{venue.address}</p>}
+          <p className="mt-1 text-xs text-slate-400">
+            Jam operasional {venue.open_hour}:00–{venue.close_hour}:00
+          </p>
+        </Card>
+      )}
 
       <div className="mt-8 flex items-center justify-between">
         <h2 className="text-lg font-bold text-slate-900">Lapangan</h2>
-        <Button onClick={() => setShowCourtForm((v) => !v)}>
-          <Plus size={16} /> {showCourtForm ? 'Tutup Form' : 'Tambah Lapangan'}
-        </Button>
+        {isOwner && (
+          <Button onClick={() => setShowCourtForm((v) => !v)}>
+            <Plus size={16} /> {showCourtForm ? 'Tutup Form' : 'Tambah Lapangan'}
+          </Button>
+        )}
       </div>
 
-      {showCourtForm && (
+      {isOwner && showCourtForm && (
         <CourtForm
           venueId={venue.id}
           onCreated={() => {
@@ -65,7 +82,7 @@ export default function ManageVenueDetailPage() {
         />
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-4">
         {venue.courts.length === 0 && <p className="text-sm text-slate-400">Belum ada lapangan.</p>}
         {venue.courts.map((c) => (
           <Card key={c.id} className="overflow-hidden p-4">
@@ -76,23 +93,151 @@ export default function ManageVenueDetailPage() {
               </div>
               <Badge tone={c.is_active ? 'success' : 'danger'}>{c.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
             </div>
-            {c.photo_url && <img src={c.photo_url} alt={c.name} className="mt-2 h-28 w-full rounded-lg object-cover" />}
+            {c.photo_url && <img src={c.photo_url} alt={c.name} className="mt-2 h-28 w-full max-w-xs rounded-lg object-cover" />}
             <p className="mt-2 text-sm font-semibold text-[#1d5fc4]">{rupiah(c.price_per_hour)}/jam</p>
             {c.facilities && c.facilities.length > 0 && (
               <p className="mt-1 text-xs text-slate-500">Fasilitas: {c.facilities.join(', ')}</p>
             )}
-            <div className="mt-3 flex items-center gap-3">
-              <button onClick={() => toggleCourt(c.id, c.is_active)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
-                {c.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-              </button>
-              <button onClick={() => deleteCourt(c.id)} className="flex items-center gap-1 text-xs font-semibold text-rose-600 hover:underline">
-                <Trash2 size={12} /> Hapus
-              </button>
-            </div>
+            {isOwner && (
+              <div className="mt-3 flex items-center gap-3">
+                <button onClick={() => toggleCourt(c.id, c.is_active)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
+                  {c.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                </button>
+                <button onClick={() => deleteCourt(c.id)} className="flex items-center gap-1 text-xs font-semibold text-rose-600 hover:underline">
+                  <Trash2 size={12} /> Hapus
+                </button>
+              </div>
+            )}
+
+            <BlockManager courtId={c.id} />
           </Card>
         ))}
       </div>
     </div>
+  );
+}
+
+/** Modul 04 — kalender & blokir slot per lapangan. Owner maupun Staff venue ini. */
+function BlockManager({ courtId }: { courtId: number }) {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState(todayISO());
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [blocks, setBlocks] = useState<BlockedSlot[]>([]);
+  const [showForm, setShowForm] = useState(false);
+
+  const load = () => {
+    api.get<{ data: Slot[] }>(`/courts/${courtId}/slots?date=${date}`).then((res) => setSlots(res.data));
+    api.get<{ data: BlockedSlot[] }>(`/manage/courts/${courtId}/blocked-slots`).then((res) => setBlocks(res.data));
+  };
+
+  useEffect(() => {
+    if (open) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, date]);
+
+  const deleteBlock = async (id: number) => {
+    await api.delete(`/manage/blocked-slots/${id}`);
+    load();
+  };
+
+  return (
+    <div className="mt-4 border-t border-slate-100 pt-3">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#1d5fc4]"
+      >
+        <CalendarClock size={14} /> {open ? 'Tutup Kalender & Blokir Slot' : 'Kalender & Blokir Slot'}
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-3">
+          <Input type="date" value={date} min={todayISO()} onChange={(e) => setDate(e.target.value)} className="w-auto" />
+          <SlotGrid slots={slots} />
+
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Blokir Aktif</p>
+            <button onClick={() => setShowForm((v) => !v)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
+              {showForm ? 'Tutup' : '+ Tambah Blokir'}
+            </button>
+          </div>
+
+          {blocks.length === 0 && <p className="text-xs text-slate-400">Tidak ada blokir mendatang.</p>}
+          {blocks.map((b) => (
+            <div key={b.id} className="flex items-center justify-between rounded-lg bg-amber-50 px-3 py-2 text-xs">
+              <span className="text-amber-700">
+                {new Date(b.starts_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })} –{' '}
+                {new Date(b.ends_at).toLocaleTimeString('id-ID', { timeStyle: 'short' })} · {b.reason}
+              </span>
+              <button onClick={() => deleteBlock(b.id)} className="font-semibold text-rose-600 hover:underline">
+                Hapus
+              </button>
+            </div>
+          ))}
+
+          {showForm && (
+            <BlockForm
+              courtId={courtId}
+              defaultDate={date}
+              onCreated={() => {
+                setShowForm(false);
+                load();
+              }}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BlockForm({ courtId, defaultDate, onCreated }: { courtId: number; defaultDate: string; onCreated: () => void }) {
+  const [date, setDate] = useState(defaultDate);
+  const [startHour, setStartHour] = useState('8');
+  const [duration, setDuration] = useState('1');
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await api.post(`/manage/courts/${courtId}/blocked-slots`, {
+        date,
+        start_hour: Number(startHour),
+        duration_hours: Number(duration),
+        reason,
+      });
+      onCreated();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Gagal menambah blokir.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="grid grid-cols-2 gap-2 rounded-lg border border-slate-200 p-3 sm:grid-cols-4">
+      <Field label="Tanggal">
+        <Input type="date" value={date} min={todayISO()} onChange={(e) => setDate(e.target.value)} />
+      </Field>
+      <Field label="Jam mulai">
+        <Input type="number" min={0} max={23} value={startHour} onChange={(e) => setStartHour(e.target.value)} />
+      </Field>
+      <Field label="Durasi (jam)">
+        <Input type="number" min={1} max={12} value={duration} onChange={(e) => setDuration(e.target.value)} />
+      </Field>
+      <Field label="Alasan">
+        <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Maintenance" required />
+      </Field>
+      {error && <p className="col-span-full rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      <div className="col-span-full">
+        <Button type="submit" disabled={loading} className="text-xs">
+          {loading ? 'Menyimpan…' : 'Blokir Slot Ini'}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -116,7 +261,7 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
     e.preventDefault();
     setSaving(true);
     setSaved(false);
-    await api.put(`/owner/venues/${venue.id}`, {
+    await api.put(`/manage/venues/${venue.id}`, {
       name: form.name,
       city: form.city || null,
       address: form.address || null,
@@ -131,7 +276,7 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
   };
 
   const toggleVenueActive = async () => {
-    await api.put(`/owner/venues/${venue.id}`, { is_active: !venue.is_active });
+    await api.put(`/manage/venues/${venue.id}`, { is_active: !venue.is_active });
     onSaved();
   };
 
@@ -199,7 +344,7 @@ function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => v
         .forEach((f) => fd.append('facilities[]', f));
       if (photo) fd.append('photo', photo);
 
-      await api.post(`/owner/venues/${venueId}/courts`, fd);
+      await api.post(`/manage/venues/${venueId}/courts`, fd);
       onCreated();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Gagal menambah lapangan.');
