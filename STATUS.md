@@ -13,6 +13,10 @@ Dibuat sebagai artifact HTML interaktif (sidebar TOC, 21 modul fitur dalam 3 fas
 
 Kalau mau baca PRD lengkap, buka link di atas — jangan re-generate dari nol, artifact-nya masih ada dan sudah final untuk versi saat ini.
 
+## 🔗 Repository
+
+**https://github.com/FazriAhmad/play-arena.git** (branch `main`) — seluruh isi folder ini (STATUS.md, logo, referensi-play-arena, Ui-PlayArena, Api-PlayArena) di-push sebagai satu repo, sama seperti pola LMS. `.env`/`vendor`/`node_modules` semua ter-exclude lewat `.gitignore` masing-masing folder.
+
 ## 🎨 Referensi &amp; Aset yang Sudah Dibuat User
 
 - **`logo-rec-center.jpg`** — logo resmi PlayArena ("Unleash the Spirit"), palet biru (`#1d5fc4`) &amp; oranye. Sudah dipakai di PRD artifact (sidebar + cover).
@@ -44,22 +48,25 @@ C:\Users\Fazri\portofolio\rec-center-book\
 └── Api-PlayArena/               (backend production — Laravel 12+PostgreSQL, di-scaffold 2026-08-27)
 ```
 
-### Api-PlayArena (backend) — sudah bisa jalan
+### Api-PlayArena (backend) — Modul 01 (Pengguna & Role) selesai, teruji end-to-end
 - Laravel 12, terhubung ke database `play_arena` (Postgres lokal, `127.0.0.1:5432`, user `postgres`)
 - Port dev: **8020** (bukan 8000/8010 — biar tidak rebutan port dengan project lain di portofolio ini, termasuk LMS yang pakai 8010). Jalankan manual: `php artisan serve --host=127.0.0.1 --port=8020`
 - Package terpasang: `laravel/sanctum` (auth token), `spatie/laravel-permission` (role), `laravel/boost` (dev tooling — ada `CLAUDE.md`/`AGENTS.md` sendiri di folder ini berisi guideline khusus Laravel, dibaca otomatis tiap masuk ke folder ini)
-- `User` model sudah pakai `HasApiTokens` + `HasRoles`, kolom `phone` & `is_active` ditambah lewat migration
+- `User` model pakai `HasApiTokens` + `HasRoles`, kolom `phone` & `is_active` ditambah lewat migration. Relasi `venues()` (staff ↔ venue via `venue_staff`) dan `ownedVenues()` (owner → venue miliknya).
 - Custom `Authenticate` middleware (return JSON 401, bukan redirect ke halaman login yang nggak ada) — pola yang sama dipakai di Api-LMS setelah bug serupa pernah kejadian di project money-management
-- `routes/api.php` baru berisi `/api/ping` (health check) — endpoint modul PRD belum ada, mulai dari Modul 01 (Pengguna & Role)
-- Migrasi jalan bersih: users (+phone, +is_active), cache, jobs, personal_access_tokens, tabel permission (roles/permissions Spatie)
+- Tabel `venues` (skema minimal — CRUD lengkap fasilitas/foto/dst nyusul di Modul 03) & `venue_staff` (pivot penugasan) sudah ada, dibutuhkan Modul 01 untuk fitur "penugasan staff ke venue"
+- **3 role di-seed** (`owner`, `staff`, `pelanggan`) + 1 akun owner bootstrap: `owner@playarena.test` / `owner12345` (`database/seeders/RoleSeeder.php`, dipanggil dari `DatabaseSeeder`)
+- Endpoint jalan (`routes/api.php`): `POST /register` (pelanggan saja), `POST /login` (email atau no. HP), `POST /logout`, `GET /me`, `POST /forgot-password`, `POST /reset-password`, `GET /venues`, `POST /venues` (owner), `GET|POST /staff` + `PUT /staff/{id}` (owner — assign role staff + `venue_ids`)
+- **2 bug ditemukan & diperbaiki saat testing end-to-end** (bukan cuma "tidak error", dicek nilai aktualnya):
+  1. `is_active` balik `null` bukan `true` setelah register/create staff — bukan bug refresh-default seperti di LMS, tapi karena kolom itu belum masuk `#[Fillable(...)]` di `User` model sehingga mass-assignment-nya di-drop diam-diam. Kalau nemu pola serupa (field kekirim tapi hasilnya null), curiga dulu ke `Fillable` sebelum ke hal lain.
+  2. `forgot-password` selalu 500 karena notifikasi reset password bawaan Laravel manggil `route('password.reset', ...)` — route web yang memang tidak ada di API murni ini. Diperbaiki dengan `ResetPassword::createUrlUsing()` di `AppServiceProvider` supaya link reset mengarah ke `FRONTEND_URL` (env baru, default `http://127.0.0.1:5180`), bukan ke route Laravel.
+- **Sudah teruji end-to-end**: register pelanggan → login pakai email → login pakai nomor HP → owner login → owner buat venue → owner buat staff + assign venue → staff login → staff coba akses endpoint owner-only (403) → forgot-password → link di log mengarah ke frontend dengan token valid → reset-password → login pakai password baru berhasil → logout → token lama ditolak (401)
 
-### Ui-PlayArena (frontend) — sudah bisa jalan
+### Ui-PlayArena (frontend) — skeleton, belum ada halaman Modul 01
 - Vite + React 19 + TypeScript + Tailwind CSS v4 + Framer Motion + React Router + lucide-react (persis stack `referensi-play-arena/`, cuma versi production yang akan disambungkan ke API asli, bukan mock)
 - Port dev: **5180**, sudah didaftarkan di `.claude/launch.json` sebagai `playarena-ui` (browser preview tool bisa langsung `preview_start({name: "playarena-ui"})`)
 - `src/lib/api.ts` — fetch wrapper sama seperti Ui-LMS (token di localStorage key `playarena_token`, `api.get/post/put/patch/delete`, class `ApiError`)
-- `App.tsx` sementara cuma health-check ke `/api/ping` (sudah diverifikasi terhubung) — halaman modul asli belum dibangun
-
-**Sudah diverifikasi end-to-end**: frontend (5180) berhasil manggil backend (8020) yang terhubung ke `play_arena`, tanpa error console.
+- `App.tsx` masih health-check ke `/api/ping` (sudah diverifikasi terhubung) — **halaman login/register/staff belum dibangun**, endpoint backend Modul 01 sudah siap dipakai
 
 ## Progress
 
@@ -69,7 +76,10 @@ C:\Users\Fazri\portofolio\rec-center-book\
 - [x] Tabel database `play_arena` dibuat user di PostgreSQL lokal (2026-08-27)
 - [x] Setup project backend (Laravel 12 + Sanctum + Spatie Permission, terhubung `play_arena`) (2026-08-27)
 - [x] Setup project frontend (Vite + React + TS + Tailwind v4, terhubung ke backend) (2026-08-27)
-- [ ] Fase 1 — Inti Booking (Modul 01–10) — **mulai dari sini di sesi berikutnya**
+- [x] **Modul 01 — Pengguna & Role (backend)**: register, login (email/HP), logout, me, reset password, kelola staff + penugasan venue — teruji end-to-end (2026-08-27)
+- [x] Repo di-push ke GitHub: github.com/FazriAhmad/play-arena, branch `main` (2026-08-27)
+- [ ] Modul 01 (frontend) — halaman login/register/staff belum dibangun di Ui-PlayArena — **lanjut dari sini**
+- [ ] Modul 02–10 — sisa Fase 1 (Inti Booking)
 - [ ] Fase 2 — Fitur Bisnis & Pertumbuhan (Modul 11–19)
 - [ ] Fase 3 — Nice-to-have (Modul 20–21)
 
