@@ -15,7 +15,9 @@ Kalau mau baca PRD lengkap, buka link di atas — jangan re-generate dari nol, a
 
 ## 🔗 Repository
 
-**https://github.com/FazriAhmad/play-arena.git** (branch `main`) — seluruh isi folder ini (STATUS.md, logo, referensi-play-arena, Ui-PlayArena, Api-PlayArena) di-push sebagai satu repo, sama seperti pola LMS. `.env`/`vendor`/`node_modules` semua ter-exclude lewat `.gitignore` masing-masing folder.
+**https://github.com/FazriAhmad/play-arena.git** — seluruh isi folder ini (STATUS.md, logo, referensi-play-arena, Ui-PlayArena, Api-PlayArena) di-push sebagai satu repo, sama seperti pola LMS. `.env`/`vendor`/`node_modules` semua ter-exclude lewat `.gitignore` masing-masing folder.
+- Branch `main` — backend Modul 01 (Api-PlayArena) selesai.
+- Branch `dev` — **branch kerja saat ini**, berisi `main` + frontend Modul 01 (Ui-PlayArena). Belum di-merge ke `main` atas permintaan user ("simpan di branch dev dulu") — merge ke `main` nanti kalau user minta.
 
 ## 🎨 Referensi &amp; Aset yang Sudah Dibuat User
 
@@ -62,11 +64,15 @@ C:\Users\Fazri\portofolio\rec-center-book\
   2. `forgot-password` selalu 500 karena notifikasi reset password bawaan Laravel manggil `route('password.reset', ...)` — route web yang memang tidak ada di API murni ini. Diperbaiki dengan `ResetPassword::createUrlUsing()` di `AppServiceProvider` supaya link reset mengarah ke `FRONTEND_URL` (env baru, default `http://127.0.0.1:5180`), bukan ke route Laravel.
 - **Sudah teruji end-to-end**: register pelanggan → login pakai email → login pakai nomor HP → owner login → owner buat venue → owner buat staff + assign venue → staff login → staff coba akses endpoint owner-only (403) → forgot-password → link di log mengarah ke frontend dengan token valid → reset-password → login pakai password baru berhasil → logout → token lama ditolak (401)
 
-### Ui-PlayArena (frontend) — skeleton, belum ada halaman Modul 01
-- Vite + React 19 + TypeScript + Tailwind CSS v4 + Framer Motion + React Router + lucide-react (persis stack `referensi-play-arena/`, cuma versi production yang akan disambungkan ke API asli, bukan mock)
-- Port dev: **5180**, sudah didaftarkan di `.claude/launch.json` sebagai `playarena-ui` (browser preview tool bisa langsung `preview_start({name: "playarena-ui"})`)
+### Ui-PlayArena (frontend) — Modul 01 (Pengguna & Role) selesai, teruji end-to-end di branch `dev`
+- Vite + React 19 + TypeScript + Tailwind CSS v4 + Framer Motion + React Router + lucide-react (persis stack `referensi-play-arena/`, cuma versi production yang disambungkan ke API asli, bukan mock)
+- Port dev: **5180**, sudah didaftarkan di `.claude/launch.json` sebagai `playarena-ui`
 - `src/lib/api.ts` — fetch wrapper sama seperti Ui-LMS (token di localStorage key `playarena_token`, `api.get/post/put/patch/delete`, class `ApiError`)
-- `App.tsx` masih health-check ke `/api/ping` (sudah diverifikasi terhubung) — **halaman login/register/staff belum dibangun**, endpoint backend Modul 01 sudah siap dipakai
+- `src/store/AuthContext.tsx` — hydrate sesi dari token tersimpan lewat `GET /me`, `login/register/logout`
+- Halaman: `Login`, `Register`, `ForgotPassword`, `ResetPassword`, `Dashboard` (placeholder), `StaffPage` (owner-only — list staff, form tambah staff dengan pemilihan venue, toggle aktif/nonaktif)
+- Route guard: `ProtectedRoute` (butuh login), `RoleRoute` (butuh role tertentu, dipakai untuk `/staff`), `GuestRoute` (redirect kalau sudah login)
+- **Catatan debugging**: sempat curiga ada bug "Invalid hook call" dari console browser saat testing — setelah diselidiki (repro di komponen minimal, restart server, downgrade Vite 8→6), ternyata itu console log basi yang nyangkut di tab browser lama dari sesi sebelumnya, bukan bug di aplikasi. Tab baru selalu bersih tanpa error. Kalau nemu error serupa nanti, coba dulu di tab baru sebelum curiga ke kode.
+- **Sudah teruji end-to-end di browser sungguhan**: login owner → buka Kelola Staff → isi form tambah staff (termasuk klik pilihan venue) → submit → staff baru muncul di tabel → logout → login pakai akun staff yang baru dibuat → coba akses `/staff` → otomatis diarahkan balik ke dashboard (role guard jalan)
 
 ## Progress
 
@@ -78,8 +84,9 @@ C:\Users\Fazri\portofolio\rec-center-book\
 - [x] Setup project frontend (Vite + React + TS + Tailwind v4, terhubung ke backend) (2026-08-27)
 - [x] **Modul 01 — Pengguna & Role (backend)**: register, login (email/HP), logout, me, reset password, kelola staff + penugasan venue — teruji end-to-end (2026-08-27)
 - [x] Repo di-push ke GitHub: github.com/FazriAhmad/play-arena, branch `main` (2026-08-27)
-- [ ] Modul 01 (frontend) — halaman login/register/staff belum dibangun di Ui-PlayArena — **lanjut dari sini**
-- [ ] Modul 02–10 — sisa Fase 1 (Inti Booking)
+- [x] **Modul 01 — Pengguna & Role (frontend)**: Login, Register, Forgot/Reset Password, Dashboard, Kelola Staff — teruji end-to-end di browser, di-push ke branch `dev` (2026-08-27)
+- [ ] **Modul 01 selesai penuh** — merge `dev` ke `main` kalau user sudah oke, lalu **lanjut Modul 02** (Direktori & Pencarian Lapangan)
+- [ ] Modul 03–10 — sisa Fase 1 (Inti Booking)
 - [ ] Fase 2 — Fitur Bisnis & Pertumbuhan (Modul 11–19)
 - [ ] Fase 3 — Nice-to-have (Modul 20–21)
 
