@@ -17,7 +17,7 @@ Kalau mau baca PRD lengkap, buka link di atas — jangan re-generate dari nol, a
 
 **https://github.com/FazriAhmad/play-arena.git** — seluruh isi folder ini (STATUS.md, logo, referensi-play-arena, Ui-PlayArena, Api-PlayArena) di-push sebagai satu repo, sama seperti pola LMS. `.env`/`vendor`/`node_modules` semua ter-exclude lewat `.gitignore` masing-masing folder.
 - Branch `main` — backend Modul 01 (Api-PlayArena) selesai.
-- Branch `dev` — **branch kerja saat ini**, berisi `main` + frontend Modul 01 (Ui-PlayArena). Belum di-merge ke `main` atas permintaan user ("simpan di branch dev dulu") — merge ke `main` nanti kalau user minta.
+- Branch `dev` — **branch kerja saat ini**, berisi `main` + frontend Modul 01 + Modul 02 penuh (backend & frontend). Belum di-merge ke `main` atas permintaan user ("simpan di branch dev dulu") — merge ke `main` nanti kalau user minta.
 
 ## 🎨 Referensi &amp; Aset yang Sudah Dibuat User
 
@@ -64,6 +64,22 @@ C:\Users\Fazri\portofolio\rec-center-book\
   2. `forgot-password` selalu 500 karena notifikasi reset password bawaan Laravel manggil `route('password.reset', ...)` — route web yang memang tidak ada di API murni ini. Diperbaiki dengan `ResetPassword::createUrlUsing()` di `AppServiceProvider` supaya link reset mengarah ke `FRONTEND_URL` (env baru, default `http://127.0.0.1:5180`), bukan ke route Laravel.
 - **Sudah teruji end-to-end**: register pelanggan → login pakai email → login pakai nomor HP → owner login → owner buat venue → owner buat staff + assign venue → staff login → staff coba akses endpoint owner-only (403) → forgot-password → link di log mengarah ke frontend dengan token valid → reset-password → login pakai password baru berhasil → logout → token lama ditolak (401)
 
+### Api-PlayArena — Modul 02 (Direktori & Pencarian Lapangan) selesai, teruji end-to-end
+- Tabel `courts` baru (venue_id, name, sport, price_per_hour, photo_url, facilities JSON, is_active) + model `Court`, relasi `Venue::courts()`
+- `GET /venues` (publik, tanpa login) — filter `sport`, `city` (ilike), `min_price`, `max_price`; tiap venue diringkas jadi `{cover, sports[], price_from, courts_count}` dari lapangan aktifnya
+- `GET /venues/{venue}` (publik) — detail venue + daftar lapangan aktif
+- `GET /venues/mine` (auth, wajib didaftarkan **sebelum** `/venues/{venue}` di routes/api.php supaya tidak ketangkep sebagai route-model-binding) — dipisah dari `/venues` publik karena `/venues` sekarang untuk direktori, bukan lagi dropdown "venue milik saya"
+- `POST /venues/{venue}/courts` (owner, stub minimal — form pengelolaan lapangan lengkap nyusul Modul 03)
+- **Breaking change internal**: StaffPage yang tadinya manggil `GET /venues` buat dropdown penugasan staff, sekarang manggil `GET /venues/mine` — kalau nemu kode lama yang masih pakai `/venues` buat itu, itu bug lama, ganti ke `/venues/mine`
+
+### Ui-PlayArena — Modul 02 selesai, teruji end-to-end di browser
+- `SearchPage` (`/`, publik) — filter olahraga/kota/rentang harga (debounced 300ms), grid kartu venue
+- `VenueDetailPage` (`/venue/:id`, publik) — info venue, peta lokasi (Leaflet + tile OSM asli, bukan react-leaflet — cukup pakai Leaflet vanilla di `useEffect` karena cuma butuh satu marker statis), daftar lapangan + harga + fasilitas
+- `VenueMap.tsx` — perlu override `L.Icon.Default.mergeOptions` supaya ikon marker Leaflet ke-resolve lewat asset Vite (default-nya reference path relatif yang patah di bundler)
+- `AppLayout` diubah supaya mendukung guest (belum login) — sebelumnya `return null` kalau `user` kosong, sekarang tampilkan header dengan tombol Masuk/Daftar
+- Routing: `/` dan `/venue/:id` publik (di luar `ProtectedRoute`), redirect pasca-login beda per role (pelanggan → `/`, owner/staff → `/dashboard`)
+- **Sudah teruji end-to-end di browser sungguhan**: buka `/` tanpa login → 2 venue demo tampil → filter olahraga lewat dropdown asli (bukan curl) → hasil ke-filter benar → klik venue → peta Leaflet render dengan marker + attribution OSM → daftar lapangan & harga tampil benar, tanpa error console
+
 ### Ui-PlayArena (frontend) — Modul 01 (Pengguna & Role) selesai, teruji end-to-end di branch `dev`
 - Vite + React 19 + TypeScript + Tailwind CSS v4 + Framer Motion + React Router + lucide-react (persis stack `referensi-play-arena/`, cuma versi production yang disambungkan ke API asli, bukan mock)
 - Port dev: **5180**, sudah didaftarkan di `.claude/launch.json` sebagai `playarena-ui`
@@ -85,8 +101,9 @@ C:\Users\Fazri\portofolio\rec-center-book\
 - [x] **Modul 01 — Pengguna & Role (backend)**: register, login (email/HP), logout, me, reset password, kelola staff + penugasan venue — teruji end-to-end (2026-08-27)
 - [x] Repo di-push ke GitHub: github.com/FazriAhmad/play-arena, branch `main` (2026-08-27)
 - [x] **Modul 01 — Pengguna & Role (frontend)**: Login, Register, Forgot/Reset Password, Dashboard, Kelola Staff — teruji end-to-end di browser, di-push ke branch `dev` (2026-08-27)
-- [ ] **Modul 01 selesai penuh** — merge `dev` ke `main` kalau user sudah oke, lalu **lanjut Modul 02** (Direktori & Pencarian Lapangan)
-- [ ] Modul 03–10 — sisa Fase 1 (Inti Booking)
+- [x] **Modul 02 — Direktori & Pencarian Lapangan** (backend + frontend): tabel `courts`, direktori publik dengan filter, halaman detail venue + peta Leaflet — teruji end-to-end, di-push ke branch `dev` (2026-08-27)
+- [ ] **Modul 01 + 02 selesai** — merge `dev` ke `main` kalau user sudah oke, lalu **lanjut Modul 03** (Kelola Data Lapangan — CRUD venue/lapangan penuh untuk Owner: foto, fasilitas terstruktur, jam operasional per hari)
+- [ ] Modul 04–10 — sisa Fase 1 (Inti Booking, termasuk Modul 05 yang paling kritis: deteksi bentrok)
 - [ ] Fase 2 — Fitur Bisnis & Pertumbuhan (Modul 11–19)
 - [ ] Fase 3 — Nice-to-have (Modul 20–21)
 
