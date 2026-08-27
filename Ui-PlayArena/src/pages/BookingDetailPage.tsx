@@ -1,9 +1,18 @@
 import { Printer } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { api } from '../lib/api';
-import { BOOKING_STATUS_LABELS, rupiah, type Booking, type BookingStatus } from '../lib/types';
-import { Badge, Button, Card } from '../components/ui';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { api, ApiError } from '../lib/api';
+import { BOOKING_STATUS_LABELS, rupiah, type Booking, type BookingStatus, type Slot } from '../lib/types';
+import { Badge, Button, Card, Field, Input } from '../components/ui';
+import SlotGrid from '../components/SlotGrid';
+
+const REFUND_STATUS_LABELS: Record<string, string> = {
+  entitled: 'Refund penuh — menunggu diproses admin',
+  processed: 'Refund sudah diproses',
+  forfeited: 'Tidak ada refund (hangus)',
+};
+
+const todayISO = () => new Date().toISOString().slice(0, 10);
 
 const STATUS_TONE: Record<BookingStatus, 'neutral' | 'success' | 'danger'> = {
   menunggu_acc: 'neutral',
@@ -21,17 +30,32 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
 
 export default function BookingDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [showReschedule, setShowReschedule] = useState(false);
 
-  useEffect(() => {
+  const load = () => {
     api
       .get<{ data: Booking }>(`/bookings/${id}`)
       .then((res) => setBooking(res.data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    setShowReschedule(false);
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const cancelBooking = async () => {
+    const reason = prompt('Alasan pembatalan (opsional):') ?? undefined;
+    if (!confirm('Yakin batalkan booking ini?')) return;
+    await api.post(`/bookings/${id}/cancel`, { reason: reason || undefined });
+    load();
+  };
 
   if (loading) return <p className="text-sm text-slate-400">Memuat…</p>;
   if (error || !booking) return <p className="text-sm text-slate-400">Booking tidak ditemukan.</p>;
@@ -41,8 +65,11 @@ export default function BookingDetailPage() {
   const hours = Math.round((end.getTime() - start.getTime()) / 3_600_000);
   const total = booking.court ? booking.court.price_per_hour * hours : 0;
   const payment = booking.payments?.[0];
+  const refund = booking.refunds?.[0];
   const invoiceNo = `INV-PA-${String(booking.id).padStart(6, '0')}`;
   const canShowInvoice = booking.status === 'confirmed' || booking.status === 'completed';
+  const canCancel = ['menunggu_acc', 'menunggu_bayar', 'confirmed'].includes(booking.status);
+  const canReschedule = ['menunggu_acc', 'menunggu_bayar'].includes(booking.status);
 
   return (
     <div>
@@ -52,12 +79,34 @@ export default function BookingDetailPage() {
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <h1 className="text-2xl font-bold text-slate-900">Detail Booking</h1>
-        {canShowInvoice && (
-          <Button variant="ghost" onClick={() => window.print()}>
-            <Printer size={16} /> Cetak / Simpan Invoice PDF
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {canReschedule && (
+            <Button variant="ghost" onClick={() => setShowReschedule((v) => !v)}>
+              {showReschedule ? 'Tutup Form' : 'Jadwal Ulang'}
+            </Button>
+          )}
+          {canCancel && (
+            <Button variant="danger" onClick={cancelBooking}>
+              Batalkan Booking
+            </Button>
+          )}
+          {canShowInvoice && (
+            <Button variant="ghost" onClick={() => window.print()}>
+              <Printer size={16} /> Cetak / Simpan Invoice PDF
+            </Button>
+          )}
+        </div>
       </div>
+
+      {showReschedule && booking.court && (
+        <RescheduleForm
+          bookingId={booking.id}
+          courtId={booking.court_id}
+          venueCloseHour={booking.court.venue?.close_hour ?? 24}
+          contactWa={booking.contact_wa}
+          onDone={(newId) => navigate(`/bookings/${newId}`)}
+        />
+      )}
 
       <Card className="mt-4 p-6 print:border-none print:p-0 print:shadow-none">
         <div className="flex items-start justify-between">
@@ -75,6 +124,21 @@ export default function BookingDetailPage() {
           <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
             Alasan ditolak: {booking.reject_reason}
           </p>
+        )}
+        {booking.status === 'cancelled' && (
+          <div className="mt-4 space-y-2">
+            {booking.cancel_reason && (
+              <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600">
+                Alasan dibatalkan: {booking.cancel_reason}
+              </p>
+            )}
+            {refund && (
+              <p className={`rounded-lg px-3 py-2 text-xs font-medium ${refund.amount > 0 ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-600'}`}>
+                {REFUND_STATUS_LABELS[refund.status] ?? refund.status}
+                {refund.amount > 0 && ` — ${rupiah(refund.amount)}`}
+              </p>
+            )}
+          </div>
         )}
 
         <div className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2">
@@ -121,5 +185,91 @@ export default function BookingDetailPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+/** Modul 09 — pindah booking (belum dibayar) ke slot lain, tunduk penuh pada Modul 05 (grid & validasi server yang sama). */
+function RescheduleForm({
+  bookingId,
+  courtId,
+  venueCloseHour,
+  contactWa: defaultContactWa,
+  onDone,
+}: {
+  bookingId: number;
+  courtId: number;
+  venueCloseHour: number;
+  contactWa: string;
+  onDone: (newBookingId: number) => void;
+}) {
+  const [date, setDate] = useState(todayISO());
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [selectedHour, setSelectedHour] = useState<number | null>(null);
+  const [duration, setDuration] = useState(1);
+  const [contactWa, setContactWa] = useState(defaultContactWa);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setSelectedHour(null);
+    api.get<{ data: Slot[] }>(`/courts/${courtId}/slots?date=${date}`).then((res) => setSlots(res.data));
+  }, [date, courtId]);
+
+  const maxDurationFromHour = selectedHour === null ? 1 : venueCloseHour - selectedHour;
+
+  const submit = async () => {
+    if (selectedHour === null) {
+      setError('Pilih jam dulu.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post<{ data: { id: number } }>(`/bookings/${bookingId}/reschedule`, {
+        date,
+        start_hour: selectedHour,
+        duration_hours: duration,
+        contact_wa: contactWa,
+      });
+      onDone(res.data.id);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Gagal menjadwalkan ulang.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="mt-4 space-y-3 p-5 print:hidden">
+      <Field label="Tanggal baru">
+        <Input type="date" value={date} min={todayISO()} onChange={(e) => setDate(e.target.value)} className="w-auto" />
+      </Field>
+      <div>
+        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Pilih Jam</span>
+        <SlotGrid slots={slots} selectedHour={selectedHour} onSelectHour={setSelectedHour} />
+      </div>
+      {selectedHour !== null && (
+        <Field label="Durasi (jam)">
+          <select
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value))}
+            className="w-auto rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+          >
+            {Array.from({ length: Math.max(1, Math.min(4, maxDurationFromHour)) }, (_, i) => i + 1).map((h) => (
+              <option key={h} value={h}>
+                {h} jam
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+      <Field label="Nomor WA yang bisa dihubungi">
+        <Input value={contactWa} onChange={(e) => setContactWa(e.target.value)} placeholder="0812xxxxxxx" required />
+      </Field>
+      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      <Button onClick={submit} disabled={loading || selectedHour === null || !contactWa}>
+        {loading ? 'Memproses…' : 'Simpan Jadwal Baru'}
+      </Button>
+    </Card>
   );
 }

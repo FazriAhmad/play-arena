@@ -38,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/mine', [BookingController::class, 'mine']);
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
 
+    // Modul 09 — cancel & reschedule oleh pelanggan sendiri.
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel']);
+    Route::post('/bookings/{booking}/reschedule', [BookingController::class, 'reschedule']);
+
     // Modul 04 — kalender & blokir slot. Owner ATAU staff yang ditugaskan
     // ke venue tsb (dicek di controller, bukan middleware role, karena
     // aksesnya beririsan antara dua peran).
@@ -53,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/manage/bookings/{booking}/accept', [ManageBookingController::class, 'accept']);
     Route::post('/manage/bookings/{booking}/reject', [ManageBookingController::class, 'reject']);
     Route::post('/manage/bookings/{booking}/confirm-payment', [ManageBookingController::class, 'confirmPayment']);
+    Route::post('/manage/bookings/{booking}/cancel', [ManageBookingController::class, 'cancel']);
     Route::post('/manage/courts/{court}/bookings/walk-in', [ManageBookingController::class, 'walkIn']);
 
     Route::middleware('role:owner')->group(function () {

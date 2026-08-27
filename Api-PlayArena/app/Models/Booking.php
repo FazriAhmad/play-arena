@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['court_id', 'pelanggan_id', 'guest_name', 'starts_at', 'ends_at', 'status', 'reject_reason', 'created_by', 'contact_wa'])]
+#[Fillable(['court_id', 'pelanggan_id', 'guest_name', 'starts_at', 'ends_at', 'status', 'reject_reason', 'cancel_reason', 'created_by', 'contact_wa'])]
 class Booking extends Model
 {
     /** Status yang masih "aktif" — ikut dihitung exclusion constraint DB, jangan diubah tanpa menyesuaikan migration. */
@@ -41,5 +41,10 @@ class Booking extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Refund::class);
     }
 }

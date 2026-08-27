@@ -53,6 +53,13 @@ export default function ManageBookingsPage() {
     load();
   };
 
+  const cancelBooking = async (id: number) => {
+    const reason = prompt('Alasan pembatalan (wajib diisi):');
+    if (!reason) return;
+    await api.post(`/manage/bookings/${id}/cancel`, { reason });
+    load();
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -114,6 +121,14 @@ export default function ManageBookingsPage() {
                   {b.status === 'rejected' && b.reject_reason && (
                     <p className="mt-1 text-xs text-rose-600">Alasan: {b.reject_reason}</p>
                   )}
+                  {b.status === 'cancelled' && b.cancel_reason && (
+                    <p className="mt-1 text-xs text-slate-500">Alasan dibatalkan: {b.cancel_reason}</p>
+                  )}
+                  {b.status === 'cancelled' && b.refunds?.[0] && b.refunds[0].amount > 0 && (
+                    <p className="mt-1 text-xs font-semibold text-amber-600">
+                      Refund {rupiah(b.refunds[0].amount)} — {b.refunds[0].status === 'processed' ? 'sudah diproses' : 'menunggu diproses'}
+                    </p>
+                  )}
                 </div>
                 <Badge tone={STATUS_TONE[b.status]}>{BOOKING_STATUS_LABELS[b.status]}</Badge>
               </div>
@@ -126,12 +141,25 @@ export default function ManageBookingsPage() {
                   <button onClick={() => reject(b.id)} className="text-xs font-semibold text-rose-600 hover:underline">
                     Tolak
                   </button>
+                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-500 hover:underline">
+                    Batalkan
+                  </button>
                 </div>
               )}
               {b.status === 'menunggu_bayar' && (
-                <div className="mt-3 border-t border-slate-100 pt-3">
+                <div className="mt-3 flex gap-3 border-t border-slate-100 pt-3">
                   <button onClick={() => confirmPayment(b.id)} className="text-xs font-semibold text-emerald-600 hover:underline">
                     Konfirmasi Pembayaran Diterima
+                  </button>
+                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-500 hover:underline">
+                    Batalkan
+                  </button>
+                </div>
+              )}
+              {b.status === 'confirmed' && (
+                <div className="mt-3 border-t border-slate-100 pt-3">
+                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-500 hover:underline">
+                    Batalkan
                   </button>
                 </div>
               )}

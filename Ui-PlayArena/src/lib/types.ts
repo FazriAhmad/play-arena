@@ -89,6 +89,14 @@ export interface Payment {
   confirmed_at: string | null;
 }
 
+export interface Refund {
+  id: number;
+  amount: number;
+  status: 'entitled' | 'forfeited' | 'processed';
+  reason: string;
+  processed_at: string | null;
+}
+
 /** Hasil booking (POST /courts/:id/bookings, GET /bookings/mine, GET /manage/bookings) — Modul 05 & 07. */
 export interface Booking {
   id: number;
@@ -97,11 +105,15 @@ export interface Booking {
   ends_at: string;
   status: BookingStatus;
   reject_reason: string | null;
+  cancel_reason: string | null;
   contact_wa: string;
   guest_name: string | null;
-  court?: Court & { venue?: { id: number; name: string; address?: string | null; city?: string | null } };
+  court?: Court & {
+    venue?: { id: number; name: string; address?: string | null; city?: string | null; open_hour?: number; close_hour?: number };
+  };
   pelanggan?: { id: number; name: string; phone: string } | null;
   payments?: Payment[];
+  refunds?: Refund[];
 }
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
