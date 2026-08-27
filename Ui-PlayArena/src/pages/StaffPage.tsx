@@ -14,7 +14,7 @@ export default function StaffPage() {
     setLoading(true);
     const [staffRes, venueRes] = await Promise.all([
       api.get<{ data: Staff[] }>('/staff'),
-      api.get<{ data: Venue[] }>('/venues'),
+      api.get<{ data: Venue[] }>('/venues/mine'),
     ]);
     setStaff(staffRes.data);
     setVenues(venueRes.data);

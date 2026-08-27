@@ -5,14 +5,14 @@ import type { User } from '../lib/types';
 interface AuthState {
   user: User | null;
   loading: boolean;
-  login: (login: string, password: string) => Promise<{ ok: boolean; message?: string }>;
+  login: (login: string, password: string) => Promise<{ ok: boolean; message?: string; user?: User }>;
   register: (data: {
     name: string;
     email: string;
     phone: string;
     password: string;
     password_confirmation: string;
-  }) => Promise<{ ok: boolean; message?: string }>;
+  }) => Promise<{ ok: boolean; message?: string; user?: User }>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await api.post<{ data: User; token: string }>('/login', { login: loginValue, password });
       setToken(res.token);
       setUser(res.data);
-      return { ok: true };
+      return { ok: true, user: res.data };
     } catch (err) {
       return { ok: false, message: err instanceof ApiError ? err.message : 'Gagal masuk.' };
     }
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await api.post<{ data: User; token: string }>('/register', data);
       setToken(res.token);
       setUser(res.data);
-      return { ok: true };
+      return { ok: true, user: res.data };
     } catch (err) {
       return { ok: false, message: err instanceof ApiError ? err.message : 'Gagal mendaftar.' };
     }

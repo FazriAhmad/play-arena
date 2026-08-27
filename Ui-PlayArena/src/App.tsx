@@ -6,7 +6,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
+import SearchPage from './pages/SearchPage';
 import StaffPage from './pages/StaffPage';
+import VenueDetailPage from './pages/VenueDetailPage';
 import { AuthProvider } from './store/AuthContext';
 
 function App() {
@@ -21,9 +23,12 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<SearchPage />} />
+            <Route path="/venue/:id" element={<VenueDetailPage />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route element={<RoleRoute role="owner" />}>
                 <Route path="/staff" element={<StaffPage />} />
               </Route>

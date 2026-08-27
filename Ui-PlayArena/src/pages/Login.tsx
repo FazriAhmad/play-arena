@@ -18,7 +18,7 @@ export default function Login() {
     const res = await login(loginValue, password);
     setLoading(false);
     if (res.ok) {
-      navigate('/');
+      navigate(res.user?.role === 'pelanggan' ? '/' : '/dashboard');
     } else {
       setError(res.message || 'Email/nomor HP atau password salah.');
     }

@@ -2,10 +2,10 @@ import { LogOut } from 'lucide-react';
 import { Link, Outlet } from 'react-router-dom';
 import { ROLE_LABELS } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
+import { Button } from '../components/ui';
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
-  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -19,24 +19,37 @@ export default function AppLayout() {
           </Link>
 
           <nav className="flex items-center gap-4">
-            {user.role === 'owner' && (
-              <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                Kelola Staff
-              </Link>
-            )}
-            <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
-              <div className="text-right">
-                <p className="text-sm font-semibold leading-tight text-slate-900">{user.name}</p>
-                <p className="text-xs leading-tight text-slate-500">{ROLE_LABELS[user.role]}</p>
+            {user ? (
+              <>
+                {user.role === 'owner' && (
+                  <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                    Kelola Staff
+                  </Link>
+                )}
+                <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
+                  <div className="text-right">
+                    <p className="text-sm font-semibold leading-tight text-slate-900">{user.name}</p>
+                    <p className="text-xs leading-tight text-slate-500">{ROLE_LABELS[user.role]}</p>
+                  </div>
+                  <button
+                    onClick={logout}
+                    title="Keluar"
+                    className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-rose-600"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                  Masuk
+                </Link>
+                <Link to="/register">
+                  <Button className="px-3.5 py-2 text-xs">Daftar</Button>
+                </Link>
               </div>
-              <button
-                onClick={logout}
-                title="Keluar"
-                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-rose-600"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
+            )}
           </nav>
         </div>
       </header>
