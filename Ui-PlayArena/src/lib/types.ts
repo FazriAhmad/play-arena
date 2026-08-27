@@ -35,6 +35,7 @@ export interface VenueDetail {
   name: string;
   city: string | null;
   address: string | null;
+  admin_wa: string | null;
   lat: number | null;
   lng: number | null;
   open_hour: number;
@@ -48,6 +49,7 @@ export interface OwnerVenue {
   name: string;
   city: string | null;
   address: string | null;
+  admin_wa: string | null;
   lat: number | null;
   lng: number | null;
   open_hour: number;
@@ -108,8 +110,17 @@ export interface Booking {
   cancel_reason: string | null;
   contact_wa: string;
   guest_name: string | null;
+  created_at: string;
   court?: Court & {
-    venue?: { id: number; name: string; address?: string | null; city?: string | null; open_hour?: number; close_hour?: number };
+    venue?: {
+      id: number;
+      name: string;
+      address?: string | null;
+      city?: string | null;
+      admin_wa?: string | null;
+      open_hour?: number;
+      close_hour?: number;
+    };
   };
   pelanggan?: { id: number; name: string; phone: string } | null;
   payments?: Payment[];

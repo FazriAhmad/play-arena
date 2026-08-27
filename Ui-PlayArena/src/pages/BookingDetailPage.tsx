@@ -1,8 +1,10 @@
-import { Printer } from 'lucide-react';
+import { MessageCircle, Printer } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import { BOOKING_STATUS_LABELS, rupiah, type Booking, type BookingStatus, type Slot } from '../lib/types';
+import { useAuth } from '../store/AuthContext';
+import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
 import { Badge, Button, Card, Field, Input } from '../components/ui';
 import SlotGrid from '../components/SlotGrid';
 
@@ -31,6 +33,7 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
 export default function BookingDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -70,6 +73,22 @@ export default function BookingDetailPage() {
   const canShowInvoice = booking.status === 'confirmed' || booking.status === 'completed';
   const canCancel = ['menunggu_acc', 'menunggu_bayar', 'confirmed'].includes(booking.status);
   const canReschedule = ['menunggu_acc', 'menunggu_bayar'].includes(booking.status);
+
+  const minutesSinceCreated = (Date.now() - new Date(booking.created_at).getTime()) / 60_000;
+  const showChatAdmin = booking.status === 'menunggu_acc' && minutesSinceCreated >= 10 && !!booking.court?.venue?.admin_wa;
+  const chatAdminLink = showChatAdmin
+    ? buildWaLink(
+        booking.court!.venue!.admin_wa!,
+        buildBookingWaMessage({
+          customerName: user?.name ?? 'Pelanggan',
+          venueName: booking.court!.venue!.name,
+          courtName: booking.court!.name,
+          date: start.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+          timeRange: `${start.toLocaleTimeString('id-ID', { timeStyle: 'short' })}–${end.toLocaleTimeString('id-ID', { timeStyle: 'short' })}`,
+          bookingId: booking.id,
+        }),
+      )
+    : null;
 
   return (
     <div>
@@ -119,6 +138,21 @@ export default function BookingDetailPage() {
 
         {canShowInvoice && (
           <p className="mt-4 text-xs font-mono text-slate-400">No. Invoice: {invoiceNo}</p>
+        )}
+        {showChatAdmin && chatAdminLink && (
+          <div className="mt-4 rounded-lg bg-amber-50 p-3 print:hidden">
+            <p className="text-xs font-medium text-amber-700">
+              Belum di-ACC admin? Follow up langsung lewat WhatsApp.
+            </p>
+            <a
+              href={chatAdminLink}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+            >
+              <MessageCircle size={14} /> Chat Admin via WhatsApp
+            </a>
+          </div>
         )}
         {booking.status === 'rejected' && booking.reject_reason && (
           <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">

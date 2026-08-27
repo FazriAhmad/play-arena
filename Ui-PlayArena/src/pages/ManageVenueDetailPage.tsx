@@ -246,6 +246,7 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
     name: venue.name,
     city: venue.city ?? '',
     address: venue.address ?? '',
+    admin_wa: venue.admin_wa ?? '',
     lat: venue.lat?.toString() ?? '',
     lng: venue.lng?.toString() ?? '',
     open_hour: String(venue.open_hour),
@@ -265,6 +266,7 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
       name: form.name,
       city: form.city || null,
       address: form.address || null,
+      admin_wa: form.admin_wa || null,
       lat: form.lat ? Number(form.lat) : null,
       lng: form.lng ? Number(form.lng) : null,
       open_hour: Number(form.open_hour),
@@ -291,6 +293,9 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
         </Field>
         <Field label="Alamat" className="sm:col-span-2">
           <Input value={form.address} onChange={set('address')} />
+        </Field>
+        <Field label="Nomor WA Admin" hint="Dasar link chat pelanggan untuk konfirmasi booking" className="sm:col-span-2">
+          <Input value={form.admin_wa} onChange={set('admin_wa')} placeholder="0812xxxxxxx" />
         </Field>
         <Field label="Latitude">
           <Input value={form.lat} onChange={set('lat')} />

@@ -59,7 +59,7 @@ class BookingController extends Controller
     public function show(Request $request, Booking $booking): JsonResponse
     {
         abort_unless($booking->pelanggan_id === $request->user()->id, 403, 'Bukan booking Anda.');
-        $booking->load(['court:id,name,sport,price_per_hour,venue_id', 'court.venue:id,name,address,city,open_hour,close_hour', 'payments', 'refunds']);
+        $booking->load(['court:id,name,sport,price_per_hour,venue_id', 'court.venue:id,name,address,city,admin_wa,open_hour,close_hour', 'payments', 'refunds']);
 
         return response()->json(['data' => $booking]);
     }

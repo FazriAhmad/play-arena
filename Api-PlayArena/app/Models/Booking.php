@@ -47,4 +47,9 @@ class Booking extends Model
     {
         return $this->hasMany(Refund::class);
     }
+
+    public function notificationLogs(): HasMany
+    {
+        return $this->hasMany(NotificationLog::class);
+    }
 }

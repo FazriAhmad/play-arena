@@ -1,9 +1,10 @@
-import { Clock, MapPin } from 'lucide-react';
+import { Clock, MapPin, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import { rupiah, type Court, type Slot, type VenueDetail } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
+import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
 import SlotGrid from '../components/SlotGrid';
 import VenueMap from '../components/VenueMap';
 import { Badge, Button, Card, Field, Input } from '../components/ui';
@@ -75,7 +76,9 @@ export default function VenueDetailPage() {
               >
                 {openCourtId === c.id ? 'Tutup' : 'Booking Sekarang'}
               </Button>
-              {openCourtId === c.id && <BookingPanel court={c} venueCloseHour={venue.close_hour} />}
+              {openCourtId === c.id && (
+                <BookingPanel court={c} venueName={venue.name} adminWa={venue.admin_wa} venueCloseHour={venue.close_hour} />
+              )}
             </Card>
           ))}
         </div>
@@ -86,7 +89,17 @@ export default function VenueDetailPage() {
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
-function BookingPanel({ court, venueCloseHour }: { court: Court; venueCloseHour: number }) {
+function BookingPanel({
+  court,
+  venueName,
+  adminWa,
+  venueCloseHour,
+}: {
+  court: Court;
+  venueName: string;
+  adminWa: string | null;
+  venueCloseHour: number;
+}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [date, setDate] = useState(todayISO());
@@ -96,6 +109,7 @@ function BookingPanel({ court, venueCloseHour }: { court: Court; venueCloseHour:
   const [contactWa, setContactWa] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [waLink, setWaLink] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const loadSlots = () => {
@@ -119,13 +133,30 @@ function BookingPanel({ court, venueCloseHour }: { court: Court; venueCloseHour:
     setError('');
     setLoading(true);
     try {
-      await api.post(`/courts/${court.id}/bookings`, {
+      const res = await api.post<{ data: { id: number } }>(`/courts/${court.id}/bookings`, {
         date,
         start_hour: selectedHour,
         duration_hours: duration,
         contact_wa: contactWa,
       });
       setSuccess(true);
+
+      if (adminWa) {
+        const endHour = selectedHour + duration;
+        const link = buildWaLink(
+          adminWa,
+          buildBookingWaMessage({
+            customerName: user?.name ?? 'Pelanggan',
+            venueName,
+            courtName: court.name,
+            date: new Date(date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+            timeRange: `${String(selectedHour).padStart(2, '0')}:00–${String(endHour).padStart(2, '0')}:00`,
+            bookingId: res.data.id,
+          }),
+        );
+        setWaLink(link);
+        window.open(link, '_blank');
+      }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Gagal membuat booking.');
       loadSlots();
@@ -139,12 +170,22 @@ function BookingPanel({ court, venueCloseHour }: { court: Court; venueCloseHour:
       <div className="mt-4 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800">
         <p className="font-semibold">Booking berhasil dibuat — status: Menunggu ACC Admin.</p>
         <p className="mt-1 text-xs text-emerald-700">
-          Slot Anda sudah terkunci sementara. Admin venue akan mengonfirmasi lewat WhatsApp. Cek status di{' '}
+          Slot Anda sudah terkunci sementara. Kirim konfirmasi ke admin lewat WhatsApp supaya cepat di-ACC. Cek status di{' '}
           <Link to="/bookings" className="font-semibold underline">
             Booking Saya
           </Link>
           .
         </p>
+        {waLink && (
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
+          >
+            <MessageCircle size={14} /> Kirim Konfirmasi via WhatsApp
+          </a>
+        )}
       </div>
     );
   }
