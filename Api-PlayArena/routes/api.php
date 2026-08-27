@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // buat dirinya sendiri tanpa perlu akun kedua.
     Route::post('/courts/{court}/bookings', [BookingController::class, 'store']);
     Route::get('/bookings/mine', [BookingController::class, 'mine']);
+    Route::get('/bookings/{booking}', [BookingController::class, 'show']);
 
     // Modul 04 — kalender & blokir slot. Owner ATAU staff yang ditugaskan
     // ke venue tsb (dicek di controller, bukan middleware role, karena

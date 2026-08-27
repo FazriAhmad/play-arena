@@ -80,6 +80,15 @@ export interface BlockedSlot {
 
 export type BookingStatus = 'menunggu_acc' | 'menunggu_bayar' | 'confirmed' | 'rejected' | 'cancelled' | 'completed';
 
+export interface Payment {
+  id: number;
+  method: 'manual' | 'midtrans';
+  amount: number;
+  status: string;
+  reference: string | null;
+  confirmed_at: string | null;
+}
+
 /** Hasil booking (POST /courts/:id/bookings, GET /bookings/mine, GET /manage/bookings) — Modul 05 & 07. */
 export interface Booking {
   id: number;
@@ -90,8 +99,9 @@ export interface Booking {
   reject_reason: string | null;
   contact_wa: string;
   guest_name: string | null;
-  court?: Court & { venue?: { id: number; name: string } };
+  court?: Court & { venue?: { id: number; name: string; address?: string | null; city?: string | null } };
   pelanggan?: { id: number; name: string; phone: string } | null;
+  payments?: Payment[];
 }
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {

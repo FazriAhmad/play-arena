@@ -41,7 +41,7 @@ class BookingController extends Controller
         return response()->json(['data' => $booking], 201);
     }
 
-    /** Riwayat booking milik pelanggan yang login — buat verifikasi, detail lengkap ada di Modul 08. */
+    /** Riwayat booking milik pelanggan yang login (Modul 08) — akan datang/selesai/dibatalkan dikelompokkan di frontend. */
     public function mine(Request $request): JsonResponse
     {
         $bookings = Booking::where('pelanggan_id', $request->user()->id)
@@ -50,5 +50,14 @@ class BookingController extends Controller
             ->get();
 
         return response()->json(['data' => $bookings]);
+    }
+
+    /** Detail satu booking + riwayat pembayaran — dasar halaman invoice (Modul 08). Hanya pemilik booking. */
+    public function show(Request $request, Booking $booking): JsonResponse
+    {
+        abort_unless($booking->pelanggan_id === $request->user()->id, 403, 'Bukan booking Anda.');
+        $booking->load(['court:id,name,sport,price_per_hour,venue_id', 'court.venue:id,name,address,city', 'payments']);
+
+        return response()->json(['data' => $booking]);
     }
 }

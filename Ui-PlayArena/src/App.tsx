@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { GuestRoute, ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
+import BookingDetailPage from './pages/BookingDetailPage';
 import Dashboard from './pages/Dashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
@@ -34,6 +35,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/bookings" element={<MyBookingsPage />} />
+              <Route path="/bookings/:id" element={<BookingDetailPage />} />
               <Route element={<RoleRoute role="owner" />}>
                 <Route path="/staff" element={<StaffPage />} />
               </Route>
