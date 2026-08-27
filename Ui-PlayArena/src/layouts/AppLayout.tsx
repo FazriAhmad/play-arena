@@ -22,9 +22,14 @@ export default function AppLayout() {
             {user ? (
               <>
                 {(user.role === 'owner' || user.role === 'staff') && (
-                  <Link to="/manage/venues" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                    Kelola Lapangan
-                  </Link>
+                  <>
+                    <Link to="/manage/venues" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Kelola Lapangan
+                    </Link>
+                    <Link to="/manage/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Booking Masuk
+                    </Link>
+                  </>
                 )}
                 {user.role === 'owner' && (
                   <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">

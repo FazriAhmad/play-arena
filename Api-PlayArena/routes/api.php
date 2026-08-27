@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlockedSlotController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CourtController;
+use App\Http\Controllers\Api\ManageBookingController;
 use App\Http\Controllers\Api\SlotController;
 use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\VenueController;
@@ -44,6 +45,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/manage/courts/{court}/blocked-slots', [BlockedSlotController::class, 'index']);
     Route::post('/manage/courts/{court}/blocked-slots', [BlockedSlotController::class, 'store']);
     Route::delete('/manage/blocked-slots/{blockedSlot}', [BlockedSlotController::class, 'destroy']);
+
+    // Modul 07 — kelola booking masuk. Owner ATAU staff venue terkait
+    // (dicek di controller lewat AuthorizesVenue, sama seperti Modul 04).
+    Route::get('/manage/bookings', [ManageBookingController::class, 'index']);
+    Route::post('/manage/bookings/{booking}/accept', [ManageBookingController::class, 'accept']);
+    Route::post('/manage/bookings/{booking}/reject', [ManageBookingController::class, 'reject']);
+    Route::post('/manage/bookings/{booking}/confirm-payment', [ManageBookingController::class, 'confirmPayment']);
+    Route::post('/manage/courts/{court}/bookings/walk-in', [ManageBookingController::class, 'walkIn']);
 
     Route::middleware('role:owner')->group(function () {
         Route::get('/staff', [StaffController::class, 'index']);

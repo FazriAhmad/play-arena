@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\CreatesBookings;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Court;
-use Carbon\Carbon;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,10 +14,13 @@ use Illuminate\Http\Request;
  * seluruh PRD: dua request paralel yang lolos validasi aplikasi bersamaan
  * TETAP tidak boleh berhasil dua-duanya. Validasi blocked_slots di sini
  * cuma pencegahan dini (UX) — jaminan sesungguhnya ada di exclusion
- * constraint `bookings_no_overlap` (lihat migration create_bookings_table).
+ * constraint `bookings_no_overlap` (lihat migration create_bookings_table,
+ * dipakai bersama lewat trait CreatesBookings).
  */
 class BookingController extends Controller
 {
+    use CreatesBookings;
+
     public function store(Request $request, Court $court): JsonResponse
     {
         abort_unless($court->is_active, 404);
@@ -31,39 +33,10 @@ class BookingController extends Controller
             'contact_wa' => ['required', 'string', 'max:30'],
         ]);
 
-        $endHour = $data['start_hour'] + $data['duration_hours'];
-        abort_if(
-            $data['start_hour'] < $venue->open_hour || $endHour > $venue->close_hour,
-            422,
-            "Venue ini buka jam {$venue->open_hour}:00–{$venue->close_hour}:00."
-        );
-
-        $startsAt = Carbon::parse($data['date'], config('app.timezone'))->setTime($data['start_hour'], 0);
-        $endsAt = $startsAt->copy()->addHours($data['duration_hours']);
-
-        abort_if($startsAt->lt(now()), 422, 'Tidak bisa booking untuk waktu yang sudah lewat.');
-
-        $blocked = $court->blockedSlots()
-            ->where('starts_at', '<', $endsAt)
-            ->where('ends_at', '>', $startsAt)
-            ->exists();
-        abort_if($blocked, 422, 'Slot ini sedang diblokir pengelola venue.');
-
-        try {
-            $booking = $court->bookings()->create([
-                'pelanggan_id' => $request->user()->id,
-                'starts_at' => $startsAt,
-                'ends_at' => $endsAt,
-                'status' => 'menunggu_acc',
-                'contact_wa' => $data['contact_wa'],
-            ]);
-        } catch (QueryException $e) {
-            // SQLSTATE 23P01 = exclusion_violation — constraint bookings_no_overlap yang menolak.
-            if ($e->getCode() === '23P01') {
-                abort(422, 'Slot ini baru saja diambil orang lain. Silakan pilih jam lain.');
-            }
-            throw $e;
-        }
+        $booking = $this->createBooking($court, $venue, $data, [
+            'pelanggan_id' => $request->user()->id,
+            'status' => 'menunggu_acc',
+        ]);
 
         return response()->json(['data' => $booking], 201);
     }

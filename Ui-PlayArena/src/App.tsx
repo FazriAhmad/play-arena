@@ -4,6 +4,7 @@ import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/Dashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
+import ManageBookingsPage from './pages/ManageBookingsPage';
 import ManageVenueDetailPage from './pages/ManageVenueDetailPage';
 import ManageVenuesPage from './pages/ManageVenuesPage';
 import MyBookingsPage from './pages/MyBookingsPage';
@@ -39,6 +40,7 @@ function App() {
               <Route element={<RoleRoute role={['owner', 'staff']} />}>
                 <Route path="/manage/venues" element={<ManageVenuesPage />} />
                 <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
+                <Route path="/manage/bookings" element={<ManageBookingsPage />} />
               </Route>
             </Route>
           </Route>
