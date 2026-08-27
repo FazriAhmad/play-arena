@@ -34,14 +34,16 @@ export const Field = ({
   label,
   hint,
   error,
+  className,
   children,
 }: {
   label: string;
   hint?: string;
   error?: string;
+  className?: string;
   children: ReactNode;
 }) => (
-  <label className="block">
+  <label className={cn('block', className)}>
     <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
     {children}
     {error ? (

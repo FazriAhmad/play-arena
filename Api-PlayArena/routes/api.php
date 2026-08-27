@@ -26,10 +26,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     Route::middleware('role:owner')->group(function () {
-        Route::post('/venues', [VenueController::class, 'store']);
-        Route::post('/venues/{venue}/courts', [CourtController::class, 'store']);
         Route::get('/staff', [StaffController::class, 'index']);
         Route::post('/staff', [StaffController::class, 'store']);
         Route::put('/staff/{staff}', [StaffController::class, 'update']);
+
+        // Modul 03 — Kelola Data Lapangan. "owner/venues" (kelola, lihat semua
+        // status) sengaja beda path dari "/venues" publik (Modul 02, cuma aktif).
+        Route::get('/owner/venues', [VenueController::class, 'ownerIndex']);
+        Route::post('/owner/venues', [VenueController::class, 'store']);
+        Route::get('/owner/venues/{venue}', [VenueController::class, 'ownerShow']);
+        Route::put('/owner/venues/{venue}', [VenueController::class, 'update']);
+        Route::post('/owner/venues/{venue}/courts', [CourtController::class, 'store']);
+        Route::post('/owner/courts/{court}', [CourtController::class, 'update']);
+        Route::delete('/owner/courts/{court}', [CourtController::class, 'destroy']);
     });
 });

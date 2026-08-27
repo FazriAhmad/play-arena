@@ -42,6 +42,25 @@ export interface VenueDetail {
   courts: Court[];
 }
 
+/** Daftar venue milik owner untuk dikelola (GET /owner/venues) — termasuk yang nonaktif. */
+export interface OwnerVenue {
+  id: number;
+  name: string;
+  city: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  open_hour: number;
+  close_hour: number;
+  is_active: boolean;
+  courts_count: number;
+}
+
+/** Detail venue untuk form edit owner (GET /owner/venues/:id) — semua lapangan. */
+export interface OwnerVenueDetail extends Omit<OwnerVenue, 'courts_count'> {
+  courts: Court[];
+}
+
 export interface User {
   id: number;
   name: string;

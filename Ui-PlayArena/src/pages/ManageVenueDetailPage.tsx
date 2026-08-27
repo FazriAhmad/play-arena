@@ -1,0 +1,251 @@
+import { Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { api, ApiError } from '../lib/api';
+import { rupiah, SPORTS, type OwnerVenueDetail } from '../lib/types';
+import { Badge, Button, Card, Field, Input } from '../components/ui';
+
+export default function ManageVenueDetailPage() {
+  const { id } = useParams();
+  const [venue, setVenue] = useState<OwnerVenueDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showCourtForm, setShowCourtForm] = useState(false);
+
+  const load = () => {
+    setLoading(true);
+    api
+      .get<{ data: OwnerVenueDetail }>(`/owner/venues/${id}`)
+      .then((res) => setVenue(res.data))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, [id]);
+
+  const toggleCourt = async (courtId: number, isActive: boolean) => {
+    await api.post(`/owner/courts/${courtId}`, { is_active: !isActive });
+    load();
+  };
+
+  const deleteCourt = async (courtId: number) => {
+    if (!confirm('Hapus lapangan ini? Tindakan tidak bisa dibatalkan.')) return;
+    await api.delete(`/owner/courts/${courtId}`);
+    load();
+  };
+
+  if (loading) return <p className="text-sm text-slate-400">Memuat…</p>;
+  if (!venue) return <p className="text-sm text-slate-400">Venue tidak ditemukan.</p>;
+
+  return (
+    <div>
+      <Link to="/owner/venues" className="text-sm font-medium text-[#1d5fc4] hover:underline">
+        ← Kembali ke Kelola Lapangan
+      </Link>
+
+      <div className="mt-3 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-900">{venue.name}</h1>
+        <Badge tone={venue.is_active ? 'success' : 'danger'}>{venue.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
+      </div>
+
+      <VenueEditForm venue={venue} onSaved={load} />
+
+      <div className="mt-8 flex items-center justify-between">
+        <h2 className="text-lg font-bold text-slate-900">Lapangan</h2>
+        <Button onClick={() => setShowCourtForm((v) => !v)}>
+          <Plus size={16} /> {showCourtForm ? 'Tutup Form' : 'Tambah Lapangan'}
+        </Button>
+      </div>
+
+      {showCourtForm && (
+        <CourtForm
+          venueId={venue.id}
+          onCreated={() => {
+            setShowCourtForm(false);
+            load();
+          }}
+        />
+      )}
+
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {venue.courts.length === 0 && <p className="text-sm text-slate-400">Belum ada lapangan.</p>}
+        {venue.courts.map((c) => (
+          <Card key={c.id} className="overflow-hidden p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-semibold text-slate-900">{c.name}</h3>
+                <Badge>{c.sport}</Badge>
+              </div>
+              <Badge tone={c.is_active ? 'success' : 'danger'}>{c.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
+            </div>
+            {c.photo_url && <img src={c.photo_url} alt={c.name} className="mt-2 h-28 w-full rounded-lg object-cover" />}
+            <p className="mt-2 text-sm font-semibold text-[#1d5fc4]">{rupiah(c.price_per_hour)}/jam</p>
+            {c.facilities && c.facilities.length > 0 && (
+              <p className="mt-1 text-xs text-slate-500">Fasilitas: {c.facilities.join(', ')}</p>
+            )}
+            <div className="mt-3 flex items-center gap-3">
+              <button onClick={() => toggleCourt(c.id, c.is_active)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
+                {c.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+              </button>
+              <button onClick={() => deleteCourt(c.id)} className="flex items-center gap-1 text-xs font-semibold text-rose-600 hover:underline">
+                <Trash2 size={12} /> Hapus
+              </button>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: () => void }) {
+  const [form, setForm] = useState({
+    name: venue.name,
+    city: venue.city ?? '',
+    address: venue.address ?? '',
+    lat: venue.lat?.toString() ?? '',
+    lng: venue.lng?.toString() ?? '',
+    open_hour: String(venue.open_hour),
+    close_hour: String(venue.close_hour),
+  });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setSaved(false);
+    await api.put(`/owner/venues/${venue.id}`, {
+      name: form.name,
+      city: form.city || null,
+      address: form.address || null,
+      lat: form.lat ? Number(form.lat) : null,
+      lng: form.lng ? Number(form.lng) : null,
+      open_hour: Number(form.open_hour),
+      close_hour: Number(form.close_hour),
+    });
+    setSaving(false);
+    setSaved(true);
+    onSaved();
+  };
+
+  const toggleVenueActive = async () => {
+    await api.put(`/owner/venues/${venue.id}`, { is_active: !venue.is_active });
+    onSaved();
+  };
+
+  return (
+    <Card className="mt-4 p-5">
+      <form onSubmit={submit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Nama venue">
+          <Input value={form.name} onChange={set('name')} required />
+        </Field>
+        <Field label="Kota">
+          <Input value={form.city} onChange={set('city')} />
+        </Field>
+        <Field label="Alamat" className="sm:col-span-2">
+          <Input value={form.address} onChange={set('address')} />
+        </Field>
+        <Field label="Latitude">
+          <Input value={form.lat} onChange={set('lat')} />
+        </Field>
+        <Field label="Longitude">
+          <Input value={form.lng} onChange={set('lng')} />
+        </Field>
+        <Field label="Jam buka">
+          <Input type="number" min={0} max={23} value={form.open_hour} onChange={set('open_hour')} />
+        </Field>
+        <Field label="Jam tutup">
+          <Input type="number" min={1} max={24} value={form.close_hour} onChange={set('close_hour')} />
+        </Field>
+
+        <div className="flex items-center gap-3 sm:col-span-2">
+          <Button type="submit" disabled={saving}>
+            {saving ? 'Menyimpan…' : 'Simpan Perubahan'}
+          </Button>
+          <Button type="button" variant="ghost" onClick={toggleVenueActive}>
+            {venue.is_active ? 'Nonaktifkan Venue' : 'Aktifkan Venue'}
+          </Button>
+          {saved && <span className="text-xs font-medium text-emerald-600">Tersimpan.</span>}
+        </div>
+      </form>
+    </Card>
+  );
+}
+
+function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => void }) {
+  const [name, setName] = useState('');
+  const [sport, setSport] = useState(SPORTS[0]);
+  const [price, setPrice] = useState('');
+  const [facilities, setFacilities] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('sport', sport);
+      fd.append('price_per_hour', price);
+      facilities
+        .split(',')
+        .map((f) => f.trim())
+        .filter(Boolean)
+        .forEach((f) => fd.append('facilities[]', f));
+      if (photo) fd.append('photo', photo);
+
+      await api.post(`/owner/venues/${venueId}/courts`, fd);
+      onCreated();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Gagal menambah lapangan.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="mt-4 p-5">
+      <form onSubmit={submit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Nama lapangan">
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="mis. Lapangan A" required />
+        </Field>
+        <Field label="Jenis olahraga">
+          <select
+            value={sport}
+            onChange={(e) => setSport(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+          >
+            {SPORTS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Harga per jam (Rp)">
+          <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} placeholder="150000" required />
+        </Field>
+        <Field label="Fasilitas" hint="Pisahkan dengan koma">
+          <Input value={facilities} onChange={(e) => setFacilities(e.target.value)} placeholder="Toilet, Musholla, Parkir" />
+        </Field>
+        <Field label="Foto" className="sm:col-span-2" hint="Opsional, maks 5MB">
+          <input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} className="text-sm" />
+        </Field>
+
+        {error && (
+          <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 sm:col-span-2">{error}</p>
+        )}
+        <div className="sm:col-span-2">
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Menyimpan…' : 'Simpan Lapangan'}
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+}
