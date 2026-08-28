@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BlockedSlotController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CourtController;
 use App\Http\Controllers\Api\ManageBookingController;
+use App\Http\Controllers\Api\RecurringBookingController;
 use App\Http\Controllers\Api\SlotController;
 use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\VenueController;
@@ -41,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Modul 09 — cancel & reschedule oleh pelanggan sendiri.
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel']);
     Route::post('/bookings/{booking}/reschedule', [BookingController::class, 'reschedule']);
+
+    // Modul 11 — booking berulang, sama seperti Modul 05 tidak dibatasi role:pelanggan.
+    Route::post('/courts/{court}/recurring-bookings', [RecurringBookingController::class, 'store']);
 
     // Modul 04 — kalender & blokir slot. Owner ATAU staff yang ditugaskan
     // ke venue tsb (dicek di controller, bukan middleware role, karena

@@ -163,4 +163,13 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 export const SPORTS = ['Futsal', 'Bulu Tangkis', 'Basket', 'Tenis', 'Voli', 'Tenis Meja', 'Renang'];
 
+export const DAYS_OF_WEEK = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+/** Hasil booking berulang (POST /courts/:id/recurring-bookings) — Modul 11. */
+export interface RecurringBookingResult {
+  recurring_group_id: number;
+  created: Booking[];
+  failed: { date: string; reason: string }[];
+}
+
 export const rupiah = (n: number) => 'Rp' + Math.round(n).toLocaleString('id-ID');

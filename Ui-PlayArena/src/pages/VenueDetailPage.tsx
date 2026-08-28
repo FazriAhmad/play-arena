@@ -2,7 +2,7 @@ import { Clock, MapPin, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import { rupiah, type Court, type Slot, type VenueDetail } from '../lib/types';
+import { DAYS_OF_WEEK, rupiah, type Court, type RecurringBookingResult, type Slot, type VenueDetail } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
 import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
 import SlotGrid from '../components/SlotGrid';
@@ -15,6 +15,7 @@ export default function VenueDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [openCourtId, setOpenCourtId] = useState<number | null>(null);
+  const [recurringCourtId, setRecurringCourtId] = useState<number | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -70,15 +71,31 @@ export default function VenueDetailPage() {
               {c.facilities && c.facilities.length > 0 && (
                 <p className="mt-2 text-xs text-slate-500">Fasilitas: {c.facilities.join(', ')}</p>
               )}
-              <Button
-                className="mt-3 text-xs"
-                onClick={() => setOpenCourtId((cur) => (cur === c.id ? null : c.id))}
-              >
-                {openCourtId === c.id ? 'Tutup' : 'Booking Sekarang'}
-              </Button>
+              <div className="mt-3 flex gap-2">
+                <Button
+                  className="text-xs"
+                  onClick={() => {
+                    setOpenCourtId((cur) => (cur === c.id ? null : c.id));
+                    setRecurringCourtId(null);
+                  }}
+                >
+                  {openCourtId === c.id ? 'Tutup' : 'Booking Sekarang'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-xs"
+                  onClick={() => {
+                    setRecurringCourtId((cur) => (cur === c.id ? null : c.id));
+                    setOpenCourtId(null);
+                  }}
+                >
+                  {recurringCourtId === c.id ? 'Tutup' : 'Booking Berulang'}
+                </Button>
+              </div>
               {openCourtId === c.id && (
                 <BookingPanel court={c} venueName={venue.name} adminWa={venue.admin_wa} venueCloseHour={venue.close_hour} />
               )}
+              {recurringCourtId === c.id && <RecurringBookingPanel court={c} venueCloseHour={venue.close_hour} />}
             </Card>
           ))}
         </div>
@@ -220,6 +237,149 @@ function BookingPanel({
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
       <Button onClick={submit} disabled={loading || selectedHour === null || !contactWa}>
         {loading ? 'Memproses…' : user ? 'Booking Sekarang' : 'Login untuk Booking'}
+      </Button>
+    </div>
+  );
+}
+
+/** Modul 11 — booking berulang (mis. tim futsal mingguan). Tiap sesi tunduk penuh pada Modul 05, sesi bentrok ditandai gagal, bukan seluruh rangkaian batal. */
+function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueCloseHour: number }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [dayOfWeek, setDayOfWeek] = useState(1);
+  const [startHour, setStartHour] = useState('18');
+  const [duration, setDuration] = useState('1');
+  const [startsOn, setStartsOn] = useState(todayISO());
+  const [mode, setMode] = useState<'until_date' | 'session_count'>('session_count');
+  const [endsOn, setEndsOn] = useState(todayISO());
+  const [sessionCount, setSessionCount] = useState('8');
+  const [contactWa, setContactWa] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<RecurringBookingResult | null>(null);
+
+  const submit = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post<{ data: RecurringBookingResult }>(`/courts/${court.id}/recurring-bookings`, {
+        day_of_week: dayOfWeek,
+        start_hour: Number(startHour),
+        duration_hours: Number(duration),
+        starts_on: startsOn,
+        contact_wa: contactWa,
+        mode,
+        ...(mode === 'until_date' ? { ends_on: endsOn } : { session_count: Number(sessionCount) }),
+      });
+      setResult(res.data);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Gagal membuat booking berulang.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (result) {
+    return (
+      <div className="mt-4 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800">
+        <p className="font-semibold">
+          {result.created.length} sesi berhasil dibuat{result.failed.length > 0 ? `, ${result.failed.length} sesi gagal` : ''}.
+        </p>
+        <p className="mt-1 text-xs text-emerald-700">
+          Tiap sesi berstatus Menunggu ACC Admin. Cek semuanya di{' '}
+          <Link to="/bookings" className="font-semibold underline">
+            Booking Saya
+          </Link>
+          .
+        </p>
+        {result.failed.length > 0 && (
+          <ul className="mt-2 space-y-1 text-xs text-rose-700">
+            {result.failed.map((f) => (
+              <li key={f.date}>
+                {new Date(f.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} — {f.reason}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
+  const maxDuration = Math.max(1, Math.min(4, venueCloseHour - Number(startHour)));
+
+  return (
+    <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Hari">
+          <select
+            value={dayOfWeek}
+            onChange={(e) => setDayOfWeek(Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+          >
+            {DAYS_OF_WEEK.map((d, i) => (
+              <option key={d} value={i}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Jam mulai">
+          <Input type="number" min={0} max={23} value={startHour} onChange={(e) => setStartHour(e.target.value)} />
+        </Field>
+        <Field label="Durasi (jam)">
+          <select
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+          >
+            {Array.from({ length: maxDuration }, (_, i) => i + 1).map((h) => (
+              <option key={h} value={h}>
+                {h} jam
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Mulai tanggal">
+          <Input type="date" value={startsOn} min={todayISO()} onChange={(e) => setStartsOn(e.target.value)} />
+        </Field>
+      </div>
+
+      <Field label="Sampai kapan?">
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-1.5 text-xs text-slate-600">
+            <input type="radio" checked={mode === 'session_count'} onChange={() => setMode('session_count')} />
+            Jumlah sesi
+          </label>
+          {mode === 'session_count' && (
+            <Input
+              type="number"
+              min={1}
+              max={52}
+              value={sessionCount}
+              onChange={(e) => setSessionCount(e.target.value)}
+              className="w-24"
+            />
+          )}
+          <label className="flex items-center gap-1.5 text-xs text-slate-600">
+            <input type="radio" checked={mode === 'until_date'} onChange={() => setMode('until_date')} />
+            Sampai tanggal
+          </label>
+          {mode === 'until_date' && (
+            <Input type="date" value={endsOn} min={startsOn} onChange={(e) => setEndsOn(e.target.value)} className="w-auto" />
+          )}
+        </div>
+      </Field>
+
+      <Field label="Nomor WA yang bisa dihubungi">
+        <Input value={contactWa} onChange={(e) => setContactWa(e.target.value)} placeholder="0812xxxxxxx" required />
+      </Field>
+      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      <Button onClick={submit} disabled={loading || !contactWa}>
+        {loading ? 'Memproses…' : user ? 'Buat Booking Berulang' : 'Login untuk Booking'}
       </Button>
     </div>
   );
