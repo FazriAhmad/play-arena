@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlockedSlotController;
@@ -77,6 +78,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/manage/bookings/{booking}/confirm-payment', [ManageBookingController::class, 'confirmPayment']);
     Route::post('/manage/bookings/{booking}/cancel', [ManageBookingController::class, 'cancel']);
     Route::post('/manage/courts/{court}/bookings/walk-in', [ManageBookingController::class, 'walkIn']);
+
+    // Modul 18 — dashboard analitik, Owner ATAU staff venue terkait (sama seperti Modul 04/07).
+    Route::get('/manage/analytics', [AnalyticsController::class, 'index']);
 
     Route::middleware('role:owner')->group(function () {
         Route::get('/staff', [StaffController::class, 'index']);

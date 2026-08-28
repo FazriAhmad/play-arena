@@ -29,6 +29,9 @@ export default function AppLayout() {
                     <Link to="/manage/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
                       Booking Masuk
                     </Link>
+                    <Link to="/manage/analytics" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Analitik
+                    </Link>
                   </>
                 )}
                 {user.role === 'owner' && (

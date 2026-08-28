@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { GuestRoute, ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
+import AnalyticsPage from './pages/AnalyticsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import BookingDetailPage from './pages/BookingDetailPage';
 import Dashboard from './pages/Dashboard';
@@ -53,6 +54,7 @@ function App() {
                   <Route path="/manage/venues" element={<ManageVenuesPage />} />
                   <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
                   <Route path="/manage/bookings" element={<ManageBookingsPage />} />
+                  <Route path="/manage/analytics" element={<AnalyticsPage />} />
                 </Route>
               </Route>
             </Route>

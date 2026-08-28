@@ -246,3 +246,13 @@ export const TARGET_SEGMENT_LABELS: Record<Announcement['target_segment'], strin
 };
 
 export const rupiah = (n: number) => 'Rp' + Math.round(n).toLocaleString('id-ID');
+
+/** Dashboard analitik (GET /manage/analytics?venue_id=) — Modul 18. */
+export interface AnalyticsData {
+  heatmap: { day_of_week: number; hour: number; count: number }[];
+  top_courts: { court_id: number; name: string; bookings_count: number }[];
+  trend: { date: string; count: number }[];
+  occupancy_rate: number;
+}
+
+export const DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];

@@ -125,6 +125,9 @@ function OwnerStaffOverview() {
             <Link to="/manage/bookings" className="font-semibold text-[#1d5fc4] hover:underline">
               Booking Masuk
             </Link>
+            <Link to="/manage/analytics" className="font-semibold text-[#1d5fc4] hover:underline">
+              Lihat Analitik
+            </Link>
           </div>
         </Card>
       )}
