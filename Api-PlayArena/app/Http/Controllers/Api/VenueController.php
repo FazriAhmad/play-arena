@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Venue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Direktori publik (Modul 02) & CRUD venue (Modul 03). Endpoint "manage/*"
@@ -115,6 +116,32 @@ class VenueController extends Controller
         return response()->json(['data' => $venue->fresh()]);
     }
 
+    /**
+     * Modul 06 (sementara, sambil menunggu Midtrans sandbox key) — QRIS milik
+     * venue, dipakai pelanggan transfer manual, di-ACC admin lewat
+     * ManageBookingController::confirmPayment yang sudah ada (Modul 07).
+     * Endpoint terpisah dari `update()` karena PHP tidak parse file upload
+     * di request PUT multipart — pola yang sama seperti foto lapangan (Modul 03).
+     */
+    public function uploadQris(Request $request, Venue $venue): JsonResponse
+    {
+        $this->authorizeOwner($request->user(), $venue);
+        $request->validate(['qris' => ['required', 'image', 'max:5120']]);
+
+        if ($venue->qris_image_url) {
+            $oldPath = ltrim(str_replace('/storage/', '', parse_url($venue->qris_image_url, PHP_URL_PATH)), '/');
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $venue->update([
+            'qris_image_url' => Storage::disk('public')->url(
+                $request->file('qris')->store('qris', 'public')
+            ),
+        ]);
+
+        return response()->json(['data' => $venue->fresh()]);
+    }
+
     private function validated(Request $request, bool $sometimes = false): array
     {
         $rule = fn (string $r) => $sometimes ? ['sometimes', $r] : ['required', $r];
@@ -124,6 +151,9 @@ class VenueController extends Controller
             'city' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
             'admin_wa' => ['nullable', 'string', 'max:30'],
+            'bank_name' => ['nullable', 'string', 'max:100'],
+            'bank_account_number' => ['nullable', 'string', 'max:50'],
+            'bank_account_holder' => ['nullable', 'string', 'max:255'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
             'open_hour' => ['nullable', 'integer', 'min:0', 'max:23'],

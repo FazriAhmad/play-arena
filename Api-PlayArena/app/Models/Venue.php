@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['owner_id', 'name', 'city', 'address', 'admin_wa', 'lat', 'lng', 'open_hour', 'close_hour', 'booking_hold_minutes', 'full_refund_hours', 'is_active'])]
+#[Fillable(['owner_id', 'name', 'city', 'address', 'admin_wa', 'bank_name', 'bank_account_number', 'bank_account_holder', 'qris_image_url', 'lat', 'lng', 'open_hour', 'close_hour', 'booking_hold_minutes', 'full_refund_hours', 'is_active'])]
 class Venue extends Model
 {
     protected function casts(): array

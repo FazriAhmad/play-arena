@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // kalender/blokir slot, bukan ubah data master venue/lapangan).
         Route::post('/manage/venues', [VenueController::class, 'store']);
         Route::put('/manage/venues/{venue}', [VenueController::class, 'update']);
+        Route::post('/manage/venues/{venue}/qris', [VenueController::class, 'uploadQris']);
         Route::post('/manage/venues/{venue}/courts', [CourtController::class, 'store']);
         Route::post('/manage/courts/{court}', [CourtController::class, 'update']);
         Route::delete('/manage/courts/{court}', [CourtController::class, 'destroy']);

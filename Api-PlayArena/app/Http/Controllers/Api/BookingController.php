@@ -88,7 +88,13 @@ class BookingController extends Controller
     public function show(Request $request, Booking $booking): JsonResponse
     {
         abort_unless($booking->pelanggan_id === $request->user()->id, 403, 'Bukan booking Anda.');
-        $booking->load(['court:id,name,sport,price_per_hour,venue_id', 'court.venue:id,name,address,city,admin_wa,open_hour,close_hour', 'payments', 'refunds', 'review']);
+        $booking->load([
+            'court:id,name,sport,price_per_hour,venue_id',
+            // bank_name..qris_image_url (Modul 06 sementara) cuma perlu ditampilkan ke pemilik
+            // booking sendiri (endpoint ini sudah dijaga abort_unless di atas), bukan publik.
+            'court.venue:id,name,address,city,admin_wa,open_hour,close_hour,bank_name,bank_account_number,bank_account_holder,qris_image_url',
+            'payments', 'refunds', 'review',
+        ]);
 
         return response()->json(['data' => $booking]);
     }

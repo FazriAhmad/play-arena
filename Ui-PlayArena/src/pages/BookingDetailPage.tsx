@@ -154,6 +154,7 @@ export default function BookingDetailPage() {
             </a>
           </div>
         )}
+        {booking.status === 'menunggu_bayar' && <PaymentInstructions booking={booking} />}
         {booking.status === 'rejected' && booking.reject_reason && (
           <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
             Alasan ditolak: {booking.reject_reason}
@@ -240,6 +241,40 @@ export default function BookingDetailPage() {
       </Card>
 
       {booking.status === 'completed' && <ReviewSection booking={booking} onSubmitted={load} />}
+    </div>
+  );
+}
+
+/** Modul 06 (sementara, sambil menunggu Midtrans) — transfer manual ke rekening/QRIS venue, admin ACC setelah cek mutasi. */
+function PaymentInstructions({ booking }: { booking: Booking }) {
+  const venue = booking.court?.venue;
+  const hasBank = venue?.bank_name && venue.bank_account_number;
+  const hasQris = !!venue?.qris_image_url;
+
+  if (!hasBank && !hasQris) {
+    return (
+      <div className="mt-4 rounded-lg bg-amber-50 p-3 text-xs font-medium text-amber-700 print:hidden">
+        Menunggu instruksi pembayaran dari admin venue — hubungi admin lewat WhatsApp kalau belum ada info.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 rounded-lg bg-amber-50 p-4 print:hidden">
+      <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Instruksi Pembayaran</p>
+      <p className="mt-1 text-xs text-amber-700">
+        Transfer sesuai total di bawah, lalu tunggu admin konfirmasi (biasanya tidak lama setelah transfer masuk).
+      </p>
+      <div className="mt-3 flex flex-wrap gap-4">
+        {hasBank && (
+          <div className="text-sm">
+            <p className="font-semibold text-slate-900">{venue!.bank_name}</p>
+            <p className="text-slate-700">{venue!.bank_account_number}</p>
+            <p className="text-xs text-slate-500">a.n. {venue!.bank_account_holder}</p>
+          </div>
+        )}
+        {hasQris && <img src={venue!.qris_image_url!} alt="QRIS" className="h-32 w-32 rounded-lg border border-amber-200 object-contain bg-white" />}
+      </div>
     </div>
   );
 }

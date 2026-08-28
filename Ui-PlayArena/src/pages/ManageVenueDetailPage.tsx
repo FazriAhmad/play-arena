@@ -250,6 +250,9 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
     city: venue.city ?? '',
     address: venue.address ?? '',
     admin_wa: venue.admin_wa ?? '',
+    bank_name: venue.bank_name ?? '',
+    bank_account_number: venue.bank_account_number ?? '',
+    bank_account_holder: venue.bank_account_holder ?? '',
     lat: venue.lat?.toString() ?? '',
     lng: venue.lng?.toString() ?? '',
     open_hour: String(venue.open_hour),
@@ -270,6 +273,9 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
       city: form.city || null,
       address: form.address || null,
       admin_wa: form.admin_wa || null,
+      bank_name: form.bank_name || null,
+      bank_account_number: form.bank_account_number || null,
+      bank_account_holder: form.bank_account_holder || null,
       lat: form.lat ? Number(form.lat) : null,
       lng: form.lng ? Number(form.lng) : null,
       open_hour: Number(form.open_hour),
@@ -300,6 +306,15 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
         <Field label="Nomor WA Admin" hint="Dasar link chat pelanggan untuk konfirmasi booking" className="sm:col-span-2">
           <Input value={form.admin_wa} onChange={set('admin_wa')} placeholder="0812xxxxxxx" />
         </Field>
+        <Field label="Nama Bank" hint="Untuk transfer manual, sementara sambil menunggu Midtrans">
+          <Input value={form.bank_name} onChange={set('bank_name')} placeholder="BCA" />
+        </Field>
+        <Field label="Nomor Rekening">
+          <Input value={form.bank_account_number} onChange={set('bank_account_number')} placeholder="1234567890" />
+        </Field>
+        <Field label="Atas Nama Rekening" className="sm:col-span-2">
+          <Input value={form.bank_account_holder} onChange={set('bank_account_holder')} placeholder="PT PlayArena Indonesia" />
+        </Field>
         <Field label="Latitude">
           <Input value={form.lat} onChange={set('lat')} />
         </Field>
@@ -323,7 +338,46 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
           {saved && <span className="text-xs font-medium text-emerald-600">Tersimpan.</span>}
         </div>
       </form>
+
+      <QrisUploader venueId={venue.id} imageUrl={venue.qris_image_url} onSaved={onSaved} />
     </Card>
+  );
+}
+
+/** QRIS milik venue (Modul 06 sementara) — endpoint upload terpisah dari form teks karena butuh multipart. */
+function QrisUploader({ venueId, imageUrl, onSaved }: { venueId: number; imageUrl: string | null; onSaved: () => void }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const upload = async () => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('qris', file);
+      await api.post(`/manage/venues/${venueId}/qris`, fd);
+      setFile(null);
+      onSaved();
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 border-t border-slate-100 pt-4">
+      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        QRIS untuk Pembayaran Manual
+      </span>
+      <div className="flex items-center gap-4">
+        {imageUrl && <img src={imageUrl} alt="QRIS" className="h-24 w-24 rounded-lg border border-slate-200 object-contain" />}
+        <div className="flex items-center gap-2">
+          <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-xs" />
+          <Button type="button" onClick={upload} disabled={!file || uploading} className="px-3 py-2 text-xs">
+            {uploading ? 'Mengunggah…' : imageUrl ? 'Ganti' : 'Unggah'}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
 

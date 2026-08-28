@@ -58,6 +58,11 @@ export interface OwnerVenue {
   city: string | null;
   address: string | null;
   admin_wa: string | null;
+  /** Modul 06 (sementara, sambil menunggu Midtrans) — info transfer manual & QRIS milik venue. */
+  bank_name: string | null;
+  bank_account_number: string | null;
+  bank_account_holder: string | null;
+  qris_image_url: string | null;
   lat: number | null;
   lng: number | null;
   open_hour: number;
@@ -128,6 +133,10 @@ export interface Booking {
       admin_wa?: string | null;
       open_hour?: number;
       close_hour?: number;
+      bank_name?: string | null;
+      bank_account_number?: string | null;
+      bank_account_holder?: string | null;
+      qris_image_url?: string | null;
     };
   };
   pelanggan?: { id: number; name: string; phone: string } | null;
