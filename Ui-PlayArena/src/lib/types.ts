@@ -210,4 +210,21 @@ export interface PromoPreview {
   final_amount: number;
 }
 
+/** Basis pelanggan Owner (GET /manage/customers) — Modul 15. */
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  is_member: boolean;
+  bookings_count: number;
+  total_spent: number;
+  last_booking_at: string | null;
+}
+
+/** Detail pelanggan + riwayat booking (GET /manage/customers/:id) — Modul 15. */
+export interface CustomerDetail extends Customer {
+  bookings: Booking[];
+}
+
 export const rupiah = (n: number) => 'Rp' + Math.round(n).toLocaleString('id-ID');

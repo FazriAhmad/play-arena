@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlockedSlotController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CourtController;
+use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ManageBookingController;
 use App\Http\Controllers\Api\PromoController;
 use App\Http\Controllers\Api\RecurringBookingController;
@@ -89,5 +90,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/manage/promos', [PromoController::class, 'store']);
         Route::put('/manage/promos/{promo}', [PromoController::class, 'update']);
         Route::delete('/manage/promos/{promo}', [PromoController::class, 'destroy']);
+
+        // Modul 15 — kelola pelanggan/member, Owner saja (lihat basis pelanggannya sendiri).
+        Route::get('/manage/customers', [CustomerController::class, 'index']);
+        Route::get('/manage/customers/{customer}', [CustomerController::class, 'show']);
+        Route::put('/manage/customers/{customer}', [CustomerController::class, 'update']);
     });
 });

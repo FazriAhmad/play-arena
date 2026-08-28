@@ -39,6 +39,9 @@ export default function AppLayout() {
                     <Link to="/manage/promos" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
                       Voucher
                     </Link>
+                    <Link to="/manage/customers" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Pelanggan
+                    </Link>
                   </>
                 )}
                 {user.role === 'pelanggan' && (
