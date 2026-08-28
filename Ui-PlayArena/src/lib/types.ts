@@ -256,3 +256,13 @@ export interface AnalyticsData {
 }
 
 export const DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+/** Laporan pendapatan (GET /manage/revenue?venue_id=&from=&to=) — Modul 19. */
+export interface RevenueReport {
+  from: string;
+  to: string;
+  summary: { gross: number; refunded: number; net: number; transactions_count: number };
+  daily: { date: string; gross: number; refunded: number; net: number }[];
+  by_court: { court_id: number; name: string; gross: number; transactions_count: number }[];
+  by_method: { method: string; gross: number; transactions_count: number }[];
+}

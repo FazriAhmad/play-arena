@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ManageBookingController;
 use App\Http\Controllers\Api\PromoController;
 use App\Http\Controllers\Api\RecurringBookingController;
+use App\Http\Controllers\Api\RevenueController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SlotController;
 use App\Http\Controllers\Api\StaffController;
@@ -111,5 +112,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/manage/announcements', [AnnouncementController::class, 'store']);
         Route::put('/manage/announcements/{announcement}', [AnnouncementController::class, 'update']);
         Route::delete('/manage/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
+
+        // Modul 19 — laporan pendapatan, Owner saja (data finansial, bukan operasional staff).
+        Route::get('/manage/revenue', [RevenueController::class, 'index']);
+        Route::get('/manage/revenue/export', [RevenueController::class, 'export']);
     });
 });

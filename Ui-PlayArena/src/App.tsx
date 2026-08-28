@@ -16,6 +16,7 @@ import ManageVenuesPage from './pages/ManageVenuesPage';
 import MyBookingsPage from './pages/MyBookingsPage';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
+import RevenuePage from './pages/RevenuePage';
 import SearchPage from './pages/SearchPage';
 import StaffPage from './pages/StaffPage';
 import VenueDetailPage from './pages/VenueDetailPage';
@@ -49,6 +50,7 @@ function App() {
                   <Route path="/manage/promos" element={<ManagePromosPage />} />
                   <Route path="/manage/customers" element={<ManageCustomersPage />} />
                   <Route path="/manage/announcements" element={<ManageAnnouncementsPage />} />
+                  <Route path="/manage/revenue" element={<RevenuePage />} />
                 </Route>
                 <Route element={<RoleRoute role={['owner', 'staff']} />}>
                   <Route path="/manage/venues" element={<ManageVenuesPage />} />

@@ -24,6 +24,7 @@ export default function Dashboard() {
 
 /** Modul 17 — switcher venue di dashboard Owner/Staff. Semua fetch di bawah otomatis scoped ke venue yang dipilih. */
 function OwnerStaffOverview() {
+  const { user } = useAuth();
   const { venues, currentVenueId, currentVenue, setCurrentVenueId, loading: venuesLoading } = useVenue();
   const [pending, setPending] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,6 +129,11 @@ function OwnerStaffOverview() {
             <Link to="/manage/analytics" className="font-semibold text-[#1d5fc4] hover:underline">
               Lihat Analitik
             </Link>
+            {user?.role === 'owner' && (
+              <Link to="/manage/revenue" className="font-semibold text-[#1d5fc4] hover:underline">
+                Laporan Pendapatan
+              </Link>
+            )}
           </div>
         </Card>
       )}
