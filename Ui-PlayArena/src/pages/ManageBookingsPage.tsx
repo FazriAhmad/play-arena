@@ -121,6 +121,9 @@ export default function ManageBookingsPage() {
                   {b.shuttlecock_qty > 0 && (
                     <p className="mt-0.5 text-xs text-slate-500">+ Shuttlecock × {b.shuttlecock_qty} ({rupiah(b.shuttlecock_amount)})</p>
                   )}
+                  {b.member_discount_amount > 0 && (
+                    <p className="mt-0.5 text-xs text-emerald-600">Diskon member -{rupiah(b.member_discount_amount)}</p>
+                  )}
                   {b.status === 'rejected' && b.reject_reason && (
                     <p className="mt-1 text-xs text-rose-600">Alasan: {b.reject_reason}</p>
                   )}

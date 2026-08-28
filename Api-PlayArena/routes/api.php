@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CourtController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ManageBookingController;
+use App\Http\Controllers\Api\MembershipPlanController;
 use App\Http\Controllers\Api\PromoController;
 use App\Http\Controllers\Api\RecurringBookingController;
 use App\Http\Controllers\Api\RevenueController;
@@ -116,5 +117,9 @@ Route::middleware('auth:sanctum')->group(function () {
         // Modul 19 — laporan pendapatan, Owner saja (data finansial, bukan operasional staff).
         Route::get('/manage/revenue', [RevenueController::class, 'index']);
         Route::get('/manage/revenue/export', [RevenueController::class, 'export']);
+
+        // Modul 21 — plan membership bulanan, Owner saja (keputusan pemasaran/kepemilikan, sama seperti Modul 14/15).
+        Route::get('/manage/membership-plan', [MembershipPlanController::class, 'show']);
+        Route::post('/manage/membership-plan', [MembershipPlanController::class, 'upsert']);
     });
 });

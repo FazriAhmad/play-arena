@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('bookings:expire-stale')->everyFiveMinutes();
 Schedule::command('bookings:mark-completed')->everyFiveMinutes();
 Schedule::command('bookings:send-reminders')->everyFiveMinutes();
+Schedule::command('memberships:expire-stale')->daily();

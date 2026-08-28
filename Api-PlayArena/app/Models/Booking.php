@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['court_id', 'pelanggan_id', 'guest_name', 'starts_at', 'ends_at', 'status', 'reject_reason', 'cancel_reason', 'created_by', 'recurring_group_id', 'contact_wa', 'promo_code', 'discount_amount', 'shuttlecock_qty', 'shuttlecock_amount'])]
+#[Fillable(['court_id', 'pelanggan_id', 'guest_name', 'starts_at', 'ends_at', 'status', 'reject_reason', 'cancel_reason', 'created_by', 'recurring_group_id', 'contact_wa', 'promo_code', 'discount_amount', 'shuttlecock_qty', 'shuttlecock_amount', 'member_discount_amount'])]
 class Booking extends Model
 {
     /** Status yang masih "aktif" — ikut dihitung exclusion constraint DB, jangan diubah tanpa menyesuaikan migration. */

@@ -62,6 +62,9 @@ class CustomerController extends Controller
         );
 
         $data = $request->validate(['is_member' => ['required', 'boolean']]);
+        // Modul 21 — jadi member selalu berarti "bayar 1 bulan penuh dari sekarang", bukan
+        // cuma nyalain flag permanen. Nonaktifkan langsung mencabut hak diskon saat itu juga.
+        $data['membership_expires_at'] = $data['is_member'] ? now()->addMonth() : null;
         $customer->update($data);
 
         return response()->json(['data' => $customer->fresh()]);

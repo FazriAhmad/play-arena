@@ -51,6 +51,9 @@ export default function AppLayout() {
                     <Link to="/manage/revenue" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
                       Pendapatan
                     </Link>
+                    <Link to="/manage/membership" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Membership
+                    </Link>
                   </>
                 )}
                 {user.role === 'pelanggan' && (

@@ -9,12 +9,13 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'phone', 'password', 'is_active', 'is_member', 'email_verified_at'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'is_active', 'is_member', 'membership_expires_at', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -32,6 +33,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'is_active' => 'boolean',
             'is_member' => 'boolean',
+            'membership_expires_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -52,6 +54,12 @@ class User extends Authenticatable
     public function promos(): HasMany
     {
         return $this->hasMany(Promo::class, 'owner_id');
+    }
+
+    /** Plan membership bulanan bisnis ini (role owner) — Modul 21. */
+    public function membershipPlan(): HasOne
+    {
+        return $this->hasOne(MembershipPlan::class, 'owner_id');
     }
 
     /** Booking yang dipesan user ini sebagai pelanggan. Kosong untuk role owner/staff. */

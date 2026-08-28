@@ -120,6 +120,8 @@ class AuthController extends Controller
             'email' => $user->email,
             'phone' => $user->phone,
             'is_active' => $user->is_active,
+            'is_member' => $user->is_member,
+            'membership_expires_at' => $user->membership_expires_at,
             'role' => $user->getRoleNames()->first(),
             'venue_ids' => $user->venues()->pluck('venues.id'),
         ];

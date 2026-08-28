@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AppliesMembershipDiscount;
 use App\Http\Controllers\Concerns\AppliesPromoCode;
 use App\Http\Controllers\Concerns\CancelsBookings;
 use App\Http\Controllers\Concerns\CreatesBookings;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\DB;
  */
 class BookingController extends Controller
 {
+    use AppliesMembershipDiscount;
     use AppliesPromoCode;
     use CancelsBookings;
     use CreatesBookings;
@@ -40,18 +42,27 @@ class BookingController extends Controller
             'shuttlecock_qty' => ['nullable', 'integer', 'min:0', 'max:50'],
         ]);
 
+        $subtotal = $court->price_per_hour * $data['duration_hours'];
+
         $extra = [
             'pelanggan_id' => $request->user()->id,
             'status' => 'menunggu_acc',
         ];
 
         $promo = null;
+        $promoDiscount = 0;
         if (! empty($data['promo_code'])) {
-            $result = $this->resolvePromo($data['promo_code'], $court, $court->price_per_hour * $data['duration_hours']);
+            $result = $this->resolvePromo($data['promo_code'], $court, $subtotal);
             $promo = $result['promo'];
+            $promoDiscount = $result['discount'];
             $extra['promo_code'] = $promo->code;
-            $extra['discount_amount'] = $result['discount'];
+            $extra['discount_amount'] = $promoDiscount;
         }
+
+        // Diskon member (Modul 21) berdiri sendiri dari voucher, tapi keduanya
+        // digabung tetap tidak boleh melebihi subtotal.
+        $memberDiscount = $this->resolveMemberDiscount($request->user(), $venue, $subtotal);
+        $extra['member_discount_amount'] = min($memberDiscount, max(0, $subtotal - $promoDiscount));
 
         // Booking dibuat dulu (bisa gagal kena exclusion constraint) — kuota
         // voucher baru dipakai setelah booking BENAR-BENAR berhasil, supaya
@@ -129,7 +140,14 @@ class BookingController extends Controller
         // di booking lama, konsisten dengan cara harga per-jam juga selalu dari data lapangan sekarang.
         $data['shuttlecock_qty'] = $booking->shuttlecock_qty;
 
-        $new = DB::transaction(function () use ($booking, $court, $venue, $data) {
+        // Diskon member (Modul 21) dihitung ULANG pakai status membership &
+        // plan TERKINI — beda dari voucher yang dibawa apa adanya, karena
+        // status member bisa saja sudah expired sejak booking lama dibuat.
+        $subtotal = $court->price_per_hour * $data['duration_hours'];
+        $memberDiscount = $this->resolveMemberDiscount($request->user(), $venue, $subtotal);
+        $memberDiscount = min($memberDiscount, max(0, $subtotal - (int) ($booking->discount_amount ?? 0)));
+
+        $new = DB::transaction(function () use ($booking, $court, $venue, $data, $memberDiscount) {
             $booking->update(['status' => 'cancelled', 'cancel_reason' => 'Dijadwalkan ulang oleh pelanggan.']);
 
             return $this->createBooking($court, $venue, $data, [
@@ -139,6 +157,7 @@ class BookingController extends Controller
                 // memindahkan booking yang sama, bukan transaksi baru.
                 'promo_code' => $booking->promo_code,
                 'discount_amount' => $booking->discount_amount,
+                'member_discount_amount' => $memberDiscount,
             ]);
         });
 

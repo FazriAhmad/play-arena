@@ -44,7 +44,9 @@ class VenueController extends Controller
     public function show(Venue $venue): JsonResponse
     {
         abort_unless($venue->is_active, 404);
-        $venue->load(['courts' => fn ($q) => $q->where('is_active', true)->withAvg('reviews', 'rating')->withCount('reviews')->orderBy('name')]);
+        $venue->load(['courts' => fn ($q) => $q->where('is_active', true)->withAvg('reviews', 'rating')->withCount('reviews')->orderBy('name'), 'owner.membershipPlan']);
+
+        $plan = $venue->owner->membershipPlan;
 
         return response()->json(['data' => [
             'id' => $venue->id,
@@ -57,6 +59,9 @@ class VenueController extends Controller
             'open_hour' => $venue->open_hour,
             'close_hour' => $venue->close_hour,
             'courts' => $venue->courts,
+            // Modul 21 — cuma dikirim kalau owner venue ini punya plan aktif, dipakai
+            // tampilkan pitch member + hitung estimasi diskon di sisi frontend.
+            'membership' => $plan?->is_active ? ['price' => $plan->price, 'discount_percent' => $plan->discount_percent] : null,
         ]]);
     }
 

@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import ManageAnnouncementsPage from './pages/ManageAnnouncementsPage';
 import ManageBookingsPage from './pages/ManageBookingsPage';
 import ManageCustomersPage from './pages/ManageCustomersPage';
+import ManageMembershipPage from './pages/ManageMembershipPage';
 import ManagePromosPage from './pages/ManagePromosPage';
 import ManageVenueDetailPage from './pages/ManageVenueDetailPage';
 import ManageVenuesPage from './pages/ManageVenuesPage';
@@ -51,6 +52,7 @@ function App() {
                   <Route path="/manage/customers" element={<ManageCustomersPage />} />
                   <Route path="/manage/announcements" element={<ManageAnnouncementsPage />} />
                   <Route path="/manage/revenue" element={<RevenuePage />} />
+                  <Route path="/manage/membership" element={<ManageMembershipPage />} />
                 </Route>
                 <Route element={<RoleRoute role={['owner', 'staff']} />}>
                   <Route path="/manage/venues" element={<ManageVenuesPage />} />

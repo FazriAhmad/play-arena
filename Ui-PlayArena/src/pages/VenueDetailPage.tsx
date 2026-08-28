@@ -18,8 +18,13 @@ import SlotGrid from '../components/SlotGrid';
 import VenueMap from '../components/VenueMap';
 import { Badge, Button, Card, Field, Input, Stars } from '../components/ui';
 
+function isActiveMember(user: { is_member: boolean; membership_expires_at: string | null } | null): boolean {
+  return !!user?.is_member && !!user.membership_expires_at && new Date(user.membership_expires_at) > new Date();
+}
+
 export default function VenueDetailPage() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [venue, setVenue] = useState<VenueDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -57,6 +62,21 @@ export default function VenueDetailPage() {
           <Clock size={14} /> {String(venue.open_hour).padStart(2, '0')}:00 – {String(venue.close_hour).padStart(2, '0')}:00
         </span>
       </div>
+
+      {venue.membership && (
+        <Card className="mt-4 border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {isActiveMember(user) ? (
+            <p>
+              Anda member — otomatis dapat diskon <strong>{venue.membership.discount_percent}%</strong> di setiap booking.
+            </p>
+          ) : (
+            <p>
+              Jadi member {rupiah(venue.membership.price)}/bulan, dapat diskon <strong>{venue.membership.discount_percent}%</strong>{' '}
+              di setiap booking. Hubungi admin venue lewat WhatsApp untuk daftar.
+            </p>
+          )}
+        </Card>
+      )}
 
       {venue.lat && venue.lng && (
         <Card className="mt-5 overflow-hidden p-1">
@@ -120,7 +140,13 @@ export default function VenueDetailPage() {
                 </Button>
               </div>
               {openCourtId === c.id && (
-                <BookingPanel court={c} venueName={venue.name} adminWa={venue.admin_wa} venueCloseHour={venue.close_hour} />
+                <BookingPanel
+                  court={c}
+                  venueName={venue.name}
+                  adminWa={venue.admin_wa}
+                  venueCloseHour={venue.close_hour}
+                  memberDiscountPercent={isActiveMember(user) ? (venue.membership?.discount_percent ?? null) : null}
+                />
               )}
               {recurringCourtId === c.id && <RecurringBookingPanel court={c} venueCloseHour={venue.close_hour} />}
               {reviewsCourtId === c.id && <ReviewsList courtId={c.id} />}
@@ -139,11 +165,13 @@ function BookingPanel({
   venueName,
   adminWa,
   venueCloseHour,
+  memberDiscountPercent,
 }: {
   court: Court;
   venueName: string;
   adminWa: string | null;
   venueCloseHour: number;
+  memberDiscountPercent: number | null;
 }) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -176,7 +204,9 @@ function BookingPanel({
   const maxDurationFromHour = selectedHour === null ? 1 : venueCloseHour - selectedHour;
   const sellsShuttlecock = court.sport === 'Bulu Tangkis' && !!court.shuttlecock_price;
   const shuttlecockTotal = sellsShuttlecock ? shuttlecockQty * (court.shuttlecock_price ?? 0) : 0;
-  const total = court.price_per_hour * duration + shuttlecockTotal;
+  const rentalSubtotal = court.price_per_hour * duration;
+  const memberDiscount = memberDiscountPercent ? Math.round((rentalSubtotal * memberDiscountPercent) / 100) : 0;
+  const total = rentalSubtotal + shuttlecockTotal - memberDiscount;
 
   const applyPromo = async () => {
     if (!promoCode) return;
@@ -335,12 +365,18 @@ function BookingPanel({
             <span>
               {rupiah(court.price_per_hour)}/jam × {duration} jam
             </span>
-            <span>{rupiah(court.price_per_hour * duration)}</span>
+            <span>{rupiah(rentalSubtotal)}</span>
           </div>
           {shuttlecockQty > 0 && (
             <div className="mt-1 flex items-center justify-between text-slate-500">
               <span>Shuttlecock × {shuttlecockQty}</span>
               <span>{rupiah(shuttlecockTotal)}</span>
+            </div>
+          )}
+          {memberDiscount > 0 && (
+            <div className="mt-1 flex items-center justify-between text-emerald-600">
+              <span>Diskon member ({memberDiscountPercent}%)</span>
+              <span>-{rupiah(memberDiscount)}</span>
             </div>
           )}
           {promoPreview && (
@@ -351,7 +387,7 @@ function BookingPanel({
           )}
           <div className="mt-1 flex items-center justify-between border-t border-slate-200 pt-1 font-semibold text-slate-900">
             <span>Total</span>
-            <span>{rupiah(promoPreview ? promoPreview.final_amount + shuttlecockTotal : total)}</span>
+            <span>{rupiah(promoPreview ? promoPreview.final_amount - memberDiscount + shuttlecockTotal : total)}</span>
           </div>
         </div>
       )}

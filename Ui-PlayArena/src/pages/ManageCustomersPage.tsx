@@ -27,8 +27,8 @@ export default function ManageCustomersPage() {
 
   useEffect(load, []);
 
-  const toggleMember = async (customer: Customer) => {
-    await api.put(`/manage/customers/${customer.id}`, { is_member: !customer.is_member });
+  const setMember = async (customer: Customer, isMember: boolean) => {
+    await api.put(`/manage/customers/${customer.id}`, { is_member: isMember });
     load();
   };
 
@@ -46,7 +46,13 @@ export default function ManageCustomersPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-slate-900">{c.name}</h3>
-                  {c.is_member && <Badge tone="success">Member</Badge>}
+                  {c.is_member && (
+                    <Badge tone="success">
+                      Member
+                      {c.membership_expires_at &&
+                        ` — s.d. ${new Date(c.membership_expires_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}`}
+                    </Badge>
+                  )}
                 </div>
                 <p className="mt-0.5 text-xs text-slate-500">
                   {c.email} · {c.phone}
@@ -65,9 +71,20 @@ export default function ManageCustomersPage() {
                 >
                   {expandedId === c.id ? 'Tutup Riwayat' : 'Lihat Riwayat'}
                 </button>
-                <button onClick={() => toggleMember(c)} className="text-xs font-semibold text-slate-600 hover:underline">
-                  {c.is_member ? 'Batalkan Member' : 'Jadikan Member'}
-                </button>
+                {c.is_member ? (
+                  <>
+                    <button onClick={() => setMember(c, true)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
+                      Perpanjang 1 Bulan
+                    </button>
+                    <button onClick={() => setMember(c, false)} className="text-xs font-semibold text-slate-500 hover:underline">
+                      Batalkan Member
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => setMember(c, true)} className="text-xs font-semibold text-slate-600 hover:underline">
+                    Jadikan Member (1 Bulan)
+                  </button>
+                )}
               </div>
             </div>
             {expandedId === c.id && <CustomerHistory customerId={c.id} />}

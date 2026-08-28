@@ -47,6 +47,8 @@ export interface VenueDetail {
   open_hour: number;
   close_hour: number;
   courts: Court[];
+  /** Modul 21 — cuma ada kalau owner venue ini punya plan membership aktif. */
+  membership: { price: number; discount_percent: number } | null;
 }
 
 /** Daftar venue yang bisa dikelola user login (GET /manage/venues) — owner: miliknya; staff: yang ditugaskan. */
@@ -136,6 +138,7 @@ export interface Booking {
   discount_amount?: number | null;
   shuttlecock_qty: number;
   shuttlecock_amount: number;
+  member_discount_amount: number;
 }
 
 /** Ulasan lapangan (GET /courts/:id/reviews, POST /bookings/:id/review) — Modul 13. */
@@ -162,6 +165,8 @@ export interface User {
   email: string;
   phone: string;
   is_active: boolean;
+  is_member: boolean;
+  membership_expires_at: string | null;
   role: Role;
   venue_ids: number[];
 }
@@ -221,9 +226,17 @@ export interface Customer {
   email: string;
   phone: string;
   is_member: boolean;
+  membership_expires_at: string | null;
   bookings_count: number;
   total_spent: number;
   last_booking_at: string | null;
+}
+
+/** Plan membership bulanan (GET/POST /manage/membership-plan) — Modul 21. */
+export interface MembershipPlan {
+  price: number;
+  discount_percent: number;
+  is_active: boolean;
 }
 
 /** Detail pelanggan + riwayat booking (GET /manage/customers/:id) — Modul 15. */
