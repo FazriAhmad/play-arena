@@ -1,11 +1,12 @@
-import { MapPin, SlidersHorizontal, Star } from 'lucide-react';
+import { MapPin, Megaphone, SlidersHorizontal, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
-import { rupiah, SPORTS, type VenueSummary } from '../lib/types';
+import { rupiah, SPORTS, type Announcement, type VenueSummary } from '../lib/types';
 import { Badge, Card, Field, Input } from '../components/ui';
 
 export default function SearchPage() {
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [venues, setVenues] = useState<VenueSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [sport, setSport] = useState('');
@@ -30,10 +31,24 @@ export default function SearchPage() {
     return () => clearTimeout(handle);
   }, [sport, city, minPrice, maxPrice]);
 
+  useEffect(() => {
+    api.get<{ data: Announcement[] }>('/announcements').then((res) => setAnnouncements(res.data));
+  }, []);
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900">Cari Lapangan</h1>
       <p className="mt-1 text-sm text-slate-500">Booking online, tanpa perlu telepon dulu untuk cek jadwal.</p>
+
+      {announcements[0] && (
+        <Card className="mt-4 flex items-start gap-3 border-[#1d5fc4]/20 bg-[#1d5fc4]/5 p-4">
+          <Megaphone size={18} className="mt-0.5 shrink-0 text-[#1d5fc4]" />
+          <div>
+            <p className="text-sm font-semibold text-slate-900">{announcements[0].title}</p>
+            <p className="mt-0.5 text-xs text-slate-600">{announcements[0].body}</p>
+          </div>
+        </Card>
+      )}
 
       <Card className="mt-6 p-5">
         <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">

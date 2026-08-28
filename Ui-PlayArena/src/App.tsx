@@ -1,10 +1,12 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { GuestRoute, ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
+import AnnouncementsPage from './pages/AnnouncementsPage';
 import BookingDetailPage from './pages/BookingDetailPage';
 import Dashboard from './pages/Dashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
+import ManageAnnouncementsPage from './pages/ManageAnnouncementsPage';
 import ManageBookingsPage from './pages/ManageBookingsPage';
 import ManageCustomersPage from './pages/ManageCustomersPage';
 import ManagePromosPage from './pages/ManagePromosPage';
@@ -38,10 +40,12 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/bookings" element={<MyBookingsPage />} />
               <Route path="/bookings/:id" element={<BookingDetailPage />} />
+              <Route path="/announcements" element={<AnnouncementsPage />} />
               <Route element={<RoleRoute role="owner" />}>
                 <Route path="/staff" element={<StaffPage />} />
                 <Route path="/manage/promos" element={<ManagePromosPage />} />
                 <Route path="/manage/customers" element={<ManageCustomersPage />} />
+                <Route path="/manage/announcements" element={<ManageAnnouncementsPage />} />
               </Route>
               <Route element={<RoleRoute role={['owner', 'staff']} />}>
                 <Route path="/manage/venues" element={<ManageVenuesPage />} />

@@ -227,4 +227,22 @@ export interface CustomerDetail extends Customer {
   bookings: Booking[];
 }
 
+/** Pengumuman (GET /announcements publik, GET/POST/PUT/DELETE /manage/announcements) — Modul 16. */
+export interface Announcement {
+  id: number;
+  title: string;
+  body: string;
+  target_segment: 'all' | 'venue' | 'member';
+  venue_id: number | null;
+  venue?: { id: number; name: string } | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export const TARGET_SEGMENT_LABELS: Record<Announcement['target_segment'], string> = {
+  all: 'Semua pelanggan',
+  venue: 'Pernah booking venue tertentu',
+  member: 'Member saja',
+};
+
 export const rupiah = (n: number) => 'Rp' + Math.round(n).toLocaleString('id-ID');

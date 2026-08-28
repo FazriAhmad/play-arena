@@ -42,12 +42,20 @@ export default function AppLayout() {
                     <Link to="/manage/customers" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
                       Pelanggan
                     </Link>
+                    <Link to="/manage/announcements" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Pengumuman
+                    </Link>
                   </>
                 )}
                 {user.role === 'pelanggan' && (
-                  <Link to="/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                    Booking Saya
-                  </Link>
+                  <>
+                    <Link to="/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Booking Saya
+                    </Link>
+                    <Link to="/announcements" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Pengumuman
+                    </Link>
+                  </>
                 )}
                 <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
                   <div className="text-right">

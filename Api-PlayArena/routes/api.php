@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlockedSlotController;
 use App\Http\Controllers\Api\BookingController;
@@ -32,6 +33,11 @@ Route::get('/venues/{venue}', [VenueController::class, 'show']);
 Route::get('/courts/{court}/slots', [SlotController::class, 'index']);
 Route::get('/courts/{court}/reviews', [ReviewController::class, 'index']);
 Route::post('/courts/{court}/promos/preview', [PromoController::class, 'preview']);
+
+// Modul 16 — publik, tapi disaring per-viewer lewat token opsional di
+// dalam controller (auth('sanctum')->user()), bukan middleware auth:sanctum
+// yang akan menolak tamu belum login.
+Route::get('/announcements', [AnnouncementController::class, 'active']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -95,5 +101,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/manage/customers', [CustomerController::class, 'index']);
         Route::get('/manage/customers/{customer}', [CustomerController::class, 'show']);
         Route::put('/manage/customers/{customer}', [CustomerController::class, 'update']);
+
+        // Modul 16 — promo & pengumuman, Owner saja.
+        Route::get('/manage/announcements', [AnnouncementController::class, 'index']);
+        Route::post('/manage/announcements', [AnnouncementController::class, 'store']);
+        Route::put('/manage/announcements/{announcement}', [AnnouncementController::class, 'update']);
+        Route::delete('/manage/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
     });
 });

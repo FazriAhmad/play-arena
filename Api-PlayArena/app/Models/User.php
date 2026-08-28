@@ -59,4 +59,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class, 'pelanggan_id');
     }
+
+    /** Pengumuman yang dibuat user ini (role owner). */
+    public function announcements(): HasMany
+    {
+        return $this->hasMany(Announcement::class, 'owner_id');
+    }
 }
