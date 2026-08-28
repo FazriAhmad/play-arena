@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
 import ManageBookingsPage from './pages/ManageBookingsPage';
+import ManagePromosPage from './pages/ManagePromosPage';
 import ManageVenueDetailPage from './pages/ManageVenueDetailPage';
 import ManageVenuesPage from './pages/ManageVenuesPage';
 import MyBookingsPage from './pages/MyBookingsPage';
@@ -38,6 +39,7 @@ function App() {
               <Route path="/bookings/:id" element={<BookingDetailPage />} />
               <Route element={<RoleRoute role="owner" />}>
                 <Route path="/staff" element={<StaffPage />} />
+                <Route path="/manage/promos" element={<ManagePromosPage />} />
               </Route>
               <Route element={<RoleRoute role={['owner', 'staff']} />}>
                 <Route path="/manage/venues" element={<ManageVenuesPage />} />

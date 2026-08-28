@@ -32,9 +32,14 @@ export default function AppLayout() {
                   </>
                 )}
                 {user.role === 'owner' && (
-                  <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                    Kelola Staff
-                  </Link>
+                  <>
+                    <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Kelola Staff
+                    </Link>
+                    <Link to="/manage/promos" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                      Voucher
+                    </Link>
+                  </>
                 )}
                 {user.role === 'pelanggan' && (
                   <Link to="/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BlockedSlotController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CourtController;
 use App\Http\Controllers\Api\ManageBookingController;
+use App\Http\Controllers\Api\PromoController;
 use App\Http\Controllers\Api\RecurringBookingController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SlotController;
@@ -29,6 +30,7 @@ Route::get('/venues', [VenueController::class, 'index']);
 Route::get('/venues/{venue}', [VenueController::class, 'show']);
 Route::get('/courts/{court}/slots', [SlotController::class, 'index']);
 Route::get('/courts/{court}/reviews', [ReviewController::class, 'index']);
+Route::post('/courts/{court}/promos/preview', [PromoController::class, 'preview']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -81,5 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/manage/venues/{venue}/courts', [CourtController::class, 'store']);
         Route::post('/manage/courts/{court}', [CourtController::class, 'update']);
         Route::delete('/manage/courts/{court}', [CourtController::class, 'destroy']);
+
+        // Modul 14 — voucher & kode promo, Owner saja (keputusan pemasaran, bukan operasional harian Staff).
+        Route::get('/manage/promos', [PromoController::class, 'index']);
+        Route::post('/manage/promos', [PromoController::class, 'store']);
+        Route::put('/manage/promos/{promo}', [PromoController::class, 'update']);
+        Route::delete('/manage/promos/{promo}', [PromoController::class, 'destroy']);
     });
 });

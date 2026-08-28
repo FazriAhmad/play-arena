@@ -46,4 +46,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Venue::class, 'owner_id');
     }
+
+    /** Voucher/promo milik user ini (role owner). */
+    public function promos(): HasMany
+    {
+        return $this->hasMany(Promo::class, 'owner_id');
+    }
 }

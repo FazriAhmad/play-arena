@@ -130,6 +130,8 @@ export interface Booking {
   payments?: Payment[];
   refunds?: Refund[];
   review?: Review | null;
+  promo_code?: string | null;
+  discount_amount?: number | null;
 }
 
 /** Ulasan lapangan (GET /courts/:id/reviews, POST /bookings/:id/review) — Modul 13. */
@@ -184,6 +186,28 @@ export interface RecurringBookingResult {
   recurring_group_id: number;
   created: Booking[];
   failed: { date: string; reason: string }[];
+}
+
+/** Voucher & kode promo (GET/POST/PUT/DELETE /manage/promos) — Modul 14. */
+export interface Promo {
+  id: number;
+  venue_id: number | null;
+  venue?: { id: number; name: string } | null;
+  code: string;
+  discount_type: 'percent' | 'fixed';
+  value: number;
+  min_amount: number | null;
+  quota: number | null;
+  used_count: number;
+  starts_at: string;
+  ends_at: string;
+  is_active: boolean;
+}
+
+/** Hasil cek voucher sebelum booking (POST /courts/:id/promos/preview) — Modul 14. */
+export interface PromoPreview {
+  discount_amount: number;
+  final_amount: number;
 }
 
 export const rupiah = (n: number) => 'Rp' + Math.round(n).toLocaleString('id-ID');

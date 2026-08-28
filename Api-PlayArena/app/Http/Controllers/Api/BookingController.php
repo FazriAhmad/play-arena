@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AppliesPromoCode;
 use App\Http\Controllers\Concerns\CancelsBookings;
 use App\Http\Controllers\Concerns\CreatesBookings;
 use App\Http\Controllers\Controller;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\DB;
  */
 class BookingController extends Controller
 {
+    use AppliesPromoCode;
     use CancelsBookings;
     use CreatesBookings;
 
@@ -34,12 +36,27 @@ class BookingController extends Controller
             'start_hour' => ['required', 'integer', 'min:0', 'max:23'],
             'duration_hours' => ['required', 'integer', 'min:1', 'max:12'],
             'contact_wa' => ['required', 'string', 'max:30'],
+            'promo_code' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $booking = $this->createBooking($court, $venue, $data, [
+        $extra = [
             'pelanggan_id' => $request->user()->id,
             'status' => 'menunggu_acc',
-        ]);
+        ];
+
+        $promo = null;
+        if (! empty($data['promo_code'])) {
+            $result = $this->resolvePromo($data['promo_code'], $court, $court->price_per_hour * $data['duration_hours']);
+            $promo = $result['promo'];
+            $extra['promo_code'] = $promo->code;
+            $extra['discount_amount'] = $result['discount'];
+        }
+
+        // Booking dibuat dulu (bisa gagal kena exclusion constraint) — kuota
+        // voucher baru dipakai setelah booking BENAR-BENAR berhasil, supaya
+        // percobaan yang gagal bentrok tidak ikut menghabiskan kuota.
+        $booking = $this->createBooking($court, $venue, $data, $extra);
+        $promo?->increment('used_count');
 
         return response()->json(['data' => $booking], 201);
     }
@@ -112,6 +129,10 @@ class BookingController extends Controller
             return $this->createBooking($court, $venue, $data, [
                 'pelanggan_id' => $booking->pelanggan_id,
                 'status' => 'menunggu_acc',
+                // Voucher yang sudah dipakai tetap ikut ke jadwal baru — reschedule
+                // memindahkan booking yang sama, bukan transaksi baru.
+                'promo_code' => $booking->promo_code,
+                'discount_amount' => $booking->discount_amount,
             ]);
         });
 

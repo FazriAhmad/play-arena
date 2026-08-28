@@ -2,7 +2,16 @@ import { Clock, MapPin, MessageCircle, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import { DAYS_OF_WEEK, rupiah, type Court, type RecurringBookingResult, type Review, type Slot, type VenueDetail } from '../lib/types';
+import {
+  DAYS_OF_WEEK,
+  rupiah,
+  type Court,
+  type PromoPreview,
+  type RecurringBookingResult,
+  type Review,
+  type Slot,
+  type VenueDetail,
+} from '../lib/types';
 import { useAuth } from '../store/AuthContext';
 import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
 import SlotGrid from '../components/SlotGrid';
@@ -138,6 +147,10 @@ function BookingPanel({
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [duration, setDuration] = useState(1);
   const [contactWa, setContactWa] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoPreview, setPromoPreview] = useState<PromoPreview | null>(null);
+  const [promoError, setPromoError] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [waLink, setWaLink] = useState<string | null>(null);
@@ -149,8 +162,31 @@ function BookingPanel({
   };
 
   useEffect(loadSlots, [date, court.id]);
+  useEffect(() => {
+    setPromoPreview(null);
+    setPromoError('');
+  }, [duration, court.id]);
 
   const maxDurationFromHour = selectedHour === null ? 1 : venueCloseHour - selectedHour;
+  const total = court.price_per_hour * duration;
+
+  const applyPromo = async () => {
+    if (!promoCode) return;
+    setPromoError('');
+    setPromoLoading(true);
+    try {
+      const res = await api.post<{ data: PromoPreview }>(`/courts/${court.id}/promos/preview`, {
+        code: promoCode,
+        duration_hours: duration,
+      });
+      setPromoPreview(res.data);
+    } catch (err) {
+      setPromoPreview(null);
+      setPromoError(err instanceof ApiError ? err.message : 'Gagal cek voucher.');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const submit = async () => {
     if (!user) {
@@ -169,6 +205,7 @@ function BookingPanel({
         start_hour: selectedHour,
         duration_hours: duration,
         contact_wa: contactWa,
+        promo_code: promoPreview ? promoCode : undefined,
       });
       setSuccess(true);
 
@@ -245,9 +282,52 @@ function BookingPanel({
           </select>
         </Field>
       )}
+      <Field label="Kode Voucher (opsional)">
+        <div className="flex gap-2">
+          <Input
+            value={promoCode}
+            onChange={(e) => {
+              setPromoCode(e.target.value.toUpperCase());
+              setPromoPreview(null);
+              setPromoError('');
+            }}
+            placeholder="AGUSTUS20"
+            className="flex-1"
+          />
+          <Button variant="ghost" onClick={applyPromo} disabled={promoLoading || !promoCode} className="shrink-0">
+            {promoLoading ? 'Cek…' : 'Terapkan'}
+          </Button>
+        </div>
+        {promoError && <span className="mt-1 block text-xs font-medium text-rose-600">{promoError}</span>}
+        {promoPreview && (
+          <span className="mt-1 block text-xs font-medium text-emerald-600">
+            Voucher diterapkan — hemat {rupiah(promoPreview.discount_amount)}
+          </span>
+        )}
+      </Field>
       <Field label="Nomor WA yang bisa dihubungi" hint="Dipakai admin untuk konfirmasi manual">
         <Input value={contactWa} onChange={(e) => setContactWa(e.target.value)} placeholder="0812xxxxxxx" required />
       </Field>
+      {selectedHour !== null && (
+        <div className="rounded-lg bg-slate-50 p-3 text-sm">
+          <div className="flex items-center justify-between text-slate-500">
+            <span>
+              {rupiah(court.price_per_hour)}/jam × {duration} jam
+            </span>
+            <span>{rupiah(total)}</span>
+          </div>
+          {promoPreview && (
+            <div className="mt-1 flex items-center justify-between text-emerald-600">
+              <span>Diskon voucher</span>
+              <span>-{rupiah(promoPreview.discount_amount)}</span>
+            </div>
+          )}
+          <div className="mt-1 flex items-center justify-between border-t border-slate-200 pt-1 font-semibold text-slate-900">
+            <span>Total</span>
+            <span>{rupiah(promoPreview ? promoPreview.final_amount : total)}</span>
+          </div>
+        </div>
+      )}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
       <Button onClick={submit} disabled={loading || selectedHour === null || !contactWa}>
         {loading ? 'Memproses…' : user ? 'Booking Sekarang' : 'Login untuk Booking'}
