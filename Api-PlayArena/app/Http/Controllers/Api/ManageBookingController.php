@@ -31,13 +31,16 @@ class ManageBookingController extends Controller
         $user = $request->user();
         $venueIds = $user->hasRole('owner')
             ? $user->ownedVenues()->pluck('id')
-            : $user->venues()->pluck('id');
+            // "venues.id" wajib eksplisit — pivot venue_staff punya kolom id
+            // sendiri, "id" polos ambigu dan bikin query gagal (SQLSTATE 42702).
+            : $user->venues()->pluck('venues.id');
 
         $bookings = Booking::query()
             ->whereHas('court', fn ($q) => $q->whereIn('venue_id', $venueIds))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when($request->filled('date'), fn ($q) => $q->whereDate('starts_at', $request->string('date')))
             ->when($request->filled('court_id'), fn ($q) => $q->where('court_id', $request->integer('court_id')))
+            ->when($request->filled('venue_id'), fn ($q) => $q->whereHas('court', fn ($c) => $c->where('venue_id', $request->integer('venue_id'))))
             ->with(['court:id,name,venue_id,price_per_hour', 'court.venue:id,name', 'pelanggan:id,name,phone', 'refunds'])
             ->orderByDesc('starts_at')
             ->get();

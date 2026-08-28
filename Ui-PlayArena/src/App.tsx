@@ -19,43 +19,46 @@ import SearchPage from './pages/SearchPage';
 import StaffPage from './pages/StaffPage';
 import VenueDetailPage from './pages/VenueDetailPage';
 import { AuthProvider } from './store/AuthContext';
+import { VenueProvider } from './store/VenueContext';
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<GuestRoute />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </Route>
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+      <VenueProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<GuestRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<SearchPage />} />
-            <Route path="/venue/:id" element={<VenueDetailPage />} />
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<SearchPage />} />
+              <Route path="/venue/:id" element={<VenueDetailPage />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/bookings" element={<MyBookingsPage />} />
-              <Route path="/bookings/:id" element={<BookingDetailPage />} />
-              <Route path="/announcements" element={<AnnouncementsPage />} />
-              <Route element={<RoleRoute role="owner" />}>
-                <Route path="/staff" element={<StaffPage />} />
-                <Route path="/manage/promos" element={<ManagePromosPage />} />
-                <Route path="/manage/customers" element={<ManageCustomersPage />} />
-                <Route path="/manage/announcements" element={<ManageAnnouncementsPage />} />
-              </Route>
-              <Route element={<RoleRoute role={['owner', 'staff']} />}>
-                <Route path="/manage/venues" element={<ManageVenuesPage />} />
-                <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
-                <Route path="/manage/bookings" element={<ManageBookingsPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/bookings" element={<MyBookingsPage />} />
+                <Route path="/bookings/:id" element={<BookingDetailPage />} />
+                <Route path="/announcements" element={<AnnouncementsPage />} />
+                <Route element={<RoleRoute role="owner" />}>
+                  <Route path="/staff" element={<StaffPage />} />
+                  <Route path="/manage/promos" element={<ManagePromosPage />} />
+                  <Route path="/manage/customers" element={<ManageCustomersPage />} />
+                  <Route path="/manage/announcements" element={<ManageAnnouncementsPage />} />
+                </Route>
+                <Route element={<RoleRoute role={['owner', 'staff']} />}>
+                  <Route path="/manage/venues" element={<ManageVenuesPage />} />
+                  <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
+                  <Route path="/manage/bookings" element={<ManageBookingsPage />} />
+                </Route>
               </Route>
             </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </VenueProvider>
     </AuthProvider>
   );
 }
