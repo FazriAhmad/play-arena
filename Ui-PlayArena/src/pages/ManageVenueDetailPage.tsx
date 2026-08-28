@@ -98,6 +98,9 @@ export default function ManageVenueDetailPage() {
             {c.facilities && c.facilities.length > 0 && (
               <p className="mt-1 text-xs text-slate-500">Fasilitas: {c.facilities.join(', ')}</p>
             )}
+            {isOwner && c.sport === 'Bulu Tangkis' && (
+              <ShuttlecockPriceEditor courtId={c.id} price={c.shuttlecock_price} onSaved={load} />
+            )}
             {isOwner && (
               <div className="mt-3 flex items-center gap-3">
                 <button onClick={() => toggleCourt(c.id, c.is_active)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
@@ -328,6 +331,7 @@ function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => v
   const [name, setName] = useState('');
   const [sport, setSport] = useState(SPORTS[0]);
   const [price, setPrice] = useState('');
+  const [shuttlecockPrice, setShuttlecockPrice] = useState('');
   const [facilities, setFacilities] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
   const [error, setError] = useState('');
@@ -342,6 +346,7 @@ function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => v
       fd.append('name', name);
       fd.append('sport', sport);
       fd.append('price_per_hour', price);
+      if (sport === 'Bulu Tangkis' && shuttlecockPrice) fd.append('shuttlecock_price', shuttlecockPrice);
       facilities
         .split(',')
         .map((f) => f.trim())
@@ -380,6 +385,17 @@ function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => v
         <Field label="Harga per jam (Rp)">
           <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} placeholder="150000" required />
         </Field>
+        {sport === 'Bulu Tangkis' && (
+          <Field label="Harga Shuttlecock per Buah (Rp)" hint="Opsional — kosongkan kalau tidak jual shuttlecock">
+            <Input
+              type="number"
+              min={0}
+              value={shuttlecockPrice}
+              onChange={(e) => setShuttlecockPrice(e.target.value)}
+              placeholder="5000"
+            />
+          </Field>
+        )}
         <Field label="Fasilitas" hint="Pisahkan dengan koma">
           <Input value={facilities} onChange={(e) => setFacilities(e.target.value)} placeholder="Toilet, Musholla, Parkir" />
         </Field>
@@ -397,5 +413,53 @@ function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => v
         </div>
       </form>
     </Card>
+  );
+}
+
+/** Modul 20 — harga shuttlecock per buah, khusus lapangan badminton. Diedit terpisah dari form lapangan supaya owner bisa ubah kapan saja tanpa mengulang seluruh form. */
+function ShuttlecockPriceEditor({ courtId, price, onSaved }: { courtId: number; price: number | null; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(String(price ?? ''));
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await api.post(`/manage/courts/${courtId}`, { shuttlecock_price: value === '' ? null : Number(value) });
+      setEditing(false);
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!editing) {
+    return (
+      <button
+        onClick={() => setEditing(true)}
+        className="mt-1 block text-xs text-slate-500 hover:text-[#1d5fc4] hover:underline"
+      >
+        Shuttlecock: {price ? `${rupiah(price)}/buah` : 'belum diatur'} (ubah)
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-1 flex items-center gap-2">
+      <Input
+        type="number"
+        min={0}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="5000"
+        className="w-28 py-1.5 text-xs"
+      />
+      <button onClick={save} disabled={saving} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
+        {saving ? 'Menyimpan…' : 'Simpan'}
+      </button>
+      <button onClick={() => setEditing(false)} className="text-xs text-slate-400 hover:underline">
+        Batal
+      </button>
+    </div>
   );
 }

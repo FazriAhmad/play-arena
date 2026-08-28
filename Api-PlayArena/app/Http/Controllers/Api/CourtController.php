@@ -19,6 +19,7 @@ class CourtController extends Controller
     {
         $this->authorizeOwner($request->user(), $venue);
         $data = $this->validated($request);
+        $this->guardShuttlecockPrice($data, $data['sport']);
 
         if ($request->hasFile('photo')) {
             $data['photo_url'] = Storage::disk('public')->url(
@@ -35,6 +36,7 @@ class CourtController extends Controller
     {
         $this->authorizeOwner($request->user(), $court->venue);
         $data = $this->validated($request, sometimes: true);
+        $this->guardShuttlecockPrice($data, $data['sport'] ?? $court->sport);
 
         if ($request->hasFile('photo')) {
             if ($court->photo_url) {
@@ -63,6 +65,16 @@ class CourtController extends Controller
         return response()->json(['message' => 'Lapangan dihapus.']);
     }
 
+    /** Modul 20 — shuttlecock cuma masuk akal buat lapangan badminton, tolak kalau sport lain. */
+    private function guardShuttlecockPrice(array $data, string $sport): void
+    {
+        abort_if(
+            ! empty($data['shuttlecock_price']) && $sport !== 'Bulu Tangkis',
+            422,
+            'Harga shuttlecock cuma bisa diatur untuk lapangan Bulu Tangkis.'
+        );
+    }
+
     private function validated(Request $request, bool $sometimes = false): array
     {
         $rule = fn (string ...$r) => $sometimes ? ['sometimes', ...$r] : ['required', ...$r];
@@ -71,6 +83,7 @@ class CourtController extends Controller
             'name' => $rule('string', 'max:255'),
             'sport' => $rule('string', 'max:100'),
             'price_per_hour' => $rule('integer', 'min:0'),
+            'shuttlecock_price' => ['nullable', 'integer', 'min:0'],
             'photo' => ['nullable', 'image', 'max:5120'],
             'facilities' => ['nullable', 'array'],
         ]);

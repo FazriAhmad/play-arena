@@ -13,6 +13,8 @@ export interface Court {
   name: string;
   sport: string;
   price_per_hour: number;
+  /** Modul 20 — cuma dipakai lapangan badminton, null = venue ini tidak jual shuttlecock. */
+  shuttlecock_price: number | null;
   photo_url: string | null;
   facilities: string[] | null;
   is_active: boolean;
@@ -132,6 +134,8 @@ export interface Booking {
   review?: Review | null;
   promo_code?: string | null;
   discount_amount?: number | null;
+  shuttlecock_qty: number;
+  shuttlecock_amount: number;
 }
 
 /** Ulasan lapangan (GET /courts/:id/reviews, POST /bookings/:id/review) — Modul 13. */

@@ -201,6 +201,12 @@ export default function BookingDetailPage() {
             </span>
             <span className="font-semibold text-slate-900">{rupiah(total)}</span>
           </div>
+          {booking.shuttlecock_qty > 0 && (
+            <div className="mt-1 flex items-center justify-between text-sm text-slate-600">
+              <span>Shuttlecock × {booking.shuttlecock_qty}</span>
+              <span>{rupiah(booking.shuttlecock_amount)}</span>
+            </div>
+          )}
           {!!booking.discount_amount && (
             <div className="mt-1 flex items-center justify-between text-sm text-emerald-600">
               <span>Diskon voucher {booking.promo_code}</span>
@@ -209,7 +215,9 @@ export default function BookingDetailPage() {
           )}
           <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
             <span className="font-semibold text-slate-900">Total</span>
-            <span className="text-lg font-bold text-[#1d5fc4]">{rupiah(total - (booking.discount_amount ?? 0))}</span>
+            <span className="text-lg font-bold text-[#1d5fc4]">
+              {rupiah(total + booking.shuttlecock_amount - (booking.discount_amount ?? 0))}
+            </span>
           </div>
           {payment && (
             <p className="mt-2 text-xs text-slate-500">

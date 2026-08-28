@@ -88,7 +88,12 @@ export default function VenueDetailPage() {
                     )}
                   </div>
                 </div>
-                <p className="text-sm font-bold text-[#1d5fc4]">{rupiah(c.price_per_hour)}/jam</p>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-[#1d5fc4]">{rupiah(c.price_per_hour)}/jam</p>
+                  {c.sport === 'Bulu Tangkis' && c.shuttlecock_price && (
+                    <p className="text-xs text-slate-400">Shuttlecock {rupiah(c.shuttlecock_price)}/buah</p>
+                  )}
+                </div>
               </div>
               {c.facilities && c.facilities.length > 0 && (
                 <p className="mt-2 text-xs text-slate-500">Fasilitas: {c.facilities.join(', ')}</p>
@@ -147,6 +152,7 @@ function BookingPanel({
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [duration, setDuration] = useState(1);
   const [contactWa, setContactWa] = useState('');
+  const [shuttlecockQty, setShuttlecockQty] = useState(0);
   const [promoCode, setPromoCode] = useState('');
   const [promoPreview, setPromoPreview] = useState<PromoPreview | null>(null);
   const [promoError, setPromoError] = useState('');
@@ -168,7 +174,9 @@ function BookingPanel({
   }, [duration, court.id]);
 
   const maxDurationFromHour = selectedHour === null ? 1 : venueCloseHour - selectedHour;
-  const total = court.price_per_hour * duration;
+  const sellsShuttlecock = court.sport === 'Bulu Tangkis' && !!court.shuttlecock_price;
+  const shuttlecockTotal = sellsShuttlecock ? shuttlecockQty * (court.shuttlecock_price ?? 0) : 0;
+  const total = court.price_per_hour * duration + shuttlecockTotal;
 
   const applyPromo = async () => {
     if (!promoCode) return;
@@ -206,6 +214,7 @@ function BookingPanel({
         duration_hours: duration,
         contact_wa: contactWa,
         promo_code: promoPreview ? promoCode : undefined,
+        shuttlecock_qty: sellsShuttlecock ? shuttlecockQty : undefined,
       });
       setSuccess(true);
 
@@ -282,6 +291,18 @@ function BookingPanel({
           </select>
         </Field>
       )}
+      {sellsShuttlecock && (
+        <Field label="Jumlah Shuttlecock (opsional)" hint={`${rupiah(court.shuttlecock_price ?? 0)}/buah`}>
+          <Input
+            type="number"
+            min={0}
+            max={50}
+            value={shuttlecockQty}
+            onChange={(e) => setShuttlecockQty(Math.max(0, Number(e.target.value)))}
+            className="w-24"
+          />
+        </Field>
+      )}
       <Field label="Kode Voucher (opsional)">
         <div className="flex gap-2">
           <Input
@@ -314,8 +335,14 @@ function BookingPanel({
             <span>
               {rupiah(court.price_per_hour)}/jam × {duration} jam
             </span>
-            <span>{rupiah(total)}</span>
+            <span>{rupiah(court.price_per_hour * duration)}</span>
           </div>
+          {shuttlecockQty > 0 && (
+            <div className="mt-1 flex items-center justify-between text-slate-500">
+              <span>Shuttlecock × {shuttlecockQty}</span>
+              <span>{rupiah(shuttlecockTotal)}</span>
+            </div>
+          )}
           {promoPreview && (
             <div className="mt-1 flex items-center justify-between text-emerald-600">
               <span>Diskon voucher</span>
@@ -324,7 +351,7 @@ function BookingPanel({
           )}
           <div className="mt-1 flex items-center justify-between border-t border-slate-200 pt-1 font-semibold text-slate-900">
             <span>Total</span>
-            <span>{rupiah(promoPreview ? promoPreview.final_amount : total)}</span>
+            <span>{rupiah(promoPreview ? promoPreview.final_amount + shuttlecockTotal : total)}</span>
           </div>
         </div>
       )}

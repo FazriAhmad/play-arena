@@ -37,6 +37,7 @@ class BookingController extends Controller
             'duration_hours' => ['required', 'integer', 'min:1', 'max:12'],
             'contact_wa' => ['required', 'string', 'max:30'],
             'promo_code' => ['nullable', 'string', 'max:50'],
+            'shuttlecock_qty' => ['nullable', 'integer', 'min:0', 'max:50'],
         ]);
 
         $extra = [
@@ -122,6 +123,11 @@ class BookingController extends Controller
 
         $court = $booking->court;
         $venue = $court->venue;
+
+        // Shuttlecock (kalau ada) ikut ke jadwal baru sama seperti voucher — dihitung
+        // ulang lewat createBooking() pakai harga shuttlecock TERKINI, bukan yang dibekukan
+        // di booking lama, konsisten dengan cara harga per-jam juga selalu dari data lapangan sekarang.
+        $data['shuttlecock_qty'] = $booking->shuttlecock_qty;
 
         $new = DB::transaction(function () use ($booking, $court, $venue, $data) {
             $booking->update(['status' => 'cancelled', 'cancel_reason' => 'Dijadwalkan ulang oleh pelanggan.']);

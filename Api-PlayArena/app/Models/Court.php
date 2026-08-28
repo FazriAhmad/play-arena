@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['venue_id', 'name', 'sport', 'price_per_hour', 'photo_url', 'facilities', 'is_active'])]
+#[Fillable(['venue_id', 'name', 'sport', 'price_per_hour', 'shuttlecock_price', 'photo_url', 'facilities', 'is_active'])]
 class Court extends Model
 {
     protected function casts(): array

@@ -87,7 +87,7 @@ class ManageBookingController extends Controller
         abort_unless($booking->status === 'menunggu_bayar', 422, 'Booking ini belum menunggu pembayaran.');
 
         $hours = $booking->starts_at->diffInHours($booking->ends_at);
-        $amount = max(0, $booking->court->price_per_hour * $hours - ($booking->discount_amount ?? 0));
+        $amount = max(0, $booking->court->price_per_hour * $hours + $booking->shuttlecock_amount - ($booking->discount_amount ?? 0));
         Payment::create([
             'booking_id' => $booking->id,
             'method' => 'manual',
@@ -114,6 +114,7 @@ class ManageBookingController extends Controller
             'duration_hours' => ['required', 'integer', 'min:1', 'max:12'],
             'guest_name' => ['required', 'string', 'max:255'],
             'contact_wa' => ['required', 'string', 'max:30'],
+            'shuttlecock_qty' => ['nullable', 'integer', 'min:0', 'max:50'],
         ]);
 
         $booking = $this->createBooking($court, $venue, $data, [
@@ -125,7 +126,7 @@ class ManageBookingController extends Controller
         Payment::create([
             'booking_id' => $booking->id,
             'method' => 'manual',
-            'amount' => $court->price_per_hour * $data['duration_hours'],
+            'amount' => $court->price_per_hour * $data['duration_hours'] + $booking->shuttlecock_amount,
             'status' => 'paid',
             'confirmed_by' => $request->user()->id,
             'confirmed_at' => now(),

@@ -118,6 +118,9 @@ export default function ManageBookingsPage() {
                     {start.toLocaleTimeString('id-ID', { timeStyle: 'short' })}–{end.toLocaleTimeString('id-ID', { timeStyle: 'short' })}
                   </p>
                   {b.court && <p className="mt-1 text-xs font-semibold text-[#1d5fc4]">{rupiah(b.court.price_per_hour)}/jam</p>}
+                  {b.shuttlecock_qty > 0 && (
+                    <p className="mt-0.5 text-xs text-slate-500">+ Shuttlecock × {b.shuttlecock_qty} ({rupiah(b.shuttlecock_amount)})</p>
+                  )}
                   {b.status === 'rejected' && b.reject_reason && (
                     <p className="mt-1 text-xs text-rose-600">Alasan: {b.reject_reason}</p>
                   )}
@@ -181,8 +184,12 @@ function WalkInForm({ onCreated }: { onCreated: () => void }) {
   const [duration, setDuration] = useState('1');
   const [guestName, setGuestName] = useState('');
   const [contactWa, setContactWa] = useState('');
+  const [shuttlecockQty, setShuttlecockQty] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const selectedCourt = courts.find((c) => String(c.id) === courtId);
+  const sellsShuttlecock = selectedCourt?.sport === 'Bulu Tangkis' && !!selectedCourt.shuttlecock_price;
 
   useEffect(() => {
     api.get<{ data: OwnerVenue[] }>('/manage/venues').then((res) => setVenues(res.data));
@@ -212,6 +219,7 @@ function WalkInForm({ onCreated }: { onCreated: () => void }) {
         duration_hours: Number(duration),
         guest_name: guestName,
         contact_wa: contactWa,
+        shuttlecock_qty: sellsShuttlecock && shuttlecockQty ? Number(shuttlecockQty) : undefined,
       });
       onCreated();
     } catch (err) {
@@ -264,6 +272,11 @@ function WalkInForm({ onCreated }: { onCreated: () => void }) {
         <Field label="Durasi (jam)">
           <Input type="number" min={1} max={12} value={duration} onChange={(e) => setDuration(e.target.value)} />
         </Field>
+        {sellsShuttlecock && (
+          <Field label="Jumlah Shuttlecock" hint={`${rupiah(selectedCourt!.shuttlecock_price!)}/buah, opsional`}>
+            <Input type="number" min={0} max={50} value={shuttlecockQty} onChange={(e) => setShuttlecockQty(e.target.value)} />
+          </Field>
+        )}
         <Field label="Nama pelanggan">
           <Input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Nama yang datang" required />
         </Field>

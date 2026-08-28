@@ -37,11 +37,22 @@ trait CreatesBookings
             ->exists();
         abort_if($blocked, 422, 'Slot ini sedang diblokir pengelola venue.');
 
+        // Shuttlecock cuma buat lapangan badminton yang harganya sudah diatur owner —
+        // amount dibekukan sekarang (qty x harga saat ini), bukan dihitung ulang nanti.
+        $shuttlecockQty = $data['shuttlecock_qty'] ?? 0;
+        abort_if(
+            $shuttlecockQty > 0 && (! $court->shuttlecock_price || $court->sport !== 'Bulu Tangkis'),
+            422,
+            'Lapangan ini tidak menyediakan shuttlecock.'
+        );
+
         try {
             return $court->bookings()->create($extra + [
                 'starts_at' => $startsAt,
                 'ends_at' => $endsAt,
                 'contact_wa' => $data['contact_wa'],
+                'shuttlecock_qty' => $shuttlecockQty,
+                'shuttlecock_amount' => $shuttlecockQty * ($court->shuttlecock_price ?? 0),
             ]);
         } catch (QueryException $e) {
             // SQLSTATE 23P01 = exclusion_violation — constraint bookings_no_overlap yang menolak.
