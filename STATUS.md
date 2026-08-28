@@ -2,6 +2,18 @@
 
 > File ini dipakai sebagai checkpoint lintas-sesi. Lanjutkan di sesi chat baru dengan minta Claude baca file ini dulu.
 
+## 🔄 Titik Lanjut Sesi (2026-08-28)
+
+Sesi sebelumnya dihentikan karena context window sudah ~90% penuh, BUKAN karena pekerjaan selesai. Semua kode sampai Modul 17 sudah ter-commit & ter-push bersih ke branch `dev` (working tree clean, dicek langsung lewat `git status` sebelum handoff ini) — tidak ada kerjaan menggantung yang belum disimpan.
+
+**Lanjutkan dari sini:**
+- **Modul 18 — Dashboard Analitik** adalah modul berikutnya yang diminta user, belum mulai dikerjakan. Cakupan sesuai PRD: jam paling laris (heatmap jam × hari), lapangan paling sering dibooking, tren booking 7/30 hari, tingkat okupansi per venue — semua discoped ke venue yang dipilih lewat `VenueContext`/switcher yang sudah dibangun di Modul 17 (`Dashboard.tsx`, `src/store/VenueContext.tsx`).
+- Setelah Modul 18: **Modul 19 (Laporan Pendapatan)** — modul terakhir Fase 2.
+- **Modul 06 (Pembayaran Midtrans) & Modul 12 (Split Payment) masih DITUNDA** — butuh Server/Client Key Midtrans Sandbox yang cuma bisa didaftarkan user sendiri di sandbox.midtrans.com. Tawarkan mengisi keduanya begitu user sudah punya key.
+- **Tetap di branch `dev`, JANGAN merge ke `main`** sampai user minta eksplisit (keputusan 2026-08-28, lihat bagian Repository di bawah).
+- Pola kerja tiap modul yang sudah established sepanjang sesi ini (ikuti terus): baca spek modul dari PRD artifact (link di bawah) → bangun backend + frontend → jalankan `vendor/bin/pint --format agent` & `npx tsc -b --noEmit` → uji end-to-end lewat curl DAN browser sungguhan (bukan cuma "tidak error", cek nilai aktual) → matikan dev server → commit & push ke `dev` → update STATUS.md dengan detail lengkap (apa yang dibangun, bug yang ditemukan, skenario yang diuji) → commit & push STATUS.md sebagai commit terpisah.
+- **Catatan automation browser**: `window.confirm()`/`window.prompt()` bawaan sering butuh di-override lewat `javascript_tool` sebelum klik (`window.confirm = () => true; window.prompt = () => '...'`) karena environment ini tidak mendukungnya secara native — override itu hilang tiap navigasi/reload penuh, jadi ulangi tiap kali sebelum test tombol yang memicu dialog native.
+
 ## Ringkasan Proyek
 
 Platform booking online untuk venue olahraga (futsal, badminton, basket, tenis, dsb) — **satu pemilik usaha, bisa multi-venue** (seperti cabang, bukan marketplace terbuka). Nama produk: **PlayArena** (sebelumnya nama kerja-sementara "GORin", diganti 2026-08-27 sesuai logo resmi yang sudah dibuat user — lihat `logo-rec-center.jpg`).
