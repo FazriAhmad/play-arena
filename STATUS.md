@@ -5,11 +5,11 @@
 ## 🔄 Titik Lanjut Sesi (2026-08-28)
 
 **Lanjutkan dari sini:**
-- **Fase 2 tuntas** (Modul 11–19, kecuali Modul 12 yang ditunda). **Modul 20 sudah diganti scope-nya** (keputusan user 2026-08-28): bukan lagi "Sewa Perlengkapan Tambahan" generik seperti di PRD asli, tapi disederhanakan jadi harga shuttlecock per buah, khusus lapangan Bulu Tangkis — selesai.
-- **Modul 21 (Membership Bulanan) SELESAI** — modul terakhir Fase 3, sekaligus **seluruh roadmap PRD (Fase 1–3) sudah tuntas** kecuali Modul 06 &amp; 12 yang menunggu Midtrans sandbox key (lihat poin di bawah). Detail lengkap Modul 21 ada di bagian modul di bawah.
-- **Belum ada modul baru yang jelas untuk dikerjakan berikutnya** — tanyakan user: (a) mau isi Modul 06/12 kalau sudah punya Midtrans sandbox key, (b) mau merge `dev` ke `main` sekarang seluruh Fase 1–3 sudah jalan, atau (c) ada fitur tambahan baru di luar PRD awal yang mau ditambahkan. Jangan berasumsi salah satu tanpa ditanya.
+- **Seluruh roadmap PRD (Fase 1–3) tuntas** kecuali Modul 06 &amp; 12 (lihat poin di bawah). Modul 20 diganti scope-nya jadi harga shuttlecock (keputusan user 2026-08-28, bukan lagi "Sewa Perlengkapan Tambahan" generik dari PRD asli). Modul 21 (Membership Bulanan) sudah selesai. Detail lengkap tiap modul ada di bagian bawah file ini.
+- **`dev` sudah di-merge (fast-forward) ke `main` dan di-push ke GitHub** (keputusan &amp; permintaan eksplisit user, 2026-08-28) — `main` sekarang identik dengan `dev` (commit `92a1aba`), bukan snapshot lama Modul 01 lagi. Karena fast-forward murni (tidak ada divergensi/commit lain di `main`), tidak ada merge commit maupun conflict yang perlu diselesaikan.
+- **Belum ada modul baru yang jelas untuk dikerjakan berikutnya** — tanyakan user: (a) mau isi Modul 06/12 kalau sudah punya Midtrans sandbox key, atau (b) ada fitur tambahan baru di luar PRD awal yang mau ditambahkan. Jangan berasumsi salah satu tanpa ditanya.
 - **Modul 06 (Pembayaran Midtrans) & Modul 12 (Split Payment) masih DITUNDA** — butuh Server/Client Key Midtrans Sandbox yang cuma bisa didaftarkan user sendiri di sandbox.midtrans.com. Tawarkan mengisi keduanya begitu user sudah punya key.
-- **Tetap di branch `dev`, JANGAN merge ke `main`** sampai user minta eksplisit (keputusan 2026-08-28, lihat bagian Repository di bawah).
+- **Kalau lanjut kerja modul baru (Modul 06/12 atau fitur tambahan), tetap pakai branch `dev`** sebagai default kerja (pola yang sama sepanjang proyek ini), lalu merge ke `main` lagi kalau user minta eksplisit — jangan berasumsi commit langsung ke `main`.
 - Pola kerja tiap modul yang sudah established sepanjang sesi ini (ikuti terus): baca spek modul dari PRD artifact (link di bawah) → bangun backend + frontend → jalankan `vendor/bin/pint --format agent` & `npx tsc -b --noEmit` → uji end-to-end lewat curl DAN browser sungguhan (bukan cuma "tidak error", cek nilai aktual) → matikan dev server → commit & push ke `dev` → update STATUS.md dengan detail lengkap (apa yang dibangun, bug yang ditemukan, skenario yang diuji) → commit & push STATUS.md sebagai commit terpisah.
 - **Catatan automation browser**: `window.confirm()`/`window.prompt()` bawaan sering butuh di-override lewat `javascript_tool` sebelum klik (`window.confirm = () => true; window.prompt = () => '...'`) karena environment ini tidak mendukungnya secara native — override itu hilang tiap navigasi/reload penuh, jadi ulangi tiap kali sebelum test tombol yang memicu dialog native.
 
@@ -27,8 +27,8 @@ Kalau mau baca PRD lengkap, buka link di atas — jangan re-generate dari nol, a
 ## 🔗 Repository
 
 **https://github.com/FazriAhmad/play-arena.git** — seluruh isi folder ini (STATUS.md, logo, referensi-play-arena, Ui-PlayArena, Api-PlayArena) di-push sebagai satu repo, sama seperti pola LMS. `.env`/`vendor`/`node_modules` semua ter-exclude lewat `.gitignore` masing-masing folder.
-- Branch `main` — backend Modul 01 (Api-PlayArena) selesai (snapshot lama, jauh tertinggal).
-- Branch `dev` — **branch kerja saat ini, dan satu-satunya yang aktif dikembangkan**. Berisi seluruh Fase 1 (Modul 01–05, 07–10, Modul 06 ditunda) + Fase 2 yang sedang berjalan (Modul 11 selesai). **Keputusan user (2026-08-28): jangan merge ke `main` sampai diminta eksplisit** — sebelumnya alasannya "simpan di branch dev dulu", sekarang eksplisit "tetap di dev, lanjut ke fase selanjutnya". Jangan inisiatif merge sendiri.
+- Branch `main` — **di-merge (fast-forward) dari `dev` dan di-push (2026-08-28, permintaan eksplisit user "merge dev ke main")**, sekarang identik dengan `dev` di commit `92a1aba` (seluruh Fase 1–3 selesai kecuali Modul 06 &amp; 12). Sebelumnya cuma snapshot lama Modul 01, sudah tidak lagi tertinggal.
+- Branch `dev` — **tetap jadi branch kerja default** untuk modul/fitur berikutnya (pola yang sama sepanjang proyek ini) meskipun sudah sejajar dengan `main` saat ini — jangan commit langsung ke `main`, kerja di `dev` dulu lalu merge lagi kalau user minta eksplisit (seperti kali ini).
 
 ## 🎨 Referensi &amp; Aset yang Sudah Dibuat User
 
