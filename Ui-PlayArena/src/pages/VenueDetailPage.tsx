@@ -1,13 +1,13 @@
-import { Clock, MapPin, MessageCircle } from 'lucide-react';
+import { Clock, MapPin, MessageCircle, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import { DAYS_OF_WEEK, rupiah, type Court, type RecurringBookingResult, type Slot, type VenueDetail } from '../lib/types';
+import { DAYS_OF_WEEK, rupiah, type Court, type RecurringBookingResult, type Review, type Slot, type VenueDetail } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
 import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
 import SlotGrid from '../components/SlotGrid';
 import VenueMap from '../components/VenueMap';
-import { Badge, Button, Card, Field, Input } from '../components/ui';
+import { Badge, Button, Card, Field, Input, Stars } from '../components/ui';
 
 export default function VenueDetailPage() {
   const { id } = useParams();
@@ -16,6 +16,7 @@ export default function VenueDetailPage() {
   const [error, setError] = useState(false);
   const [openCourtId, setOpenCourtId] = useState<number | null>(null);
   const [recurringCourtId, setRecurringCourtId] = useState<number | null>(null);
+  const [reviewsCourtId, setReviewsCourtId] = useState<number | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -64,7 +65,19 @@ export default function VenueDetailPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-semibold text-slate-900">{c.name}</h3>
-                  <Badge>{c.sport}</Badge>
+                  <div className="mt-1 flex items-center gap-2">
+                    <Badge>{c.sport}</Badge>
+                    {c.reviews_count ? (
+                      <button
+                        onClick={() => setReviewsCourtId((cur) => (cur === c.id ? null : c.id))}
+                        className="flex items-center gap-1 text-xs font-semibold text-amber-600 hover:underline"
+                      >
+                        <Star size={12} fill="currentColor" /> {c.reviews_avg_rating?.toFixed(1)} ({c.reviews_count})
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-400">Belum ada ulasan</span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm font-bold text-[#1d5fc4]">{rupiah(c.price_per_hour)}/jam</p>
               </div>
@@ -96,6 +109,7 @@ export default function VenueDetailPage() {
                 <BookingPanel court={c} venueName={venue.name} adminWa={venue.admin_wa} venueCloseHour={venue.close_hour} />
               )}
               {recurringCourtId === c.id && <RecurringBookingPanel court={c} venueCloseHour={venue.close_hour} />}
+              {reviewsCourtId === c.id && <ReviewsList courtId={c.id} />}
             </Card>
           ))}
         </div>
@@ -381,6 +395,38 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
       <Button onClick={submit} disabled={loading || !contactWa}>
         {loading ? 'Memproses…' : user ? 'Buat Booking Berulang' : 'Login untuk Booking'}
       </Button>
+    </div>
+  );
+}
+
+/** Modul 13 — daftar ulasan publik per lapangan. */
+function ReviewsList({ courtId }: { courtId: number }) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api
+      .get<{ data: Review[] }>(`/courts/${courtId}/reviews`)
+      .then((res) => setReviews(res.data))
+      .finally(() => setLoading(false));
+  }, [courtId]);
+
+  return (
+    <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
+      {loading && <p className="text-xs text-slate-400">Memuat ulasan…</p>}
+      {!loading && reviews.length === 0 && <p className="text-xs text-slate-400">Belum ada ulasan.</p>}
+      {reviews.map((r) => (
+        <div key={r.id} className="rounded-lg bg-slate-50 p-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-900">{r.pelanggan?.name ?? 'Pelanggan'}</span>
+            <Stars value={r.rating} size={12} />
+          </div>
+          {r.comment && <p className="mt-1 text-xs text-slate-600">{r.comment}</p>}
+          <p className="mt-1 text-[11px] text-slate-400">
+            {new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }

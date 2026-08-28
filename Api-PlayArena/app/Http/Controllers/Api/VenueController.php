@@ -23,7 +23,7 @@ class VenueController extends Controller
     {
         $venues = Venue::query()
             ->where('is_active', true)
-            ->with(['courts' => fn ($q) => $q->where('is_active', true)->orderBy('id')])
+            ->with(['courts' => fn ($q) => $q->where('is_active', true)->withAvg('reviews', 'rating')->withCount('reviews')->orderBy('id')])
             ->when($request->filled('city'), fn ($q) => $q->where('city', 'ilike', '%'.$request->string('city').'%'))
             ->when($request->filled('sport'), function ($q) use ($request) {
                 $q->whereHas('courts', fn ($c) => $c->where('is_active', true)->where('sport', $request->string('sport')));
@@ -44,7 +44,7 @@ class VenueController extends Controller
     public function show(Venue $venue): JsonResponse
     {
         abort_unless($venue->is_active, 404);
-        $venue->load(['courts' => fn ($q) => $q->where('is_active', true)->orderBy('name')]);
+        $venue->load(['courts' => fn ($q) => $q->where('is_active', true)->withAvg('reviews', 'rating')->withCount('reviews')->orderBy('name')]);
 
         return response()->json(['data' => [
             'id' => $venue->id,
@@ -129,6 +129,7 @@ class VenueController extends Controller
     private function summarize(Venue $venue): array
     {
         $activeCourts = $venue->courts;
+        $reviewsCount = (int) $activeCourts->sum('reviews_count');
 
         return [
             'id' => $venue->id,
@@ -138,6 +139,10 @@ class VenueController extends Controller
             'sports' => $activeCourts->pluck('sport')->unique()->values(),
             'price_from' => $activeCourts->min('price_per_hour'),
             'courts_count' => $activeCourts->count(),
+            'rating_avg' => $reviewsCount > 0
+                ? round($activeCourts->sum(fn ($c) => $c->reviews_avg_rating * $c->reviews_count) / $reviewsCount, 1)
+                : null,
+            'reviews_count' => $reviewsCount,
         ];
     }
 }

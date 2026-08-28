@@ -82,3 +82,30 @@ export const Badge = ({
     </span>
   );
 };
+
+/** Modul 13 — rating bintang, read-only (dari data agregat) atau bisa dipilih (form review). */
+export const Stars = ({
+  value,
+  onChange,
+  size = 16,
+}: {
+  value: number;
+  onChange?: (v: number) => void;
+  size?: number;
+}) => (
+  <div className="inline-flex items-center gap-0.5">
+    {[1, 2, 3, 4, 5].map((n) => (
+      <button
+        key={n}
+        type="button"
+        disabled={!onChange}
+        onClick={() => onChange?.(n)}
+        className={cn('leading-none', onChange && 'cursor-pointer')}
+        style={{ fontSize: size, color: n <= Math.round(value) ? '#f59e0b' : '#e2e8f0' }}
+        aria-label={`${n} bintang`}
+      >
+        ★
+      </button>
+    ))}
+  </div>
+);

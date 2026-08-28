@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CourtController;
 use App\Http\Controllers\Api\ManageBookingController;
 use App\Http\Controllers\Api\RecurringBookingController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SlotController;
 use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\VenueController;
@@ -27,6 +28,7 @@ Route::get('/venues/mine', [VenueController::class, 'mine'])->middleware('auth:s
 Route::get('/venues', [VenueController::class, 'index']);
 Route::get('/venues/{venue}', [VenueController::class, 'show']);
 Route::get('/courts/{court}/slots', [SlotController::class, 'index']);
+Route::get('/courts/{court}/reviews', [ReviewController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -45,6 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Modul 11 — booking berulang, sama seperti Modul 05 tidak dibatasi role:pelanggan.
     Route::post('/courts/{court}/recurring-bookings', [RecurringBookingController::class, 'store']);
+
+    // Modul 13 — rating & review, cuma pemilik booking completed.
+    Route::post('/bookings/{booking}/review', [ReviewController::class, 'store']);
 
     // Modul 04 — kalender & blokir slot. Owner ATAU staff yang ditugaskan
     // ke venue tsb (dicek di controller, bukan middleware role, karena

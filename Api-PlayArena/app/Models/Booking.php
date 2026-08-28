@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['court_id', 'pelanggan_id', 'guest_name', 'starts_at', 'ends_at', 'status', 'reject_reason', 'cancel_reason', 'created_by', 'recurring_group_id', 'contact_wa'])]
 class Booking extends Model
@@ -56,5 +57,10 @@ class Booking extends Model
     public function recurringGroup(): BelongsTo
     {
         return $this->belongsTo(RecurringGroup::class);
+    }
+
+    public function review(): HasOne
+    {
+        return $this->hasOne(Review::class);
     }
 }

@@ -5,7 +5,7 @@ import { api, ApiError } from '../lib/api';
 import { BOOKING_STATUS_LABELS, rupiah, type Booking, type BookingStatus, type Slot } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
 import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
-import { Badge, Button, Card, Field, Input } from '../components/ui';
+import { Badge, Button, Card, Field, Input, Stars } from '../components/ui';
 import SlotGrid from '../components/SlotGrid';
 
 const REFUND_STATUS_LABELS: Record<string, string> = {
@@ -218,7 +218,62 @@ export default function BookingDetailPage() {
           <p className="mt-1 text-sm text-slate-600">{booking.contact_wa}</p>
         </div>
       </Card>
+
+      {booking.status === 'completed' && <ReviewSection booking={booking} onSubmitted={load} />}
     </div>
+  );
+}
+
+/** Modul 13 — beri ulasan (cuma booking completed, satu review per booking). */
+function ReviewSection({ booking, onSubmitted }: { booking: Booking; onSubmitted: () => void }) {
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  if (booking.review) {
+    return (
+      <Card className="mt-4 p-5 print:hidden">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ulasan Anda</p>
+        <div className="mt-2">
+          <Stars value={booking.review.rating} />
+        </div>
+        {booking.review.comment && <p className="mt-2 text-sm text-slate-600">{booking.review.comment}</p>}
+      </Card>
+    );
+  }
+
+  const submit = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await api.post(`/bookings/${booking.id}/review`, { rating, comment: comment || undefined });
+      onSubmitted();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Gagal mengirim ulasan.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="mt-4 space-y-3 p-5 print:hidden">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Beri Ulasan Lapangan Ini</p>
+      <Stars value={rating} onChange={setRating} size={22} />
+      <Field label="Komentar (opsional)">
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          rows={3}
+          placeholder="Bagaimana pengalaman main Anda?"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+        />
+      </Field>
+      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      <Button onClick={submit} disabled={loading}>
+        {loading ? 'Mengirim…' : 'Kirim Ulasan'}
+      </Button>
+    </Card>
   );
 }
 

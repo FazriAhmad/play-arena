@@ -15,6 +15,9 @@ class Court extends Model
         return [
             'facilities' => 'array',
             'is_active' => 'boolean',
+            // Postgres AVG() balikin string desimal via withAvg('reviews','rating') — cast eksplisit
+            // supaya frontend bisa langsung panggil .toFixed() tanpa parse manual.
+            'reviews_avg_rating' => 'float',
         ];
     }
 
@@ -31,5 +34,10 @@ class Court extends Model
     public function blockedSlots(): HasMany
     {
         return $this->hasMany(BlockedSlot::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 }

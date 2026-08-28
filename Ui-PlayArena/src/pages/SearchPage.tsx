@@ -1,4 +1,4 @@
-import { MapPin, SlidersHorizontal } from 'lucide-react';
+import { MapPin, SlidersHorizontal, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
@@ -82,7 +82,14 @@ export default function SearchPage() {
                 )}
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-slate-900">{v.name}</h3>
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-slate-900">{v.name}</h3>
+                  {v.rating_avg !== null && (
+                    <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-amber-600">
+                      <Star size={12} fill="currentColor" /> {v.rating_avg} ({v.reviews_count})
+                    </span>
+                  )}
+                </div>
                 {v.city && (
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-500">
                     <MapPin size={12} /> {v.city}

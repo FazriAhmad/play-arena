@@ -16,6 +16,8 @@ export interface Court {
   photo_url: string | null;
   facilities: string[] | null;
   is_active: boolean;
+  reviews_avg_rating?: number | null;
+  reviews_count?: number;
 }
 
 /** Kartu di direktori publik (GET /venues). */
@@ -27,6 +29,8 @@ export interface VenueSummary {
   sports: string[];
   price_from: number | null;
   courts_count: number;
+  rating_avg: number | null;
+  reviews_count: number;
 }
 
 /** Halaman detail venue (GET /venues/:id). */
@@ -125,6 +129,16 @@ export interface Booking {
   pelanggan?: { id: number; name: string; phone: string } | null;
   payments?: Payment[];
   refunds?: Refund[];
+  review?: Review | null;
+}
+
+/** Ulasan lapangan (GET /courts/:id/reviews, POST /bookings/:id/review) — Modul 13. */
+export interface Review {
+  id: number;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  pelanggan?: { id: number; name: string };
 }
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
