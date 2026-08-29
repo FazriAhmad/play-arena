@@ -62,7 +62,12 @@ class VenueController extends Controller
             'courts' => $venue->courts,
             // Modul 21 — cuma dikirim kalau owner venue ini punya plan aktif, dipakai
             // tampilkan pitch member + hitung estimasi diskon di sisi frontend.
-            'membership' => $plan?->is_active ? ['price' => $plan->price, 'discount_percent' => $plan->discount_percent] : null,
+            'membership' => $plan?->is_active ? [
+                'price' => $plan->price,
+                'discount_percent' => $plan->discount_percent,
+                'badminton_quota_hours_per_week' => $plan->badminton_quota_hours_per_week,
+                'badminton_quota_sessions_per_month' => $plan->badminton_quota_sessions_per_month,
+            ] : null,
         ]]);
     }
 

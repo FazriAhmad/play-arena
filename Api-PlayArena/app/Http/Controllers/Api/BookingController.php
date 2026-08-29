@@ -61,7 +61,9 @@ class BookingController extends Controller
 
         // Diskon member (Modul 21) berdiri sendiri dari voucher, tapi keduanya
         // digabung tetap tidak boleh melebihi subtotal.
-        $memberDiscount = $this->resolveMemberDiscount($request->user(), $venue, $subtotal);
+        $memberDiscount = $this->resolveMemberDiscount(
+            $request->user(), $court, $venue, $subtotal, $data['date'], $data['start_hour'], $data['duration_hours']
+        );
         $extra['member_discount_amount'] = min($memberDiscount, max(0, $subtotal - $promoDiscount));
 
         // Booking dibuat dulu (bisa gagal kena exclusion constraint) — kuota
@@ -150,7 +152,9 @@ class BookingController extends Controller
         // plan TERKINI — beda dari voucher yang dibawa apa adanya, karena
         // status member bisa saja sudah expired sejak booking lama dibuat.
         $subtotal = $court->price_per_hour * $data['duration_hours'];
-        $memberDiscount = $this->resolveMemberDiscount($request->user(), $venue, $subtotal);
+        $memberDiscount = $this->resolveMemberDiscount(
+            $request->user(), $court, $venue, $subtotal, $data['date'], $data['start_hour'], $data['duration_hours'], $booking->id
+        );
         $memberDiscount = min($memberDiscount, max(0, $subtotal - (int) ($booking->discount_amount ?? 0)));
 
         $new = DB::transaction(function () use ($booking, $court, $venue, $data, $memberDiscount) {

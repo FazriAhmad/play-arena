@@ -8,6 +8,8 @@ export default function ManageMembershipPage() {
   const [plan, setPlan] = useState<MembershipPlan | null>(null);
   const [price, setPrice] = useState('');
   const [discountPercent, setDiscountPercent] = useState('');
+  const [quotaHours, setQuotaHours] = useState('');
+  const [quotaSessions, setQuotaSessions] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -21,6 +23,8 @@ export default function ManageMembershipPage() {
         if (res.data) {
           setPrice(String(res.data.price));
           setDiscountPercent(String(res.data.discount_percent));
+          setQuotaHours(res.data.badminton_quota_hours_per_week ? String(res.data.badminton_quota_hours_per_week) : '');
+          setQuotaSessions(res.data.badminton_quota_sessions_per_month ? String(res.data.badminton_quota_sessions_per_month) : '');
           setIsActive(res.data.is_active);
         }
       })
@@ -36,6 +40,8 @@ export default function ManageMembershipPage() {
         price: Number(price),
         discount_percent: Number(discountPercent),
         is_active: isActive,
+        badminton_quota_hours_per_week: quotaHours ? Number(quotaHours) : null,
+        badminton_quota_sessions_per_month: quotaSessions ? Number(quotaSessions) : null,
       });
       setPlan(res.data);
       setSaved(true);
@@ -69,6 +75,16 @@ export default function ManageMembershipPage() {
               required
             />
           </Field>
+          <Field
+            label="Kuota Jam Badminton per Minggu (opsional)"
+            hint="Kosongkan kalau tidak ada kuota gratis, cuma diskon persen"
+          >
+            <Input type="number" min={1} value={quotaHours} onChange={(e) => setQuotaHours(e.target.value)} placeholder="3" />
+          </Field>
+          <Field label="Kuota Sesi Badminton per Bulan (opsional)">
+            <Input type="number" min={1} value={quotaSessions} onChange={(e) => setQuotaSessions(e.target.value)} placeholder="4" />
+          </Field>
+
           <label className="flex items-center gap-2 text-sm text-slate-200 sm:col-span-2">
             <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="h-4 w-4" />
             Plan aktif — diskon berlaku untuk pelanggan yang sedang jadi member
@@ -86,6 +102,12 @@ export default function ManageMembershipPage() {
       {plan && (
         <p className="mt-3 text-xs text-slate-500">
           Plan saat ini: {rupiah(plan.price)}/bulan, diskon {plan.discount_percent}% — {plan.is_active ? 'aktif' : 'nonaktif'}.
+          {plan.badminton_quota_hours_per_week && plan.badminton_quota_sessions_per_month && (
+            <>
+              {' '}
+              Kuota badminton gratis: {plan.badminton_quota_hours_per_week} jam/minggu, maks {plan.badminton_quota_sessions_per_month}x/bulan.
+            </>
+          )}
         </p>
       )}
 
@@ -97,6 +119,10 @@ export default function ManageMembershipPage() {
           </li>
           <li>Status member berlaku 1 bulan sejak ditandai, lalu otomatis dicabut kalau tidak diperpanjang.</li>
           <li>Diskon berlaku otomatis di semua venue milik Anda saat pelanggan booking, bisa digabung dengan kode voucher.</li>
+          <li>
+            Kuota badminton (opsional) — booking badminton member jadi GRATIS penuh selama masih dalam jatah jam/minggu &amp;
+            sesi/bulan; begitu jatah habis, booking berikutnya kembali kena diskon persen biasa (tidak diblokir, tetap bisa booking).
+          </li>
         </ul>
       </Card>
     </div>

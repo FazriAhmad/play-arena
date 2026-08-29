@@ -48,7 +48,12 @@ export interface VenueDetail {
   close_hour: number;
   courts: Court[];
   /** Modul 21 — cuma ada kalau owner venue ini punya plan membership aktif. */
-  membership: { price: number; discount_percent: number } | null;
+  membership: {
+    price: number;
+    discount_percent: number;
+    badminton_quota_hours_per_week: number | null;
+    badminton_quota_sessions_per_month: number | null;
+  } | null;
 }
 
 /** Daftar venue yang bisa dikelola user login (GET /manage/venues) — owner: miliknya; staff: yang ditugaskan. */
@@ -246,6 +251,9 @@ export interface MembershipPlan {
   price: number;
   discount_percent: number;
   is_active: boolean;
+  /** Kuota booking badminton GRATIS per minggu/bulan, opsional — null berdua = tidak ada kuota. */
+  badminton_quota_hours_per_week: number | null;
+  badminton_quota_sessions_per_month: number | null;
 }
 
 /** Detail pelanggan + riwayat booking (GET /manage/customers/:id) — Modul 15. */

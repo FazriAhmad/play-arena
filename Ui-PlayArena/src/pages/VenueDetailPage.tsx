@@ -68,11 +68,26 @@ export default function VenueDetailPage() {
           {isActiveMember(user) ? (
             <p>
               Anda member — otomatis dapat diskon <strong>{venue.membership.discount_percent}%</strong> di setiap booking.
+              {venue.membership.badminton_quota_hours_per_week && venue.membership.badminton_quota_sessions_per_month && (
+                <>
+                  {' '}
+                  Khusus badminton, Anda juga dapat jatah <strong>{venue.membership.badminton_quota_hours_per_week} jam/minggu</strong>{' '}
+                  (maks {venue.membership.badminton_quota_sessions_per_month}x/bulan) <strong>GRATIS</strong>.
+                </>
+              )}
             </p>
           ) : (
             <p>
               Jadi member {rupiah(venue.membership.price)}/bulan, dapat diskon <strong>{venue.membership.discount_percent}%</strong>{' '}
-              di setiap booking. Hubungi admin venue lewat WhatsApp untuk daftar.
+              di setiap booking
+              {venue.membership.badminton_quota_hours_per_week && venue.membership.badminton_quota_sessions_per_month && (
+                <>
+                  {' '}
+                  (khusus badminton, {venue.membership.badminton_quota_hours_per_week} jam/minggu &amp;{' '}
+                  {venue.membership.badminton_quota_sessions_per_month}x/bulan malah <strong>GRATIS</strong>)
+                </>
+              )}
+              . Hubungi admin venue lewat WhatsApp untuk daftar.
             </p>
           )}
         </Card>
@@ -146,6 +161,12 @@ export default function VenueDetailPage() {
                   adminWa={venue.admin_wa}
                   venueCloseHour={venue.close_hour}
                   memberDiscountPercent={isActiveMember(user) ? (venue.membership?.discount_percent ?? null) : null}
+                  hasBadmintonQuota={
+                    isActiveMember(user) &&
+                    c.sport === 'Bulu Tangkis' &&
+                    !!venue.membership?.badminton_quota_hours_per_week &&
+                    !!venue.membership?.badminton_quota_sessions_per_month
+                  }
                 />
               )}
               {recurringCourtId === c.id && <RecurringBookingPanel court={c} venueCloseHour={venue.close_hour} />}
@@ -166,12 +187,14 @@ function BookingPanel({
   adminWa,
   venueCloseHour,
   memberDiscountPercent,
+  hasBadmintonQuota,
 }: {
   court: Court;
   venueName: string;
   adminWa: string | null;
   venueCloseHour: number;
   memberDiscountPercent: number | null;
+  hasBadmintonQuota: boolean;
 }) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -389,6 +412,12 @@ function BookingPanel({
             <span>Total</span>
             <span>{rupiah(promoPreview ? promoPreview.final_amount - memberDiscount + shuttlecockTotal : total)}</span>
           </div>
+          {hasBadmintonQuota && (
+            <p className="mt-2 text-xs text-amber-400">
+              Sebagai member, booking ini bisa jadi GRATIS kalau masih dalam jatah mingguan/bulanan Anda — total final dihitung
+              setelah submit, bukan angka di atas.
+            </p>
+          )}
         </div>
       )}
       {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">{error}</p>}

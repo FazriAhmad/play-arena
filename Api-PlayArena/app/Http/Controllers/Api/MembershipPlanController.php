@@ -26,6 +26,10 @@ class MembershipPlanController extends Controller
             'price' => ['required', 'integer', 'min:0'],
             'discount_percent' => ['required', 'integer', 'min:1', 'max:100'],
             'is_active' => ['required', 'boolean'],
+            // Kuota booking badminton gratis (opsional) — dua-duanya wajib diisi bersamaan,
+            // kosong berdua = member badminton cuma dapat diskon persen seperti sport lain.
+            'badminton_quota_hours_per_week' => ['nullable', 'integer', 'min:1', 'max:168', 'required_with:badminton_quota_sessions_per_month'],
+            'badminton_quota_sessions_per_month' => ['nullable', 'integer', 'min:1', 'max:31', 'required_with:badminton_quota_hours_per_week'],
         ]);
 
         $plan = MembershipPlan::updateOrCreate(['owner_id' => $request->user()->id], $data);
