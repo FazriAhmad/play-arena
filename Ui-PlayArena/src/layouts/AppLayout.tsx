@@ -3,9 +3,15 @@ import { Link, Outlet } from 'react-router-dom';
 import { ROLE_LABELS } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
 import { Button } from '../components/ui';
+import AdminLayout from './AdminLayout';
 
+/** Owner/staff punya banyak menu (Fase 2/3) — dipindah ke sidebar `AdminLayout` sendiri, bukan top-bar ini. */
 export default function AppLayout() {
   const { user, logout } = useAuth();
+
+  if (user?.role === 'owner' || user?.role === 'staff') {
+    return <AdminLayout />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -21,51 +27,12 @@ export default function AppLayout() {
           <nav className="flex items-center gap-4">
             {user ? (
               <>
-                {(user.role === 'owner' || user.role === 'staff') && (
-                  <>
-                    <Link to="/manage/venues" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Kelola Lapangan
-                    </Link>
-                    <Link to="/manage/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Booking Masuk
-                    </Link>
-                    <Link to="/manage/analytics" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Analitik
-                    </Link>
-                  </>
-                )}
-                {user.role === 'owner' && (
-                  <>
-                    <Link to="/staff" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Kelola Staff
-                    </Link>
-                    <Link to="/manage/promos" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Voucher
-                    </Link>
-                    <Link to="/manage/customers" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Pelanggan
-                    </Link>
-                    <Link to="/manage/announcements" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Pengumuman
-                    </Link>
-                    <Link to="/manage/revenue" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Pendapatan
-                    </Link>
-                    <Link to="/manage/membership" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Membership
-                    </Link>
-                  </>
-                )}
-                {user.role === 'pelanggan' && (
-                  <>
-                    <Link to="/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Booking Saya
-                    </Link>
-                    <Link to="/announcements" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
-                      Pengumuman
-                    </Link>
-                  </>
-                )}
+                <Link to="/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                  Booking Saya
+                </Link>
+                <Link to="/announcements" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                  Pengumuman
+                </Link>
                 <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
                   <div className="text-right">
                     <p className="text-sm font-semibold leading-tight text-slate-900">{user.name}</p>
