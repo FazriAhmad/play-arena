@@ -15,9 +15,12 @@ use Carbon\Carbon;
  * lalu di-cap ke subtotal). Dipakai di jalur booking online & reschedule —
  * bukan walk-in, karena walk-in biasanya tamu tanpa akun (guest_name).
  *
- * Khusus lapangan badminton, plan bisa punya kuota booking GRATIS per
- * minggu/bulan (fitur terpisah dari diskon persen) — dicek DULU sebelum
- * jatuh ke diskon persen biasa.
+ * **Keputusan user (2026-08-29): membership SEMENTARA cuma berlaku untuk
+ * lapangan badminton** — sport lain tidak dapat diskon member sama sekali,
+ * biar tidak sekaligus dievaluasi kompensasi lintas-sport (kalau nanti mau
+ * diperluas ke sport lain, ini keputusan yang perlu direvisit eksplisit,
+ * bukan dianggap default). Kuota jam/sesi gratis (opsional di atas diskon
+ * persen) otomatis ikut cuma berlaku badminton juga.
  */
 trait AppliesMembershipDiscount
 {
@@ -31,6 +34,10 @@ trait AppliesMembershipDiscount
         int $durationHours,
         ?int $excludeBookingId = null
     ): int {
+        if ($court->sport !== 'Bulu Tangkis') {
+            return 0;
+        }
+
         if (! $user->is_member || ! $user->membership_expires_at?->isFuture()) {
             return 0;
         }
@@ -40,11 +47,7 @@ trait AppliesMembershipDiscount
             return 0;
         }
 
-        if (
-            $court->sport === 'Bulu Tangkis'
-            && $plan->badminton_quota_hours_per_week
-            && $plan->badminton_quota_sessions_per_month
-        ) {
+        if ($plan->badminton_quota_hours_per_week && $plan->badminton_quota_sessions_per_month) {
             $startsAt = Carbon::parse($date, config('app.timezone'))->setTime($startHour, 0);
             if ($this->withinBadmintonQuota($user, $venue, $startsAt, $durationHours, $plan, $excludeBookingId)) {
                 return $subtotal;

@@ -13,7 +13,7 @@ import {
   type VenueDetail,
 } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
-import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
+import { buildBookingWaMessage, buildMembershipWaMessage, buildWaLink } from '../lib/whatsapp';
 import SlotGrid from '../components/SlotGrid';
 import VenueMap from '../components/VenueMap';
 import { Badge, Button, Card, Field, Input, Stars } from '../components/ui';
@@ -63,32 +63,57 @@ export default function VenueDetailPage() {
         </span>
       </div>
 
-      {venue.membership && (
+      {venue.membership && venue.courts.some((c) => c.sport === 'Bulu Tangkis') && (
         <Card className="mt-4 border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
           {isActiveMember(user) ? (
             <p>
-              Anda member — otomatis dapat diskon <strong>{venue.membership.discount_percent}%</strong> di setiap booking.
+              Anda member — otomatis dapat diskon <strong>{venue.membership.discount_percent}%</strong> di setiap booking{' '}
+              <strong>badminton</strong>.
               {venue.membership.badminton_quota_hours_per_week && venue.membership.badminton_quota_sessions_per_month && (
                 <>
                   {' '}
-                  Khusus badminton, Anda juga dapat jatah <strong>{venue.membership.badminton_quota_hours_per_week} jam/minggu</strong>{' '}
-                  (maks {venue.membership.badminton_quota_sessions_per_month}x/bulan) <strong>GRATIS</strong>.
+                  Anda juga dapat jatah <strong>{venue.membership.badminton_quota_hours_per_week} jam/minggu</strong> (maks{' '}
+                  {venue.membership.badminton_quota_sessions_per_month}x/bulan) <strong>GRATIS</strong>.
                 </>
               )}
             </p>
           ) : (
-            <p>
-              Jadi member {rupiah(venue.membership.price)}/bulan, dapat diskon <strong>{venue.membership.discount_percent}%</strong>{' '}
-              di setiap booking
-              {venue.membership.badminton_quota_hours_per_week && venue.membership.badminton_quota_sessions_per_month && (
-                <>
-                  {' '}
-                  (khusus badminton, {venue.membership.badminton_quota_hours_per_week} jam/minggu &amp;{' '}
-                  {venue.membership.badminton_quota_sessions_per_month}x/bulan malah <strong>GRATIS</strong>)
-                </>
+            <>
+              <p>
+                Jadi member {rupiah(venue.membership.price)}/bulan, dapat diskon{' '}
+                <strong>{venue.membership.discount_percent}%</strong> di setiap booking <strong>badminton</strong>
+                {venue.membership.badminton_quota_hours_per_week && venue.membership.badminton_quota_sessions_per_month && (
+                  <>
+                    {' '}
+                    ({venue.membership.badminton_quota_hours_per_week} jam/minggu &amp;{' '}
+                    {venue.membership.badminton_quota_sessions_per_month}x/bulan malah <strong>GRATIS</strong>)
+                  </>
+                )}
+                .
+              </p>
+              {venue.admin_wa && user ? (
+                <a
+                  href={buildWaLink(
+                    venue.admin_wa,
+                    buildMembershipWaMessage({ customerName: user.name, venueName: venue.name, price: venue.membership.price }),
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+                >
+                  <MessageCircle size={14} /> Daftar Member via WhatsApp
+                </a>
+              ) : (
+                !user && (
+                  <Link
+                    to="/login"
+                    className="mt-3 inline-block rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+                  >
+                    Login untuk Daftar Member
+                  </Link>
+                )
               )}
-              . Hubungi admin venue lewat WhatsApp untuk daftar.
-            </p>
+            </>
           )}
         </Card>
       )}
@@ -160,7 +185,9 @@ export default function VenueDetailPage() {
                   venueName={venue.name}
                   adminWa={venue.admin_wa}
                   venueCloseHour={venue.close_hour}
-                  memberDiscountPercent={isActiveMember(user) ? (venue.membership?.discount_percent ?? null) : null}
+                  memberDiscountPercent={
+                    isActiveMember(user) && c.sport === 'Bulu Tangkis' ? (venue.membership?.discount_percent ?? null) : null
+                  }
                   hasBadmintonQuota={
                     isActiveMember(user) &&
                     c.sport === 'Bulu Tangkis' &&

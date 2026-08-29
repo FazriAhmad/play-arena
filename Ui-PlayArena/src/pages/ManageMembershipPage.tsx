@@ -56,7 +56,8 @@ export default function ManageMembershipPage() {
     <div>
       <h1 className="text-2xl font-bold text-white">Membership Bulanan</h1>
       <p className="mt-1 text-sm text-slate-400">
-        Pelanggan yang jadi member otomatis dapat diskon di setiap booking, tanpa perlu kode voucher.
+        Pelanggan yang jadi member otomatis dapat diskon di setiap booking <strong>lapangan badminton</strong> — sementara belum
+        berlaku untuk sport lain.
       </p>
 
       <Card className="mt-6 p-5">
@@ -64,7 +65,7 @@ export default function ManageMembershipPage() {
           <Field label="Harga per Bulan (Rp)">
             <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} placeholder="50000" required />
           </Field>
-          <Field label="Diskon per Booking (%)">
+          <Field label="Diskon per Booking Badminton (%)">
             <Input
               type="number"
               min={1}
@@ -118,7 +119,10 @@ export default function ManageMembershipPage() {
             <span className="font-medium">Kelola Pelanggan</span> setelah menerima pembayaran, sama seperti konfirmasi pembayaran booking.
           </li>
           <li>Status member berlaku 1 bulan sejak ditandai, lalu otomatis dicabut kalau tidak diperpanjang.</li>
-          <li>Diskon berlaku otomatis di semua venue milik Anda saat pelanggan booking, bisa digabung dengan kode voucher.</li>
+          <li>
+            Diskon berlaku otomatis di semua venue milik Anda, TAPI CUMA untuk booking lapangan badminton (keputusan sementara,
+            sport lain belum dapat diskon member) — bisa digabung dengan kode voucher.
+          </li>
           <li>
             Kuota badminton (opsional) — booking badminton member jadi GRATIS penuh selama masih dalam jatah jam/minggu &amp;
             sesi/bulan; begitu jatah habis, booking berikutnya kembali kena diskon persen biasa (tidak diblokir, tetap bisa booking).
