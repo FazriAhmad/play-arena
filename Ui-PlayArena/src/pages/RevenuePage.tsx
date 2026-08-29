@@ -128,11 +128,15 @@ export default function RevenuePage() {
 }
 
 function StatCard({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: 'neutral' | 'danger' | 'primary' }) {
-  const colors = { neutral: 'text-slate-900', danger: 'text-rose-600', primary: 'text-[#1d5fc4]' };
+  const colors = {
+    neutral: { text: 'text-slate-900', border: 'border-l-slate-300' },
+    danger: { text: 'text-rose-600', border: 'border-l-rose-400' },
+    primary: { text: 'text-[#1d5fc4]', border: 'border-l-[#f97316]' },
+  };
   return (
-    <Card className="p-5">
+    <Card className={`border-l-4 p-5 ${colors[tone].border}`}>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-2 text-2xl font-bold ${colors[tone]}`}>{value}</p>
+      <p className={`mt-2 text-2xl font-bold ${colors[tone].text}`}>{value}</p>
     </Card>
   );
 }

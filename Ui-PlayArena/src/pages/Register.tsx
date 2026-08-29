@@ -34,7 +34,7 @@ export default function Register() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1d5fc4] font-bold text-lg text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#1d5fc4] to-[#f97316] font-bold text-lg text-white">
             P
           </div>
           <h1 className="mt-3 text-xl font-bold text-slate-900">Daftar Akun Pelanggan</h1>

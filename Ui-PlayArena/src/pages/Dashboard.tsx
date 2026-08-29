@@ -91,13 +91,13 @@ function OwnerStaffOverview() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <div className="rounded-lg bg-slate-50 p-3">
-              <p className="text-xs text-slate-500">Lapangan</p>
-              <p className="mt-1 text-lg font-bold text-slate-900">{currentVenue.courts_count}</p>
+            <div className="rounded-lg bg-[#1d5fc4]/10 p-3">
+              <p className="text-xs text-[#164a9c]">Lapangan</p>
+              <p className="mt-1 text-lg font-bold text-[#164a9c]">{currentVenue.courts_count}</p>
             </div>
-            <div className="rounded-lg bg-slate-50 p-3">
-              <p className="text-xs text-slate-500">Menunggu ACC</p>
-              <p className="mt-1 text-lg font-bold text-slate-900">{loading ? '…' : pending.length}</p>
+            <div className="rounded-lg bg-orange-50 p-3">
+              <p className="text-xs text-orange-700">Menunggu ACC</p>
+              <p className="mt-1 text-lg font-bold text-orange-700">{loading ? '…' : pending.length}</p>
             </div>
           </div>
 

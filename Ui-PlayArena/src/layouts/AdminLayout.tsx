@@ -51,7 +51,7 @@ export default function AdminLayout() {
   const sidebar = (
     <div className="flex h-full flex-col">
       <Link to="/" className="flex items-center gap-2.5 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1d5fc4] font-bold text-sm text-white">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#1d5fc4] to-[#f97316] font-bold text-sm text-white">
           P
         </div>
         <div>
@@ -112,7 +112,7 @@ export default function AdminLayout() {
               <Menu size={18} />
             </button>
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1d5fc4] text-xs font-bold text-white">P</div>
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-[#1d5fc4] to-[#f97316] text-xs font-bold text-white">P</div>
               <span className="font-bold text-slate-900">PlayArena</span>
             </Link>
           </div>

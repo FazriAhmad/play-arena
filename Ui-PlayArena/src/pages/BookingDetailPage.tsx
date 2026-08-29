@@ -130,7 +130,7 @@ export default function BookingDetailPage() {
       <Card className="mt-4 p-6 print:border-none print:p-0 print:shadow-none">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1d5fc4] font-bold text-sm text-white">P</div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#1d5fc4] to-[#f97316] font-bold text-sm text-white">P</div>
             <span className="font-bold text-slate-900">PlayArena</span>
           </div>
           <Badge tone={STATUS_TONE[booking.status]}>{BOOKING_STATUS_LABELS[booking.status]}</Badge>

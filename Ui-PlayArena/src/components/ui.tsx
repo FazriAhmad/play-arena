@@ -8,7 +8,8 @@ export const Button = ({
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'danger' }) => {
   const variants = {
-    primary: 'bg-[#1d5fc4] text-white hover:bg-[#164a9c] shadow-sm shadow-[#1d5fc4]/30',
+    primary:
+      'bg-gradient-to-r from-[#1d5fc4] to-[#2f6fd6] text-white hover:from-[#164a9c] hover:to-[#1d5fc4] shadow-sm shadow-[#1d5fc4]/30',
     ghost: 'text-slate-600 hover:bg-slate-100',
     danger: 'bg-rose-600 text-white hover:bg-rose-700',
   };

@@ -41,11 +41,11 @@ export default function SearchPage() {
       <p className="mt-1 text-sm text-slate-500">Booking online, tanpa perlu telepon dulu untuk cek jadwal.</p>
 
       {announcements[0] && (
-        <Card className="mt-4 flex items-start gap-3 border-[#1d5fc4]/20 bg-[#1d5fc4]/5 p-4">
-          <Megaphone size={18} className="mt-0.5 shrink-0 text-[#1d5fc4]" />
+        <Card className="mt-4 flex items-start gap-3 overflow-hidden border-none bg-gradient-to-r from-[#1d5fc4] to-[#f97316] p-4 text-white shadow-md">
+          <Megaphone size={18} className="mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-slate-900">{announcements[0].title}</p>
-            <p className="mt-0.5 text-xs text-slate-600">{announcements[0].body}</p>
+            <p className="text-sm font-semibold">{announcements[0].title}</p>
+            <p className="mt-0.5 text-xs text-white/85">{announcements[0].body}</p>
           </div>
         </Card>
       )}
