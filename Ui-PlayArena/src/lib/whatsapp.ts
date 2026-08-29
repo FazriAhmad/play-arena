@@ -6,16 +6,6 @@ export function buildWaLink(adminWa: string, message: string): string {
   return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
 }
 
-/** Modul 21 — pendaftaran member tetap manual (lihat ManageMembershipPage), ini cuma buka chat ke admin. */
-export function buildMembershipWaMessage(params: { customerName: string; venueName: string; price: number }): string {
-  const { customerName, venueName, price } = params;
-
-  return (
-    `Halo Admin ${venueName}, saya ${customerName} ingin daftar member bulanan (Rp${price.toLocaleString('id-ID')}/bulan).\n\n` +
-    `Mohon info cara pembayarannya. Terima kasih.`
-  );
-}
-
 export function buildBookingWaMessage(params: {
   customerName: string;
   venueName: string;

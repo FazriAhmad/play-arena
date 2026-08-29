@@ -32,10 +32,18 @@ export default function ManageCustomersPage() {
     load();
   };
 
+  const rejectRequest = async (customer: Customer) => {
+    if (!confirm(`Tolak permintaan member dari ${customer.name}?`)) return;
+    await api.put(`/manage/customers/${customer.id}`, { reject_request: true });
+    load();
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-white">Kelola Pelanggan</h1>
-      <p className="mt-1 text-sm text-slate-400">Basis pelanggan yang pernah booking di venue Anda.</p>
+      <p className="mt-1 text-sm text-slate-400">
+        Basis pelanggan yang pernah booking di venue Anda, atau sedang mengajukan permintaan member.
+      </p>
 
       <div className="mt-6 space-y-3">
         {loading && <p className="text-sm text-slate-500">Memuat…</p>}
@@ -51,6 +59,11 @@ export default function ManageCustomersPage() {
                       Member
                       {c.membership_expires_at &&
                         ` — s.d. ${new Date(c.membership_expires_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}`}
+                    </Badge>
+                  )}
+                  {!c.is_member && c.membership_requested_at && (
+                    <Badge tone="danger">
+                      Permintaan Member — {new Date(c.membership_requested_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}
                     </Badge>
                   )}
                 </div>
@@ -78,6 +91,15 @@ export default function ManageCustomersPage() {
                     </button>
                     <button onClick={() => setMember(c, false)} className="text-xs font-semibold text-slate-400 hover:underline">
                       Batalkan Member
+                    </button>
+                  </>
+                ) : c.membership_requested_at ? (
+                  <>
+                    <button onClick={() => setMember(c, true)} className="text-xs font-semibold text-emerald-400 hover:underline">
+                      ACC Jadi Member
+                    </button>
+                    <button onClick={() => rejectRequest(c)} className="text-xs font-semibold text-rose-400 hover:underline">
+                      Tolak
                     </button>
                   </>
                 ) : (

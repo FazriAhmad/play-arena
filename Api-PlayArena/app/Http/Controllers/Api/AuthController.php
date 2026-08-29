@@ -122,6 +122,7 @@ class AuthController extends Controller
             'is_active' => $user->is_active,
             'is_member' => $user->is_member,
             'membership_expires_at' => $user->membership_expires_at,
+            'membership_requested_at' => $user->membership_requested_at,
             'role' => $user->getRoleNames()->first(),
             'venue_ids' => $user->venues()->pluck('venues.id'),
         ];

@@ -13,13 +13,89 @@ import {
   type VenueDetail,
 } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
-import { buildBookingWaMessage, buildMembershipWaMessage, buildWaLink } from '../lib/whatsapp';
+import { buildBookingWaMessage, buildWaLink } from '../lib/whatsapp';
 import SlotGrid from '../components/SlotGrid';
 import VenueMap from '../components/VenueMap';
 import { Badge, Button, Card, Field, Input, Stars } from '../components/ui';
 
 function isActiveMember(user: { is_member: boolean; membership_expires_at: string | null } | null): boolean {
   return !!user?.is_member && !!user.membership_expires_at && new Date(user.membership_expires_at) > new Date();
+}
+
+/** Modul 21 — pendaftaran member LEWAT WEB (bukan WA lagi): pelanggan ajukan di sini, admin ACC/tolak dari Kelola Pelanggan. */
+function MembershipBanner({ membership }: { membership: NonNullable<VenueDetail['membership']> }) {
+  const { user, refresh } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const requestMembership = async () => {
+    setSubmitting(true);
+    setError('');
+    try {
+      await api.post('/membership/request', {});
+      await refresh();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Gagal mengirim permintaan.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const active = isActiveMember(user);
+  const pending = !active && !!user?.membership_requested_at;
+  const quota = membership.badminton_quota_hours_per_week && membership.badminton_quota_sessions_per_month;
+
+  return (
+    <Card className="mt-4 border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
+      {active ? (
+        <p>
+          Anda member — otomatis dapat diskon <strong>{membership.discount_percent}%</strong> di setiap booking{' '}
+          <strong>badminton</strong>.
+          {quota && (
+            <>
+              {' '}
+              Anda juga dapat jatah <strong>{membership.badminton_quota_hours_per_week} jam/minggu</strong> (maks{' '}
+              {membership.badminton_quota_sessions_per_month}x/bulan) <strong>GRATIS</strong>.
+            </>
+          )}
+        </p>
+      ) : (
+        <>
+          <p>
+            Jadi member {rupiah(membership.price)}/bulan, dapat diskon <strong>{membership.discount_percent}%</strong> di setiap
+            booking <strong>badminton</strong>
+            {quota && (
+              <>
+                {' '}
+                ({membership.badminton_quota_hours_per_week} jam/minggu &amp; {membership.badminton_quota_sessions_per_month}x/bulan
+                malah <strong>GRATIS</strong>)
+              </>
+            )}
+            .
+          </p>
+          {pending ? (
+            <p className="mt-3 text-xs font-semibold text-amber-200">Permintaan Anda sedang menunggu ACC admin.</p>
+          ) : user ? (
+            <button
+              onClick={requestMembership}
+              disabled={submitting}
+              className="mt-3 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+            >
+              {submitting ? 'Mengirim…' : 'Ajukan Jadi Member'}
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="mt-3 inline-block rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+            >
+              Login untuk Daftar Member
+            </Link>
+          )}
+          {error && <p className="mt-2 text-xs font-medium text-rose-400">{error}</p>}
+        </>
+      )}
+    </Card>
+  );
 }
 
 export default function VenueDetailPage() {
@@ -63,60 +139,7 @@ export default function VenueDetailPage() {
         </span>
       </div>
 
-      {venue.membership && venue.courts.some((c) => c.sport === 'Bulu Tangkis') && (
-        <Card className="mt-4 border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
-          {isActiveMember(user) ? (
-            <p>
-              Anda member — otomatis dapat diskon <strong>{venue.membership.discount_percent}%</strong> di setiap booking{' '}
-              <strong>badminton</strong>.
-              {venue.membership.badminton_quota_hours_per_week && venue.membership.badminton_quota_sessions_per_month && (
-                <>
-                  {' '}
-                  Anda juga dapat jatah <strong>{venue.membership.badminton_quota_hours_per_week} jam/minggu</strong> (maks{' '}
-                  {venue.membership.badminton_quota_sessions_per_month}x/bulan) <strong>GRATIS</strong>.
-                </>
-              )}
-            </p>
-          ) : (
-            <>
-              <p>
-                Jadi member {rupiah(venue.membership.price)}/bulan, dapat diskon{' '}
-                <strong>{venue.membership.discount_percent}%</strong> di setiap booking <strong>badminton</strong>
-                {venue.membership.badminton_quota_hours_per_week && venue.membership.badminton_quota_sessions_per_month && (
-                  <>
-                    {' '}
-                    ({venue.membership.badminton_quota_hours_per_week} jam/minggu &amp;{' '}
-                    {venue.membership.badminton_quota_sessions_per_month}x/bulan malah <strong>GRATIS</strong>)
-                  </>
-                )}
-                .
-              </p>
-              {venue.admin_wa && user ? (
-                <a
-                  href={buildWaLink(
-                    venue.admin_wa,
-                    buildMembershipWaMessage({ customerName: user.name, venueName: venue.name, price: venue.membership.price }),
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
-                >
-                  <MessageCircle size={14} /> Daftar Member via WhatsApp
-                </a>
-              ) : (
-                !user && (
-                  <Link
-                    to="/login"
-                    className="mt-3 inline-block rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
-                  >
-                    Login untuk Daftar Member
-                  </Link>
-                )
-              )}
-            </>
-          )}
-        </Card>
-      )}
+      {venue.membership && venue.courts.some((c) => c.sport === 'Bulu Tangkis') && <MembershipBanner membership={venue.membership} />}
 
       {venue.lat && venue.lng && (
         <Card className="mt-5 overflow-hidden p-1">

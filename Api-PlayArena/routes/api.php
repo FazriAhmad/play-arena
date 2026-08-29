@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CourtController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ManageBookingController;
 use App\Http\Controllers\Api\MembershipPlanController;
+use App\Http\Controllers\Api\MembershipRequestController;
 use App\Http\Controllers\Api\PromoController;
 use App\Http\Controllers\Api\RecurringBookingController;
 use App\Http\Controllers\Api\RevenueController;
@@ -62,6 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Modul 13 — rating & review, cuma pemilik booking completed.
     Route::post('/bookings/{booking}/review', [ReviewController::class, 'store']);
+
+    // Modul 21 — ajukan jadi member LEWAT WEB (bukan WA), admin ACC/tolak dari Kelola Pelanggan.
+    Route::post('/membership/request', [MembershipRequestController::class, 'store']);
 
     // Modul 04 — kalender & blokir slot. Owner ATAU staff yang ditugaskan
     // ke venue tsb (dicek di controller, bukan middleware role, karena

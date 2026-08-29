@@ -115,8 +115,10 @@ export default function ManageMembershipPage() {
       <Card className="mt-6 p-5 text-sm text-slate-300">
         <p className="font-semibold text-white">Cara kerja</p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-400">
-          <li>Pendaftaran &amp; pembayaran member tetap manual — tandai pelanggan sebagai member di halaman{' '}
-            <span className="font-medium">Kelola Pelanggan</span> setelah menerima pembayaran, sama seperti konfirmasi pembayaran booking.
+          <li>
+            Pelanggan ajukan permintaan jadi member lewat web (halaman venue badminton), lalu muncul di{' '}
+            <span className="font-medium">Kelola Pelanggan</span> untuk Anda ACC (setelah menerima pembayaran manual) atau tolak —
+            bukan lewat WhatsApp lagi.
           </li>
           <li>Status member berlaku 1 bulan sejak ditandai, lalu otomatis dicabut kalau tidak diperpanjang.</li>
           <li>

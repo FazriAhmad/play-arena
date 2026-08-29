@@ -181,6 +181,7 @@ export interface User {
   is_active: boolean;
   is_member: boolean;
   membership_expires_at: string | null;
+  membership_requested_at: string | null;
   role: Role;
   venue_ids: number[];
 }
@@ -241,6 +242,7 @@ export interface Customer {
   phone: string;
   is_member: boolean;
   membership_expires_at: string | null;
+  membership_requested_at: string | null;
   bookings_count: number;
   total_spent: number;
   last_booking_at: string | null;

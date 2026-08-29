@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 /**
  * Modul 15 — basis pelanggan sisi Owner. Cuma pelanggan yang pernah booking
- * di venue milik owner login yang muncul di sini (bukan seluruh pelanggan
- * platform) — scoping yang sama seperti Modul 07/09, lewat venue_id owner.
+ * di venue milik owner login ATAU yang sedang mengajukan permintaan member
+ * (Modul 21, lewat web — lihat MembershipRequestController) yang muncul di
+ * sini — bukan seluruh pelanggan platform.
  */
 class CustomerController extends Controller
 {
@@ -21,11 +23,11 @@ class CustomerController extends Controller
         $venueIds = $request->user()->ownedVenues()->pluck('id');
 
         $customers = User::query()
-            ->whereHas('bookingsAsCustomer', fn ($q) => $q->whereHas('court', fn ($c) => $c->whereIn('venue_id', $venueIds)))
+            ->where($this->visibilityScope($venueIds))
             ->withCount(['bookingsAsCustomer as bookings_count' => fn ($q) => $q->whereHas('court', fn ($c) => $c->whereIn('venue_id', $venueIds)),
             ])
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'phone', 'is_member']);
+            ->get(['id', 'name', 'email', 'phone', 'is_member', 'membership_expires_at', 'membership_requested_at']);
 
         $customers->each(fn ($customer) => $this->attachStats($customer, $venueIds));
 
@@ -37,7 +39,7 @@ class CustomerController extends Controller
     {
         $venueIds = $request->user()->ownedVenues()->pluck('id');
         abort_unless(
-            $customer->bookingsAsCustomer()->whereHas('court', fn ($c) => $c->whereIn('venue_id', $venueIds))->exists(),
+            User::where('id', $customer->id)->where($this->visibilityScope($venueIds))->exists(),
             404,
             'Pelanggan ini belum pernah booking di venue Anda.'
         );
@@ -56,18 +58,47 @@ class CustomerController extends Controller
     {
         $venueIds = $request->user()->ownedVenues()->pluck('id');
         abort_unless(
-            $customer->bookingsAsCustomer()->whereHas('court', fn ($c) => $c->whereIn('venue_id', $venueIds))->exists(),
+            User::where('id', $customer->id)->where($this->visibilityScope($venueIds))->exists(),
             404,
             'Pelanggan ini belum pernah booking di venue Anda.'
         );
 
-        $data = $request->validate(['is_member' => ['required', 'boolean']]);
-        // Modul 21 — jadi member selalu berarti "bayar 1 bulan penuh dari sekarang", bukan
-        // cuma nyalain flag permanen. Nonaktifkan langsung mencabut hak diskon saat itu juga.
-        $data['membership_expires_at'] = $data['is_member'] ? now()->addMonth() : null;
-        $customer->update($data);
+        $data = $request->validate([
+            'is_member' => ['sometimes', 'boolean'],
+            // Tolak permintaan member (Modul 21) tanpa menjadikan member — beda dari is_member:false
+            // yang mencabut member yang SUDAH aktif; ini buat permintaan yang belum pernah di-ACC.
+            'reject_request' => ['sometimes', 'boolean'],
+        ]);
+
+        if (array_key_exists('is_member', $data)) {
+            // Modul 21 — jadi member selalu berarti "bayar 1 bulan penuh dari sekarang", bukan
+            // cuma nyalain flag permanen. Nonaktifkan langsung mencabut hak diskon saat itu juga.
+            $customer->is_member = $data['is_member'];
+            $customer->membership_expires_at = $data['is_member'] ? now()->addMonth() : null;
+            $customer->membership_requested_at = null;
+        } elseif (! empty($data['reject_request'])) {
+            $customer->membership_requested_at = null;
+        }
+        $customer->save();
 
         return response()->json(['data' => $customer->fresh()]);
+    }
+
+    /**
+     * Pelanggan tetap terlihat kalau SALAH SATU: pernah booking, sedang
+     * mengajukan permintaan member, ATAU sudah jadi member aktif — yang
+     * terakhir ini penting supaya member yang di-ACC padahal belum pernah
+     * booking (mis. langsung daftar member duluan) tidak hilang dari
+     * daftar begitu `membership_requested_at` dikosongkan pas di-ACC.
+     *
+     * @return \Closure(Builder): void
+     */
+    private function visibilityScope(Collection $venueIds): \Closure
+    {
+        return fn (Builder $q) => $q
+            ->whereHas('bookingsAsCustomer', fn ($b) => $b->whereHas('court', fn ($c) => $c->whereIn('venue_id', $venueIds)))
+            ->orWhereNotNull('membership_requested_at')
+            ->orWhere('is_member', true);
     }
 
     private function attachStats(User $customer, Collection $venueIds): void
