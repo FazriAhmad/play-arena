@@ -45,17 +45,17 @@ export default function MyBookingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Booking Saya</h1>
-      <p className="mt-1 text-sm text-slate-500">Riwayat &amp; status booking lapangan Anda.</p>
+      <h1 className="text-2xl font-bold text-white">Booking Saya</h1>
+      <p className="mt-1 text-sm text-slate-400">Riwayat &amp; status booking lapangan Anda.</p>
 
-      <div className="mt-5 flex gap-1 rounded-lg bg-slate-100 p-1 text-sm">
+      <div className="mt-5 flex gap-1 rounded-lg bg-slate-800 p-1 text-sm">
         {TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={cn(
               'flex-1 rounded-md px-3 py-2 font-semibold transition',
-              tab === t.key ? 'bg-white text-[#1d5fc4] shadow-sm' : 'text-slate-500 hover:text-slate-700',
+              tab === t.key ? 'bg-slate-900 text-[#1d5fc4] shadow-sm' : 'text-slate-400 hover:text-slate-200',
             )}
           >
             {t.label}
@@ -64,8 +64,8 @@ export default function MyBookingsPage() {
       </div>
 
       <div className="mt-4 space-y-3">
-        {loading && <p className="text-sm text-slate-400">Memuat…</p>}
-        {!loading && filtered.length === 0 && <p className="text-sm text-slate-400">Tidak ada booking di kategori ini.</p>}
+        {loading && <p className="text-sm text-slate-500">Memuat…</p>}
+        {!loading && filtered.length === 0 && <p className="text-sm text-slate-500">Tidak ada booking di kategori ini.</p>}
         {filtered.map((b) => {
           const start = new Date(b.starts_at);
           const end = new Date(b.ends_at);
@@ -74,10 +74,10 @@ export default function MyBookingsPage() {
               <Card className="p-4 transition hover:shadow-md">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold text-slate-900">
+                    <h3 className="font-semibold text-white">
                       {b.court?.venue?.name} — {b.court?.name}
                     </h3>
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-slate-400">
                       {start.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ·{' '}
                       {start.toLocaleTimeString('id-ID', { timeStyle: 'short' })}–{end.toLocaleTimeString('id-ID', { timeStyle: 'short' })}
                     </p>

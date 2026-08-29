@@ -34,18 +34,18 @@ export default function ManageCustomersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Kelola Pelanggan</h1>
-      <p className="mt-1 text-sm text-slate-500">Basis pelanggan yang pernah booking di venue Anda.</p>
+      <h1 className="text-2xl font-bold text-white">Kelola Pelanggan</h1>
+      <p className="mt-1 text-sm text-slate-400">Basis pelanggan yang pernah booking di venue Anda.</p>
 
       <div className="mt-6 space-y-3">
-        {loading && <p className="text-sm text-slate-400">Memuat…</p>}
-        {!loading && customers.length === 0 && <p className="text-sm text-slate-400">Belum ada pelanggan.</p>}
+        {loading && <p className="text-sm text-slate-500">Memuat…</p>}
+        {!loading && customers.length === 0 && <p className="text-sm text-slate-500">Belum ada pelanggan.</p>}
         {customers.map((c) => (
           <Card key={c.id} className="p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-slate-900">{c.name}</h3>
+                  <h3 className="font-semibold text-white">{c.name}</h3>
                   {c.is_member && (
                     <Badge tone="success">
                       Member
@@ -54,10 +54,10 @@ export default function ManageCustomersPage() {
                     </Badge>
                   )}
                 </div>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-slate-400">
                   {c.email} · {c.phone}
                 </p>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-400">
                   {c.bookings_count} booking · {rupiah(c.total_spent)} total belanja
                   {c.last_booking_at && (
                     <> · terakhir {new Date(c.last_booking_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</>
@@ -76,12 +76,12 @@ export default function ManageCustomersPage() {
                     <button onClick={() => setMember(c, true)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
                       Perpanjang 1 Bulan
                     </button>
-                    <button onClick={() => setMember(c, false)} className="text-xs font-semibold text-slate-500 hover:underline">
+                    <button onClick={() => setMember(c, false)} className="text-xs font-semibold text-slate-400 hover:underline">
                       Batalkan Member
                     </button>
                   </>
                 ) : (
-                  <button onClick={() => setMember(c, true)} className="text-xs font-semibold text-slate-600 hover:underline">
+                  <button onClick={() => setMember(c, true)} className="text-xs font-semibold text-slate-300 hover:underline">
                     Jadikan Member (1 Bulan)
                   </button>
                 )}
@@ -107,12 +107,12 @@ function CustomerHistory({ customerId }: { customerId: number }) {
   }, [customerId]);
 
   return (
-    <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
-      {loading && <p className="text-xs text-slate-400">Memuat riwayat…</p>}
-      {!loading && detail?.bookings.length === 0 && <p className="text-xs text-slate-400">Belum ada booking.</p>}
+    <div className="mt-3 space-y-2 border-t border-slate-800 pt-3">
+      {loading && <p className="text-xs text-slate-500">Memuat riwayat…</p>}
+      {!loading && detail?.bookings.length === 0 && <p className="text-xs text-slate-500">Belum ada booking.</p>}
       {detail?.bookings.map((b: Booking) => (
-        <div key={b.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs">
-          <span className="text-slate-600">
+        <div key={b.id} className="flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 text-xs">
+          <span className="text-slate-300">
             {b.court?.venue?.name} — {b.court?.name} ·{' '}
             {new Date(b.starts_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}
           </span>

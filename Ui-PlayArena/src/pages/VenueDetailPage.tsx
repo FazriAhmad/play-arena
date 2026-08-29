@@ -42,8 +42,8 @@ export default function VenueDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <p className="text-sm text-slate-400">Memuat…</p>;
-  if (error || !venue) return <p className="text-sm text-slate-400">Venue tidak ditemukan.</p>;
+  if (loading) return <p className="text-sm text-slate-500">Memuat…</p>;
+  if (error || !venue) return <p className="text-sm text-slate-500">Venue tidak ditemukan.</p>;
 
   return (
     <div>
@@ -51,8 +51,8 @@ export default function VenueDetailPage() {
         ← Kembali ke pencarian
       </Link>
 
-      <h1 className="mt-3 text-2xl font-bold text-slate-900">{venue.name}</h1>
-      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
+      <h1 className="mt-3 text-2xl font-bold text-white">{venue.name}</h1>
+      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-400">
         {venue.address && (
           <span className="flex items-center gap-1">
             <MapPin size={14} /> {venue.address}
@@ -64,7 +64,7 @@ export default function VenueDetailPage() {
       </div>
 
       {venue.membership && (
-        <Card className="mt-4 border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <Card className="mt-4 border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
           {isActiveMember(user) ? (
             <p>
               Anda member — otomatis dapat diskon <strong>{venue.membership.discount_percent}%</strong> di setiap booking.
@@ -84,39 +84,39 @@ export default function VenueDetailPage() {
         </Card>
       )}
 
-      <h2 className="mt-8 text-lg font-bold text-slate-900">Lapangan Tersedia</h2>
+      <h2 className="mt-8 text-lg font-bold text-white">Lapangan Tersedia</h2>
       {venue.courts.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-400">Belum ada lapangan terdaftar di venue ini.</p>
+        <p className="mt-2 text-sm text-slate-500">Belum ada lapangan terdaftar di venue ini.</p>
       ) : (
         <div className="mt-3 grid grid-cols-1 gap-4">
           {venue.courts.map((c) => (
             <Card key={c.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-slate-900">{c.name}</h3>
+                  <h3 className="font-semibold text-white">{c.name}</h3>
                   <div className="mt-1 flex items-center gap-2">
                     <Badge>{c.sport}</Badge>
                     {c.reviews_count ? (
                       <button
                         onClick={() => setReviewsCourtId((cur) => (cur === c.id ? null : c.id))}
-                        className="flex items-center gap-1 text-xs font-semibold text-amber-600 hover:underline"
+                        className="flex items-center gap-1 text-xs font-semibold text-amber-400 hover:underline"
                       >
                         <Star size={12} fill="currentColor" /> {c.reviews_avg_rating?.toFixed(1)} ({c.reviews_count})
                       </button>
                     ) : (
-                      <span className="text-xs text-slate-400">Belum ada ulasan</span>
+                      <span className="text-xs text-slate-500">Belum ada ulasan</span>
                     )}
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-bold text-[#1d5fc4]">{rupiah(c.price_per_hour)}/jam</p>
                   {c.sport === 'Bulu Tangkis' && c.shuttlecock_price && (
-                    <p className="text-xs text-slate-400">Shuttlecock {rupiah(c.shuttlecock_price)}/buah</p>
+                    <p className="text-xs text-slate-500">Shuttlecock {rupiah(c.shuttlecock_price)}/buah</p>
                   )}
                 </div>
               </div>
               {c.facilities && c.facilities.length > 0 && (
-                <p className="mt-2 text-xs text-slate-500">Fasilitas: {c.facilities.join(', ')}</p>
+                <p className="mt-2 text-xs text-slate-400">Fasilitas: {c.facilities.join(', ')}</p>
               )}
               <div className="mt-3 flex gap-2">
                 <Button
@@ -274,9 +274,9 @@ function BookingPanel({
 
   if (success) {
     return (
-      <div className="mt-4 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800">
+      <div className="mt-4 rounded-lg bg-emerald-500/10 p-4 text-sm text-emerald-300">
         <p className="font-semibold">Booking berhasil dibuat — status: Menunggu ACC Admin.</p>
-        <p className="mt-1 text-xs text-emerald-700">
+        <p className="mt-1 text-xs text-emerald-400">
           Slot Anda sudah terkunci sementara. Kirim konfirmasi ke admin lewat WhatsApp supaya cepat di-ACC. Cek status di{' '}
           <Link to="/bookings" className="font-semibold underline">
             Booking Saya
@@ -298,12 +298,12 @@ function BookingPanel({
   }
 
   return (
-    <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
+    <div className="mt-4 space-y-3 border-t border-slate-800 pt-4">
       <Field label="Tanggal">
         <Input type="date" value={date} min={todayISO()} onChange={(e) => setDate(e.target.value)} className="w-auto" />
       </Field>
       <div>
-        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Pilih Jam</span>
+        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">Pilih Jam</span>
         <SlotGrid slots={slots} selectedHour={selectedHour} onSelectHour={setSelectedHour} />
       </div>
       {selectedHour !== null && (
@@ -311,7 +311,7 @@ function BookingPanel({
           <select
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
-            className="w-auto rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-auto rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
           >
             {Array.from({ length: Math.max(1, Math.min(4, maxDurationFromHour)) }, (_, i) => i + 1).map((h) => (
               <option key={h} value={h}>
@@ -349,9 +349,9 @@ function BookingPanel({
             {promoLoading ? 'Cek…' : 'Terapkan'}
           </Button>
         </div>
-        {promoError && <span className="mt-1 block text-xs font-medium text-rose-600">{promoError}</span>}
+        {promoError && <span className="mt-1 block text-xs font-medium text-rose-400">{promoError}</span>}
         {promoPreview && (
-          <span className="mt-1 block text-xs font-medium text-emerald-600">
+          <span className="mt-1 block text-xs font-medium text-emerald-400">
             Voucher diterapkan — hemat {rupiah(promoPreview.discount_amount)}
           </span>
         )}
@@ -360,38 +360,38 @@ function BookingPanel({
         <Input value={contactWa} onChange={(e) => setContactWa(e.target.value)} placeholder="0812xxxxxxx" required />
       </Field>
       {selectedHour !== null && (
-        <div className="rounded-lg bg-slate-50 p-3 text-sm">
-          <div className="flex items-center justify-between text-slate-500">
+        <div className="rounded-lg bg-slate-950 p-3 text-sm">
+          <div className="flex items-center justify-between text-slate-400">
             <span>
               {rupiah(court.price_per_hour)}/jam × {duration} jam
             </span>
             <span>{rupiah(rentalSubtotal)}</span>
           </div>
           {shuttlecockQty > 0 && (
-            <div className="mt-1 flex items-center justify-between text-slate-500">
+            <div className="mt-1 flex items-center justify-between text-slate-400">
               <span>Shuttlecock × {shuttlecockQty}</span>
               <span>{rupiah(shuttlecockTotal)}</span>
             </div>
           )}
           {memberDiscount > 0 && (
-            <div className="mt-1 flex items-center justify-between text-emerald-600">
+            <div className="mt-1 flex items-center justify-between text-emerald-400">
               <span>Diskon member ({memberDiscountPercent}%)</span>
               <span>-{rupiah(memberDiscount)}</span>
             </div>
           )}
           {promoPreview && (
-            <div className="mt-1 flex items-center justify-between text-emerald-600">
+            <div className="mt-1 flex items-center justify-between text-emerald-400">
               <span>Diskon voucher</span>
               <span>-{rupiah(promoPreview.discount_amount)}</span>
             </div>
           )}
-          <div className="mt-1 flex items-center justify-between border-t border-slate-200 pt-1 font-semibold text-slate-900">
+          <div className="mt-1 flex items-center justify-between border-t border-slate-800 pt-1 font-semibold text-white">
             <span>Total</span>
             <span>{rupiah(promoPreview ? promoPreview.final_amount - memberDiscount + shuttlecockTotal : total)}</span>
           </div>
         </div>
       )}
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">{error}</p>}
       <Button onClick={submit} disabled={loading || selectedHour === null || !contactWa}>
         {loading ? 'Memproses…' : user ? 'Booking Sekarang' : 'Login untuk Booking'}
       </Button>
@@ -442,11 +442,11 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
 
   if (result) {
     return (
-      <div className="mt-4 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800">
+      <div className="mt-4 rounded-lg bg-emerald-500/10 p-4 text-sm text-emerald-300">
         <p className="font-semibold">
           {result.created.length} sesi berhasil dibuat{result.failed.length > 0 ? `, ${result.failed.length} sesi gagal` : ''}.
         </p>
-        <p className="mt-1 text-xs text-emerald-700">
+        <p className="mt-1 text-xs text-emerald-400">
           Tiap sesi berstatus Menunggu ACC Admin. Cek semuanya di{' '}
           <Link to="/bookings" className="font-semibold underline">
             Booking Saya
@@ -454,7 +454,7 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
           .
         </p>
         {result.failed.length > 0 && (
-          <ul className="mt-2 space-y-1 text-xs text-rose-700">
+          <ul className="mt-2 space-y-1 text-xs text-rose-400">
             {result.failed.map((f) => (
               <li key={f.date}>
                 {new Date(f.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} — {f.reason}
@@ -469,13 +469,13 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
   const maxDuration = Math.max(1, Math.min(4, venueCloseHour - Number(startHour)));
 
   return (
-    <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
+    <div className="mt-4 space-y-3 border-t border-slate-800 pt-4">
       <div className="grid grid-cols-2 gap-3">
         <Field label="Hari">
           <select
             value={dayOfWeek}
             onChange={(e) => setDayOfWeek(Number(e.target.value))}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
           >
             {DAYS_OF_WEEK.map((d, i) => (
               <option key={d} value={i}>
@@ -491,7 +491,7 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
           <select
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
           >
             {Array.from({ length: maxDuration }, (_, i) => i + 1).map((h) => (
               <option key={h} value={h}>
@@ -507,7 +507,7 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
 
       <Field label="Sampai kapan?">
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-1.5 text-xs text-slate-600">
+          <label className="flex items-center gap-1.5 text-xs text-slate-300">
             <input type="radio" checked={mode === 'session_count'} onChange={() => setMode('session_count')} />
             Jumlah sesi
           </label>
@@ -521,7 +521,7 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
               className="w-24"
             />
           )}
-          <label className="flex items-center gap-1.5 text-xs text-slate-600">
+          <label className="flex items-center gap-1.5 text-xs text-slate-300">
             <input type="radio" checked={mode === 'until_date'} onChange={() => setMode('until_date')} />
             Sampai tanggal
           </label>
@@ -534,7 +534,7 @@ function RecurringBookingPanel({ court, venueCloseHour }: { court: Court; venueC
       <Field label="Nomor WA yang bisa dihubungi">
         <Input value={contactWa} onChange={(e) => setContactWa(e.target.value)} placeholder="0812xxxxxxx" required />
       </Field>
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">{error}</p>}
       <Button onClick={submit} disabled={loading || !contactWa}>
         {loading ? 'Memproses…' : user ? 'Buat Booking Berulang' : 'Login untuk Booking'}
       </Button>
@@ -555,17 +555,17 @@ function ReviewsList({ courtId }: { courtId: number }) {
   }, [courtId]);
 
   return (
-    <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
-      {loading && <p className="text-xs text-slate-400">Memuat ulasan…</p>}
-      {!loading && reviews.length === 0 && <p className="text-xs text-slate-400">Belum ada ulasan.</p>}
+    <div className="mt-4 space-y-3 border-t border-slate-800 pt-4">
+      {loading && <p className="text-xs text-slate-500">Memuat ulasan…</p>}
+      {!loading && reviews.length === 0 && <p className="text-xs text-slate-500">Belum ada ulasan.</p>}
       {reviews.map((r) => (
-        <div key={r.id} className="rounded-lg bg-slate-50 p-3">
+        <div key={r.id} className="rounded-lg bg-slate-950 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-900">{r.pelanggan?.name ?? 'Pelanggan'}</span>
+            <span className="text-xs font-semibold text-white">{r.pelanggan?.name ?? 'Pelanggan'}</span>
             <Stars value={r.rating} size={12} />
           </div>
-          {r.comment && <p className="mt-1 text-xs text-slate-600">{r.comment}</p>}
-          <p className="mt-1 text-[11px] text-slate-400">
+          {r.comment && <p className="mt-1 text-xs text-slate-300">{r.comment}</p>}
+          <p className="mt-1 text-[11px] text-slate-500">
             {new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>

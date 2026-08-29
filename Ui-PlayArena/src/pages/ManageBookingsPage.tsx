@@ -64,8 +64,8 @@ export default function ManageBookingsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Booking Masuk</h1>
-          <p className="mt-1 text-sm text-slate-500">ACC/tolak booking, konfirmasi pembayaran manual, atau input booking walk-in.</p>
+          <h1 className="text-2xl font-bold text-white">Booking Masuk</h1>
+          <p className="mt-1 text-sm text-slate-400">ACC/tolak booking, konfirmasi pembayaran manual, atau input booking walk-in.</p>
         </div>
         <Button onClick={() => setShowWalkIn((v) => !v)}>
           <Plus size={16} /> {showWalkIn ? 'Tutup Form' : 'Booking Walk-in'}
@@ -85,7 +85,7 @@ export default function ManageBookingsPage() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="w-auto rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+          className="w-auto rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
         >
           <option value="">Semua status</option>
           {Object.entries(BOOKING_STATUS_LABELS).map(([value, label]) => (
@@ -98,8 +98,8 @@ export default function ManageBookingsPage() {
       </div>
 
       <div className="mt-4 space-y-3">
-        {loading && <p className="text-sm text-slate-400">Memuat…</p>}
-        {!loading && bookings.length === 0 && <p className="text-sm text-slate-400">Tidak ada booking.</p>}
+        {loading && <p className="text-sm text-slate-500">Memuat…</p>}
+        {!loading && bookings.length === 0 && <p className="text-sm text-slate-500">Tidak ada booking.</p>}
         {bookings.map((b) => {
           const start = new Date(b.starts_at);
           const end = new Date(b.ends_at);
@@ -107,31 +107,31 @@ export default function ManageBookingsPage() {
             <Card key={b.id} className="p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <h3 className="font-semibold text-slate-900">
+                  <h3 className="font-semibold text-white">
                     {b.court?.venue?.name} — {b.court?.name}
                   </h3>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-slate-400">
                     {b.pelanggan?.name ?? `${b.guest_name} (walk-in)`} · {b.contact_wa}
                   </p>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-slate-400">
                     {start.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ·{' '}
                     {start.toLocaleTimeString('id-ID', { timeStyle: 'short' })}–{end.toLocaleTimeString('id-ID', { timeStyle: 'short' })}
                   </p>
                   {b.court && <p className="mt-1 text-xs font-semibold text-[#1d5fc4]">{rupiah(b.court.price_per_hour)}/jam</p>}
                   {b.shuttlecock_qty > 0 && (
-                    <p className="mt-0.5 text-xs text-slate-500">+ Shuttlecock × {b.shuttlecock_qty} ({rupiah(b.shuttlecock_amount)})</p>
+                    <p className="mt-0.5 text-xs text-slate-400">+ Shuttlecock × {b.shuttlecock_qty} ({rupiah(b.shuttlecock_amount)})</p>
                   )}
                   {b.member_discount_amount > 0 && (
-                    <p className="mt-0.5 text-xs text-emerald-600">Diskon member -{rupiah(b.member_discount_amount)}</p>
+                    <p className="mt-0.5 text-xs text-emerald-400">Diskon member -{rupiah(b.member_discount_amount)}</p>
                   )}
                   {b.status === 'rejected' && b.reject_reason && (
-                    <p className="mt-1 text-xs text-rose-600">Alasan: {b.reject_reason}</p>
+                    <p className="mt-1 text-xs text-rose-400">Alasan: {b.reject_reason}</p>
                   )}
                   {b.status === 'cancelled' && b.cancel_reason && (
-                    <p className="mt-1 text-xs text-slate-500">Alasan dibatalkan: {b.cancel_reason}</p>
+                    <p className="mt-1 text-xs text-slate-400">Alasan dibatalkan: {b.cancel_reason}</p>
                   )}
                   {b.status === 'cancelled' && b.refunds?.[0] && b.refunds[0].amount > 0 && (
-                    <p className="mt-1 text-xs font-semibold text-amber-600">
+                    <p className="mt-1 text-xs font-semibold text-amber-400">
                       Refund {rupiah(b.refunds[0].amount)} — {b.refunds[0].status === 'processed' ? 'sudah diproses' : 'menunggu diproses'}
                     </p>
                   )}
@@ -140,31 +140,31 @@ export default function ManageBookingsPage() {
               </div>
 
               {b.status === 'menunggu_acc' && (
-                <div className="mt-3 flex gap-3 border-t border-slate-100 pt-3">
-                  <button onClick={() => accept(b.id)} className="text-xs font-semibold text-emerald-600 hover:underline">
+                <div className="mt-3 flex gap-3 border-t border-slate-800 pt-3">
+                  <button onClick={() => accept(b.id)} className="text-xs font-semibold text-emerald-400 hover:underline">
                     ACC Booking
                   </button>
-                  <button onClick={() => reject(b.id)} className="text-xs font-semibold text-rose-600 hover:underline">
+                  <button onClick={() => reject(b.id)} className="text-xs font-semibold text-rose-400 hover:underline">
                     Tolak
                   </button>
-                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-500 hover:underline">
+                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-400 hover:underline">
                     Batalkan
                   </button>
                 </div>
               )}
               {b.status === 'menunggu_bayar' && (
-                <div className="mt-3 flex gap-3 border-t border-slate-100 pt-3">
-                  <button onClick={() => confirmPayment(b.id)} className="text-xs font-semibold text-emerald-600 hover:underline">
+                <div className="mt-3 flex gap-3 border-t border-slate-800 pt-3">
+                  <button onClick={() => confirmPayment(b.id)} className="text-xs font-semibold text-emerald-400 hover:underline">
                     Konfirmasi Pembayaran Diterima
                   </button>
-                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-500 hover:underline">
+                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-400 hover:underline">
                     Batalkan
                   </button>
                 </div>
               )}
               {b.status === 'confirmed' && (
-                <div className="mt-3 border-t border-slate-100 pt-3">
-                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-500 hover:underline">
+                <div className="mt-3 border-t border-slate-800 pt-3">
+                  <button onClick={() => cancelBooking(b.id)} className="text-xs font-semibold text-slate-400 hover:underline">
                     Batalkan
                   </button>
                 </div>
@@ -239,7 +239,7 @@ function WalkInForm({ onCreated }: { onCreated: () => void }) {
           <select
             value={venueId}
             onChange={(e) => setVenueId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
             required
           >
             <option value="">Pilih venue…</option>
@@ -254,7 +254,7 @@ function WalkInForm({ onCreated }: { onCreated: () => void }) {
           <select
             value={courtId}
             onChange={(e) => setCourtId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
             disabled={!venueId}
             required
           >
@@ -287,7 +287,7 @@ function WalkInForm({ onCreated }: { onCreated: () => void }) {
           <Input value={contactWa} onChange={(e) => setContactWa(e.target.value)} placeholder="0812xxxxxxx" required />
         </Field>
 
-        {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 sm:col-span-2">{error}</p>}
+        {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400 sm:col-span-2">{error}</p>}
         <div className="sm:col-span-2">
           <Button type="submit" disabled={loading}>
             {loading ? 'Menyimpan…' : 'Simpan Booking (Lunas di Tempat)'}

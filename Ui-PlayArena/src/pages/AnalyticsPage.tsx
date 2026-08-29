@@ -26,14 +26,14 @@ export default function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Dashboard Analitik</h1>
-      <p className="mt-1 text-sm text-slate-500">Ringkasan performa venue dari booking yang benar-benar terjadi (terkonfirmasi/selesai).</p>
+      <h1 className="text-2xl font-bold text-white">Dashboard Analitik</h1>
+      <p className="mt-1 text-sm text-slate-400">Ringkasan performa venue dari booking yang benar-benar terjadi (terkonfirmasi/selesai).</p>
 
       {venuesLoading ? (
-        <p className="mt-6 text-sm text-slate-400">Memuat…</p>
+        <p className="mt-6 text-sm text-slate-500">Memuat…</p>
       ) : venues.length === 0 ? (
         <Card className="mt-6 p-6">
-          <p className="text-sm text-slate-600">Belum ada venue.</p>
+          <p className="text-sm text-slate-300">Belum ada venue.</p>
         </Card>
       ) : (
         <>
@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
                   className={`rounded-lg border px-3.5 py-2 text-sm font-medium transition ${
                     v.id === currentVenueId
                       ? 'border-[#1d5fc4] bg-[#1d5fc4]/10 text-[#1d5fc4]'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                      : 'border-slate-700 text-slate-300 hover:border-slate-600'
                   }`}
                 >
                   {v.name}
@@ -56,7 +56,7 @@ export default function AnalyticsPage() {
           )}
 
           {loading ? (
-            <p className="mt-6 text-sm text-slate-400">Memuat data analitik…</p>
+            <p className="mt-6 text-sm text-slate-500">Memuat data analitik…</p>
           ) : !data ? null : (
             <div className="mt-6 space-y-6">
               <div className="grid gap-6 sm:grid-cols-2">
@@ -79,13 +79,13 @@ function OccupancyCard({ rate, venueName }: { rate: number; venueName?: string }
   const pct = Math.round(rate * 100);
   return (
     <Card className="p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tingkat Okupansi</p>
-      <p className="mt-1 text-xs text-slate-400">{venueName} · 30 hari terakhir</p>
-      <p className="mt-3 text-4xl font-bold text-slate-900">{pct}%</p>
-      <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tingkat Okupansi</p>
+      <p className="mt-1 text-xs text-slate-500">{venueName} · 30 hari terakhir</p>
+      <p className="mt-3 text-4xl font-bold text-white">{pct}%</p>
+      <div className="mt-3 h-2 w-full rounded-full bg-slate-800">
         <div className="h-2 rounded-full bg-[#1d5fc4]" style={{ width: `${Math.min(100, pct)}%` }} />
       </div>
-      <p className="mt-2 text-xs text-slate-400">Jam lapangan terpakai dibanding total jam operasional yang tersedia.</p>
+      <p className="mt-2 text-xs text-slate-500">Jam lapangan terpakai dibanding total jam operasional yang tersedia.</p>
     </Card>
   );
 }
@@ -94,19 +94,19 @@ function TopCourtsCard({ courts }: { courts: AnalyticsData['top_courts'] }) {
   const max = Math.max(1, ...courts.map((c) => c.bookings_count));
   return (
     <Card className="p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Lapangan Paling Laris</p>
-      <p className="mt-1 text-xs text-slate-400">90 hari terakhir</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Lapangan Paling Laris</p>
+      <p className="mt-1 text-xs text-slate-500">90 hari terakhir</p>
       {courts.length === 0 ? (
-        <p className="mt-4 text-sm text-slate-400">Belum ada data booking.</p>
+        <p className="mt-4 text-sm text-slate-500">Belum ada data booking.</p>
       ) : (
         <div className="mt-4 space-y-2.5">
           {courts.map((c) => (
             <div key={c.court_id}>
               <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-slate-700">{c.name}</span>
-                <span className="text-slate-500">{c.bookings_count} booking</span>
+                <span className="font-medium text-slate-200">{c.name}</span>
+                <span className="text-slate-400">{c.bookings_count} booking</span>
               </div>
-              <div className="mt-1 h-2 w-full rounded-full bg-slate-100">
+              <div className="mt-1 h-2 w-full rounded-full bg-slate-800">
                 <div
                   className="h-2 rounded-full bg-[#f59e0b]"
                   style={{ width: `${(c.bookings_count / max) * 100}%` }}
@@ -136,8 +136,8 @@ function TrendCard({
     <Card className="p-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tren Booking</p>
-          <p className="mt-1 text-xs text-slate-400">Jumlah booking per hari</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tren Booking</p>
+          <p className="mt-1 text-xs text-slate-500">Jumlah booking per hari</p>
         </div>
         <div className="flex gap-1">
           {([7, 30] as const).map((d) => (
@@ -145,7 +145,7 @@ function TrendCard({
               key={d}
               onClick={() => onDaysChange(d)}
               className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
-                days === d ? 'bg-[#1d5fc4] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                days === d ? 'bg-[#1d5fc4] text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
               {d} hari
@@ -178,11 +178,11 @@ function HeatmapCard({ heatmap }: { heatmap: AnalyticsData['heatmap'] }) {
 
   return (
     <Card className="p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Jam Paling Laris</p>
-      <p className="mt-1 text-xs text-slate-400">90 hari terakhir · warna lebih pekat = lebih sering dibooking</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Jam Paling Laris</p>
+      <p className="mt-1 text-xs text-slate-500">90 hari terakhir · warna lebih pekat = lebih sering dibooking</p>
 
       {heatmap.length === 0 ? (
-        <p className="mt-4 text-sm text-slate-400">Belum ada data booking.</p>
+        <p className="mt-4 text-sm text-slate-500">Belum ada data booking.</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
           <table className="w-full border-separate border-spacing-0.5 text-center text-[10px]">
@@ -190,7 +190,7 @@ function HeatmapCard({ heatmap }: { heatmap: AnalyticsData['heatmap'] }) {
               <tr>
                 <th className="w-8" />
                 {DAY_LABELS.map((d) => (
-                  <th key={d} className="pb-1 font-medium text-slate-500">
+                  <th key={d} className="pb-1 font-medium text-slate-400">
                     {d}
                   </th>
                 ))}
@@ -199,7 +199,7 @@ function HeatmapCard({ heatmap }: { heatmap: AnalyticsData['heatmap'] }) {
             <tbody>
               {hours.map((h) => (
                 <tr key={h}>
-                  <td className="pr-1 text-right text-slate-400">{h}</td>
+                  <td className="pr-1 text-right text-slate-500">{h}</td>
                   {DAY_LABELS.map((_, dow) => {
                     const count = byKey.get(`${dow}-${h}`) ?? 0;
                     const alpha = count === 0 ? 0.04 : 0.15 + (count / max) * 0.85;

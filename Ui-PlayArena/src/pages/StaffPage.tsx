@@ -34,8 +34,8 @@ export default function StaffPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Kelola Staff</h1>
-          <p className="mt-1 text-sm text-slate-500">Staff hanya bisa mengakses venue yang ditugaskan padanya.</p>
+          <h1 className="text-2xl font-bold text-white">Kelola Staff</h1>
+          <p className="mt-1 text-sm text-slate-400">Staff hanya bisa mengakses venue yang ditugaskan padanya.</p>
         </div>
         <Button onClick={() => setShowForm((v) => !v)}>
           <Plus size={16} /> {showForm ? 'Tutup Form' : 'Tambah Staff'}
@@ -54,7 +54,7 @@ export default function StaffPage() {
 
       <Card className="mt-6 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-800 bg-slate-950 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
             <tr>
               <th className="px-4 py-3">Nama</th>
               <th className="px-4 py-3">Kontak</th>
@@ -66,26 +66,26 @@ export default function StaffPage() {
           <tbody className="divide-y divide-slate-100">
             {loading && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
                   Memuat…
                 </td>
               </tr>
             )}
             {!loading && staff.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
                   Belum ada staff. Tambahkan lewat tombol di atas.
                 </td>
               </tr>
             )}
             {staff.map((s) => (
               <tr key={s.id}>
-                <td className="px-4 py-3 font-medium text-slate-900">{s.name}</td>
-                <td className="px-4 py-3 text-slate-600">
+                <td className="px-4 py-3 font-medium text-white">{s.name}</td>
+                <td className="px-4 py-3 text-slate-300">
                   <div>{s.email}</div>
-                  <div className="text-xs text-slate-400">{s.phone}</div>
+                  <div className="text-xs text-slate-500">{s.phone}</div>
                 </td>
-                <td className="px-4 py-3 text-slate-600">
+                <td className="px-4 py-3 text-slate-300">
                   {s.venues.length ? s.venues.map((v) => v.name).join(', ') : '—'}
                 </td>
                 <td className="px-4 py-3">
@@ -163,11 +163,11 @@ function StaffForm({ venues, onCreated }: { venues: Venue[]; onCreated: () => vo
         </Field>
 
         <div className="sm:col-span-2">
-          <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">
             Venue yang ditugaskan
           </span>
           {venues.length === 0 ? (
-            <p className="text-xs text-slate-400">Belum ada venue. Buat venue dulu sebelum menambah staff.</p>
+            <p className="text-xs text-slate-500">Belum ada venue. Buat venue dulu sebelum menambah staff.</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {venues.map((v) => (
@@ -176,7 +176,7 @@ function StaffForm({ venues, onCreated }: { venues: Venue[]; onCreated: () => vo
                   className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                     venueIds.includes(v.id)
                       ? 'border-[#1d5fc4] bg-[#1d5fc4]/10 text-[#1d5fc4]'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                      : 'border-slate-700 text-slate-300 hover:border-slate-600'
                   }`}
                 >
                   <input type="checkbox" className="hidden" checked={venueIds.includes(v.id)} onChange={() => toggleVenue(v.id)} />
@@ -188,7 +188,7 @@ function StaffForm({ venues, onCreated }: { venues: Venue[]; onCreated: () => vo
         </div>
 
         {error && (
-          <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 sm:col-span-2">{error}</p>
+          <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400 sm:col-span-2">{error}</p>
         )}
         <div className="sm:col-span-2">
           <Button type="submit" disabled={loading}>

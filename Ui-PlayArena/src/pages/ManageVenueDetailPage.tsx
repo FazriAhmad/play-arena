@@ -38,8 +38,8 @@ export default function ManageVenueDetailPage() {
     load();
   };
 
-  if (loading) return <p className="text-sm text-slate-400">Memuat…</p>;
-  if (!venue) return <p className="text-sm text-slate-400">Venue tidak ditemukan.</p>;
+  if (loading) return <p className="text-sm text-slate-500">Memuat…</p>;
+  if (!venue) return <p className="text-sm text-slate-500">Venue tidak ditemukan.</p>;
 
   return (
     <div>
@@ -48,23 +48,23 @@ export default function ManageVenueDetailPage() {
       </Link>
 
       <div className="mt-3 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{venue.name}</h1>
+        <h1 className="text-2xl font-bold text-white">{venue.name}</h1>
         <Badge tone={venue.is_active ? 'success' : 'danger'}>{venue.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
       </div>
 
       {isOwner ? (
         <VenueEditForm venue={venue} onSaved={load} />
       ) : (
-        <Card className="mt-4 p-5 text-sm text-slate-600">
+        <Card className="mt-4 p-5 text-sm text-slate-300">
           {venue.address && <p>{venue.address}</p>}
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-500">
             Jam operasional {venue.open_hour}:00–{venue.close_hour}:00
           </p>
         </Card>
       )}
 
       <div className="mt-8 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-slate-900">Lapangan</h2>
+        <h2 className="text-lg font-bold text-white">Lapangan</h2>
         {isOwner && (
           <Button onClick={() => setShowCourtForm((v) => !v)}>
             <Plus size={16} /> {showCourtForm ? 'Tutup Form' : 'Tambah Lapangan'}
@@ -83,12 +83,12 @@ export default function ManageVenueDetailPage() {
       )}
 
       <div className="mt-4 grid grid-cols-1 gap-4">
-        {venue.courts.length === 0 && <p className="text-sm text-slate-400">Belum ada lapangan.</p>}
+        {venue.courts.length === 0 && <p className="text-sm text-slate-500">Belum ada lapangan.</p>}
         {venue.courts.map((c) => (
           <Card key={c.id} className="overflow-hidden p-4">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-semibold text-slate-900">{c.name}</h3>
+                <h3 className="font-semibold text-white">{c.name}</h3>
                 <Badge>{c.sport}</Badge>
               </div>
               <Badge tone={c.is_active ? 'success' : 'danger'}>{c.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
@@ -96,7 +96,7 @@ export default function ManageVenueDetailPage() {
             {c.photo_url && <img src={c.photo_url} alt={c.name} className="mt-2 h-28 w-full max-w-xs rounded-lg object-cover" />}
             <p className="mt-2 text-sm font-semibold text-[#1d5fc4]">{rupiah(c.price_per_hour)}/jam</p>
             {c.facilities && c.facilities.length > 0 && (
-              <p className="mt-1 text-xs text-slate-500">Fasilitas: {c.facilities.join(', ')}</p>
+              <p className="mt-1 text-xs text-slate-400">Fasilitas: {c.facilities.join(', ')}</p>
             )}
             {isOwner && c.sport === 'Bulu Tangkis' && (
               <ShuttlecockPriceEditor courtId={c.id} price={c.shuttlecock_price} onSaved={load} />
@@ -106,7 +106,7 @@ export default function ManageVenueDetailPage() {
                 <button onClick={() => toggleCourt(c.id, c.is_active)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
                   {c.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                 </button>
-                <button onClick={() => deleteCourt(c.id)} className="flex items-center gap-1 text-xs font-semibold text-rose-600 hover:underline">
+                <button onClick={() => deleteCourt(c.id)} className="flex items-center gap-1 text-xs font-semibold text-rose-400 hover:underline">
                   <Trash2 size={12} /> Hapus
                 </button>
               </div>
@@ -144,10 +144,10 @@ function BlockManager({ courtId }: { courtId: number }) {
   };
 
   return (
-    <div className="mt-4 border-t border-slate-100 pt-3">
+    <div className="mt-4 border-t border-slate-800 pt-3">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#1d5fc4]"
+        className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-[#1d5fc4]"
       >
         <CalendarClock size={14} /> {open ? 'Tutup Kalender & Blokir Slot' : 'Kalender & Blokir Slot'}
       </button>
@@ -158,20 +158,20 @@ function BlockManager({ courtId }: { courtId: number }) {
           <SlotGrid slots={slots} />
 
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Blokir Aktif</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Blokir Aktif</p>
             <button onClick={() => setShowForm((v) => !v)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
               {showForm ? 'Tutup' : '+ Tambah Blokir'}
             </button>
           </div>
 
-          {blocks.length === 0 && <p className="text-xs text-slate-400">Tidak ada blokir mendatang.</p>}
+          {blocks.length === 0 && <p className="text-xs text-slate-500">Tidak ada blokir mendatang.</p>}
           {blocks.map((b) => (
-            <div key={b.id} className="flex items-center justify-between rounded-lg bg-amber-50 px-3 py-2 text-xs">
-              <span className="text-amber-700">
+            <div key={b.id} className="flex items-center justify-between rounded-lg bg-amber-500/10 px-3 py-2 text-xs">
+              <span className="text-amber-400">
                 {new Date(b.starts_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })} –{' '}
                 {new Date(b.ends_at).toLocaleTimeString('id-ID', { timeStyle: 'short' })} · {b.reason}
               </span>
-              <button onClick={() => deleteBlock(b.id)} className="font-semibold text-rose-600 hover:underline">
+              <button onClick={() => deleteBlock(b.id)} className="font-semibold text-rose-400 hover:underline">
                 Hapus
               </button>
             </div>
@@ -221,7 +221,7 @@ function BlockForm({ courtId, defaultDate, onCreated }: { courtId: number; defau
   };
 
   return (
-    <form onSubmit={submit} className="grid grid-cols-2 gap-2 rounded-lg border border-slate-200 p-3 sm:grid-cols-4">
+    <form onSubmit={submit} className="grid grid-cols-2 gap-2 rounded-lg border border-slate-800 p-3 sm:grid-cols-4">
       <Field label="Tanggal">
         <Input type="date" value={date} min={todayISO()} onChange={(e) => setDate(e.target.value)} />
       </Field>
@@ -234,7 +234,7 @@ function BlockForm({ courtId, defaultDate, onCreated }: { courtId: number; defau
       <Field label="Alasan">
         <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Maintenance" required />
       </Field>
-      {error && <p className="col-span-full rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      {error && <p className="col-span-full rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">{error}</p>}
       <div className="col-span-full">
         <Button type="submit" disabled={loading} className="text-xs">
           {loading ? 'Menyimpan…' : 'Blokir Slot Ini'}
@@ -335,7 +335,7 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
           <Button type="button" variant="ghost" onClick={toggleVenueActive}>
             {venue.is_active ? 'Nonaktifkan Venue' : 'Aktifkan Venue'}
           </Button>
-          {saved && <span className="text-xs font-medium text-emerald-600">Tersimpan.</span>}
+          {saved && <span className="text-xs font-medium text-emerald-400">Tersimpan.</span>}
         </div>
       </form>
 
@@ -364,12 +364,12 @@ function QrisUploader({ venueId, imageUrl, onSaved }: { venueId: number; imageUr
   };
 
   return (
-    <div className="mt-4 border-t border-slate-100 pt-4">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className="mt-4 border-t border-slate-800 pt-4">
+      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">
         QRIS untuk Pembayaran Manual
       </span>
       <div className="flex items-center gap-4">
-        {imageUrl && <img src={imageUrl} alt="QRIS" className="h-24 w-24 rounded-lg border border-slate-200 object-contain" />}
+        {imageUrl && <img src={imageUrl} alt="QRIS" className="h-24 w-24 rounded-lg border border-slate-800 object-contain" />}
         <div className="flex items-center gap-2">
           <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-xs" />
           <Button type="button" onClick={upload} disabled={!file || uploading} className="px-3 py-2 text-xs">
@@ -427,7 +427,7 @@ function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => v
           <select
             value={sport}
             onChange={(e) => setSport(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
           >
             {SPORTS.map((s) => (
               <option key={s} value={s}>
@@ -458,7 +458,7 @@ function CourtForm({ venueId, onCreated }: { venueId: number; onCreated: () => v
         </Field>
 
         {error && (
-          <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 sm:col-span-2">{error}</p>
+          <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400 sm:col-span-2">{error}</p>
         )}
         <div className="sm:col-span-2">
           <Button type="submit" disabled={loading}>
@@ -491,7 +491,7 @@ function ShuttlecockPriceEditor({ courtId, price, onSaved }: { courtId: number; 
     return (
       <button
         onClick={() => setEditing(true)}
-        className="mt-1 block text-xs text-slate-500 hover:text-[#1d5fc4] hover:underline"
+        className="mt-1 block text-xs text-slate-400 hover:text-[#1d5fc4] hover:underline"
       >
         Shuttlecock: {price ? `${rupiah(price)}/buah` : 'belum diatur'} (ubah)
       </button>
@@ -511,7 +511,7 @@ function ShuttlecockPriceEditor({ courtId, price, onSaved }: { courtId: number; 
       <button onClick={save} disabled={saving} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
         {saving ? 'Menyimpan…' : 'Simpan'}
       </button>
-      <button onClick={() => setEditing(false)} className="text-xs text-slate-400 hover:underline">
+      <button onClick={() => setEditing(false)} className="text-xs text-slate-500 hover:underline">
         Batal
       </button>
     </div>

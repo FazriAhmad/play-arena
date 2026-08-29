@@ -12,9 +12,9 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Halo, {user.name.split(' ')[0]} 👋</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Masuk sebagai <span className="font-medium text-slate-700">{ROLE_LABELS[user.role]}</span>.
+      <h1 className="text-2xl font-bold text-white">Halo, {user.name.split(' ')[0]} 👋</h1>
+      <p className="mt-1 text-sm text-slate-400">
+        Masuk sebagai <span className="font-medium text-slate-200">{ROLE_LABELS[user.role]}</span>.
       </p>
 
       {user.role === 'owner' || user.role === 'staff' ? <OwnerStaffOverview /> : <PelangganOverview />}
@@ -42,12 +42,12 @@ function OwnerStaffOverview() {
       .finally(() => setLoading(false));
   }, [currentVenueId]);
 
-  if (venuesLoading) return <p className="mt-6 text-sm text-slate-400">Memuat…</p>;
+  if (venuesLoading) return <p className="mt-6 text-sm text-slate-500">Memuat…</p>;
 
   if (venues.length === 0) {
     return (
       <Card className="mt-6 p-6">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-300">
           Belum ada venue.{' '}
           <Link to="/manage/venues" className="font-semibold text-[#1d5fc4] hover:underline">
             Tambahkan venue pertama Anda
@@ -69,7 +69,7 @@ function OwnerStaffOverview() {
               className={`rounded-lg border px-3.5 py-2 text-sm font-medium transition ${
                 v.id === currentVenueId
                   ? 'border-[#1d5fc4] bg-[#1d5fc4]/10 text-[#1d5fc4]'
-                  : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                  : 'border-slate-700 text-slate-300 hover:border-slate-600'
               }`}
             >
               {v.name}
@@ -82,8 +82,8 @@ function OwnerStaffOverview() {
         <Card className="mt-4 p-5">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="font-semibold text-slate-900">{currentVenue.name}</h2>
-              <p className="mt-0.5 text-xs text-slate-500">{currentVenue.city || 'Kota belum diisi'}</p>
+              <h2 className="font-semibold text-white">{currentVenue.name}</h2>
+              <p className="mt-0.5 text-xs text-slate-400">{currentVenue.city || 'Kota belum diisi'}</p>
             </div>
             <Badge tone={currentVenue.is_active ? 'success' : 'danger'}>
               {currentVenue.is_active ? 'Aktif' : 'Nonaktif'}
@@ -92,22 +92,22 @@ function OwnerStaffOverview() {
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="rounded-lg bg-[#1d5fc4]/10 p-3">
-              <p className="text-xs text-[#164a9c]">Lapangan</p>
-              <p className="mt-1 text-lg font-bold text-[#164a9c]">{currentVenue.courts_count}</p>
+              <p className="text-xs text-[#7ab0f0]">Lapangan</p>
+              <p className="mt-1 text-lg font-bold text-[#7ab0f0]">{currentVenue.courts_count}</p>
             </div>
-            <div className="rounded-lg bg-orange-50 p-3">
-              <p className="text-xs text-orange-700">Menunggu ACC</p>
-              <p className="mt-1 text-lg font-bold text-orange-700">{loading ? '…' : pending.length}</p>
+            <div className="rounded-lg bg-orange-500/10 p-3">
+              <p className="text-xs text-orange-400">Menunggu ACC</p>
+              <p className="mt-1 text-lg font-bold text-orange-400">{loading ? '…' : pending.length}</p>
             </div>
           </div>
 
           {!loading && pending.length > 0 && (
-            <div className="mt-4 border-t border-slate-100 pt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Perlu Tindakan</p>
+            <div className="mt-4 border-t border-slate-800 pt-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Perlu Tindakan</p>
               <div className="mt-2 space-y-2">
                 {pending.slice(0, 5).map((b) => (
-                  <div key={b.id} className="flex items-center justify-between rounded-lg bg-amber-50 px-3 py-2 text-xs">
-                    <span className="text-amber-800">
+                  <div key={b.id} className="flex items-center justify-between rounded-lg bg-amber-500/10 px-3 py-2 text-xs">
+                    <span className="text-amber-300">
                       {b.court?.name} · {new Date(b.starts_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
                     </span>
                   </div>
@@ -119,7 +119,7 @@ function OwnerStaffOverview() {
             </div>
           )}
 
-          <div className="mt-4 flex flex-wrap gap-3 border-t border-slate-100 pt-4 text-xs">
+          <div className="mt-4 flex flex-wrap gap-3 border-t border-slate-800 pt-4 text-xs">
             <Link to={`/manage/venues/${currentVenue.id}`} className="font-semibold text-[#1d5fc4] hover:underline">
               Kelola Venue Ini
             </Link>
@@ -144,7 +144,7 @@ function OwnerStaffOverview() {
 function PelangganOverview() {
   return (
     <Card className="mt-6 p-6">
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-slate-300">
         Cari lapangan &amp; booking lewat <Link to="/" className="font-semibold text-[#1d5fc4] hover:underline">beranda</Link>, lalu
         pantau statusnya di{' '}
         <Link to="/bookings" className="font-semibold text-[#1d5fc4] hover:underline">

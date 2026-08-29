@@ -7,10 +7,10 @@ export interface Slot {
 }
 
 const STATE_STYLE: Record<Slot['state'], string> = {
-  available: 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:border-emerald-400',
-  booked: 'border-rose-200 bg-rose-50 text-rose-500 cursor-not-allowed',
-  blocked: 'border-amber-200 bg-amber-50 text-amber-600 cursor-not-allowed',
-  past: 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed',
+  available: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-400',
+  booked: 'border-rose-500/30 bg-rose-500/10 text-rose-400 cursor-not-allowed',
+  blocked: 'border-amber-500/30 bg-amber-500/10 text-amber-400 cursor-not-allowed',
+  past: 'border-slate-800 bg-slate-950 text-slate-600 cursor-not-allowed',
 };
 
 export default function SlotGrid({

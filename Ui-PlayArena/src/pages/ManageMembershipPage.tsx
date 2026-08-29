@@ -44,12 +44,12 @@ export default function ManageMembershipPage() {
     }
   };
 
-  if (loading) return <p className="text-sm text-slate-400">Memuat…</p>;
+  if (loading) return <p className="text-sm text-slate-500">Memuat…</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Membership Bulanan</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-2xl font-bold text-white">Membership Bulanan</h1>
+      <p className="mt-1 text-sm text-slate-400">
         Pelanggan yang jadi member otomatis dapat diskon di setiap booking, tanpa perlu kode voucher.
       </p>
 
@@ -69,7 +69,7 @@ export default function ManageMembershipPage() {
               required
             />
           </Field>
-          <label className="flex items-center gap-2 text-sm text-slate-700 sm:col-span-2">
+          <label className="flex items-center gap-2 text-sm text-slate-200 sm:col-span-2">
             <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="h-4 w-4" />
             Plan aktif — diskon berlaku untuk pelanggan yang sedang jadi member
           </label>
@@ -78,20 +78,20 @@ export default function ManageMembershipPage() {
             <Button type="submit" disabled={saving}>
               {saving ? 'Menyimpan…' : 'Simpan Plan'}
             </Button>
-            {saved && <span className="text-xs font-medium text-emerald-600">Tersimpan.</span>}
+            {saved && <span className="text-xs font-medium text-emerald-400">Tersimpan.</span>}
           </div>
         </form>
       </Card>
 
       {plan && (
-        <p className="mt-3 text-xs text-slate-400">
+        <p className="mt-3 text-xs text-slate-500">
           Plan saat ini: {rupiah(plan.price)}/bulan, diskon {plan.discount_percent}% — {plan.is_active ? 'aktif' : 'nonaktif'}.
         </p>
       )}
 
-      <Card className="mt-6 p-5 text-sm text-slate-600">
-        <p className="font-semibold text-slate-900">Cara kerja</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-500">
+      <Card className="mt-6 p-5 text-sm text-slate-300">
+        <p className="font-semibold text-white">Cara kerja</p>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-400">
           <li>Pendaftaran &amp; pembayaran member tetap manual — tandai pelanggan sebagai member di halaman{' '}
             <span className="font-medium">Kelola Pelanggan</span> setelah menerima pembayaran, sama seperti konfirmasi pembayaran booking.
           </li>

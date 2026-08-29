@@ -25,14 +25,14 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#1d5fc4] to-[#f97316] font-bold text-lg text-white">
             P
           </div>
-          <h1 className="mt-3 text-xl font-bold text-slate-900">PlayArena</h1>
-          <p className="mt-1 text-sm text-slate-500">Masuk untuk booking lapangan atau kelola venue.</p>
+          <h1 className="mt-3 text-xl font-bold text-white">PlayArena</h1>
+          <p className="mt-1 text-sm text-slate-400">Masuk untuk booking lapangan atau kelola venue.</p>
         </div>
 
         <Card className="p-6">
@@ -48,7 +48,7 @@ export default function Login() {
             <Field label="Password">
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </Field>
-            {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+            {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">{error}</p>}
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? 'Memeriksa…' : 'Masuk'}
             </Button>

@@ -14,34 +14,34 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white print:hidden">
+    <div className="min-h-screen bg-slate-950">
+      <header className="border-b border-slate-800 bg-slate-900 print:hidden">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#1d5fc4] to-[#f97316] font-bold text-sm text-white">
               P
             </div>
-            <span className="font-bold text-slate-900">PlayArena</span>
+            <span className="font-bold text-white">PlayArena</span>
           </Link>
 
           <nav className="flex items-center gap-4">
             {user ? (
               <>
-                <Link to="/bookings" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                <Link to="/bookings" className="text-sm font-medium text-slate-300 hover:text-[#1d5fc4]">
                   Booking Saya
                 </Link>
-                <Link to="/announcements" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                <Link to="/announcements" className="text-sm font-medium text-slate-300 hover:text-[#1d5fc4]">
                   Pengumuman
                 </Link>
-                <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
+                <div className="flex items-center gap-2 border-l border-slate-800 pl-4">
                   <div className="text-right">
-                    <p className="text-sm font-semibold leading-tight text-slate-900">{user.name}</p>
-                    <p className="text-xs leading-tight text-slate-500">{ROLE_LABELS[user.role]}</p>
+                    <p className="text-sm font-semibold leading-tight text-white">{user.name}</p>
+                    <p className="text-xs leading-tight text-slate-400">{ROLE_LABELS[user.role]}</p>
                   </div>
                   <button
                     onClick={logout}
                     title="Keluar"
-                    className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-rose-600"
+                    className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-rose-400"
                   >
                     <LogOut size={16} />
                   </button>
@@ -49,7 +49,7 @@ export default function AppLayout() {
               </>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-[#1d5fc4]">
+                <Link to="/login" className="text-sm font-medium text-slate-300 hover:text-[#1d5fc4]">
                   Masuk
                 </Link>
                 <Link to="/register">

@@ -36,8 +36,8 @@ export default function ManagePromosPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Voucher & Kode Promo</h1>
-          <p className="mt-1 text-sm text-slate-500">Diskon terkontrol untuk pelanggan, bukan potongan manual.</p>
+          <h1 className="text-2xl font-bold text-white">Voucher & Kode Promo</h1>
+          <p className="mt-1 text-sm text-slate-400">Diskon terkontrol untuk pelanggan, bukan potongan manual.</p>
         </div>
         <Button onClick={() => setShowForm((v) => !v)}>
           <Plus size={16} /> {showForm ? 'Tutup Form' : 'Buat Voucher'}
@@ -54,24 +54,24 @@ export default function ManagePromosPage() {
       )}
 
       <div className="mt-6 space-y-3">
-        {loading && <p className="text-sm text-slate-400">Memuat…</p>}
-        {!loading && promos.length === 0 && <p className="text-sm text-slate-400">Belum ada voucher.</p>}
+        {loading && <p className="text-sm text-slate-500">Memuat…</p>}
+        {!loading && promos.length === 0 && <p className="text-sm text-slate-500">Belum ada voucher.</p>}
         {promos.map((p) => (
           <Card key={p.id} className="p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm font-bold text-slate-900">{p.code}</span>
+                  <span className="font-mono text-sm font-bold text-white">{p.code}</span>
                   <Badge tone={p.is_active ? 'success' : 'danger'}>{p.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
                 </div>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-slate-300">
                   {p.discount_type === 'percent' ? `${p.value}%` : rupiah(p.value)}
                   {p.min_amount ? ` · min. transaksi ${rupiah(p.min_amount)}` : ''}
                 </p>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-slate-400">
                   {p.venue?.name ?? 'Semua venue'} · {p.quota ? `${p.used_count}/${p.quota} dipakai` : `${p.used_count}x dipakai, tanpa batas`}
                 </p>
-                <p className="mt-0.5 text-xs text-slate-400">
+                <p className="mt-0.5 text-xs text-slate-500">
                   {new Date(p.starts_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })} –{' '}
                   {new Date(p.ends_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}
                 </p>
@@ -80,7 +80,7 @@ export default function ManagePromosPage() {
                 <button onClick={() => toggleActive(p)} className="text-xs font-semibold text-[#1d5fc4] hover:underline">
                   {p.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                 </button>
-                <button onClick={() => remove(p)} className="text-xs font-semibold text-rose-600 hover:underline">
+                <button onClick={() => remove(p)} className="text-xs font-semibold text-rose-400 hover:underline">
                   Hapus
                 </button>
               </div>
@@ -142,7 +142,7 @@ function PromoForm({ onCreated }: { onCreated: () => void }) {
           <select
             value={venueId}
             onChange={(e) => setVenueId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
           >
             <option value="">Semua venue</option>
             {venues.map((v) => (
@@ -156,7 +156,7 @@ function PromoForm({ onCreated }: { onCreated: () => void }) {
           <select
             value={discountType}
             onChange={(e) => setDiscountType(e.target.value as 'percent' | 'fixed')}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
           >
             <option value="percent">Persen (%)</option>
             <option value="fixed">Nominal (Rp)</option>
@@ -178,7 +178,7 @@ function PromoForm({ onCreated }: { onCreated: () => void }) {
           <Input type="date" value={endsAt} min={startsAt} onChange={(e) => setEndsAt(e.target.value)} />
         </Field>
 
-        {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 sm:col-span-2">{error}</p>}
+        {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400 sm:col-span-2">{error}</p>}
         <div className="sm:col-span-2">
           <Button type="submit" disabled={loading}>
             {loading ? 'Menyimpan…' : 'Simpan Voucher'}

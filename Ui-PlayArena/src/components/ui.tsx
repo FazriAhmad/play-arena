@@ -10,7 +10,7 @@ export const Button = ({
   const variants = {
     primary:
       'bg-gradient-to-r from-[#1d5fc4] to-[#2f6fd6] text-white hover:from-[#164a9c] hover:to-[#1d5fc4] shadow-sm shadow-[#1d5fc4]/30',
-    ghost: 'text-slate-600 hover:bg-slate-100',
+    ghost: 'text-slate-300 hover:bg-slate-800',
     danger: 'bg-rose-600 text-white hover:bg-rose-700',
   };
   return (
@@ -28,7 +28,7 @@ export const Button = ({
 };
 
 export const Card = ({ className, children }: { className?: string; children: ReactNode }) => (
-  <div className={cn('rounded-2xl border border-slate-200 bg-white shadow-sm', className)}>{children}</div>
+  <div className={cn('rounded-2xl border border-slate-800 bg-slate-900 shadow-sm', className)}>{children}</div>
 );
 
 export const Field = ({
@@ -45,12 +45,12 @@ export const Field = ({
   children: ReactNode;
 }) => (
   <label className={cn('block', className)}>
-    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
+    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
     {children}
     {error ? (
-      <span className="mt-1 block text-xs font-medium text-rose-600">{error}</span>
+      <span className="mt-1 block text-xs font-medium text-rose-400">{error}</span>
     ) : hint ? (
-      <span className="mt-1 block text-xs text-slate-400">{hint}</span>
+      <span className="mt-1 block text-xs text-slate-500">{hint}</span>
     ) : null}
   </label>
 );
@@ -58,7 +58,7 @@ export const Field = ({
 export const Input = ({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) => (
   <input
     className={cn(
-      'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15',
+      'w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15',
       className,
     )}
     {...rest}
@@ -73,9 +73,9 @@ export const Badge = ({
   tone?: 'neutral' | 'success' | 'danger';
 }) => {
   const tones = {
-    neutral: 'bg-slate-100 text-slate-600',
-    success: 'bg-emerald-50 text-emerald-700',
-    danger: 'bg-rose-50 text-rose-700',
+    neutral: 'bg-slate-800 text-slate-300',
+    success: 'bg-emerald-500/10 text-emerald-400',
+    danger: 'bg-rose-500/10 text-rose-400',
   };
   return (
     <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold', tones[tone])}>
@@ -102,7 +102,7 @@ export const Stars = ({
         disabled={!onChange}
         onClick={() => onChange?.(n)}
         className={cn('leading-none', onChange && 'cursor-pointer')}
-        style={{ fontSize: size, color: n <= Math.round(value) ? '#f59e0b' : '#e2e8f0' }}
+        style={{ fontSize: size, color: n <= Math.round(value) ? '#f59e0b' : '#475569' }}
         aria-label={`${n} bintang`}
       >
         ★

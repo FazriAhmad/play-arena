@@ -60,8 +60,8 @@ export default function BookingDetailPage() {
     load();
   };
 
-  if (loading) return <p className="text-sm text-slate-400">Memuat…</p>;
-  if (error || !booking) return <p className="text-sm text-slate-400">Booking tidak ditemukan.</p>;
+  if (loading) return <p className="text-sm text-slate-500">Memuat…</p>;
+  if (error || !booking) return <p className="text-sm text-slate-500">Booking tidak ditemukan.</p>;
 
   const start = new Date(booking.starts_at);
   const end = new Date(booking.ends_at);
@@ -97,7 +97,7 @@ export default function BookingDetailPage() {
       </Link>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <h1 className="text-2xl font-bold text-slate-900">Detail Booking</h1>
+        <h1 className="text-2xl font-bold text-white">Detail Booking</h1>
         <div className="flex flex-wrap gap-2">
           {canReschedule && (
             <Button variant="ghost" onClick={() => setShowReschedule((v) => !v)}>
@@ -131,17 +131,17 @@ export default function BookingDetailPage() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#1d5fc4] to-[#f97316] font-bold text-sm text-white">P</div>
-            <span className="font-bold text-slate-900">PlayArena</span>
+            <span className="font-bold text-white">PlayArena</span>
           </div>
           <Badge tone={STATUS_TONE[booking.status]}>{BOOKING_STATUS_LABELS[booking.status]}</Badge>
         </div>
 
         {canShowInvoice && (
-          <p className="mt-4 text-xs font-mono text-slate-400">No. Invoice: {invoiceNo}</p>
+          <p className="mt-4 text-xs font-mono text-slate-500">No. Invoice: {invoiceNo}</p>
         )}
         {showChatAdmin && chatAdminLink && (
-          <div className="mt-4 rounded-lg bg-amber-50 p-3 print:hidden">
-            <p className="text-xs font-medium text-amber-700">
+          <div className="mt-4 rounded-lg bg-amber-500/10 p-3 print:hidden">
+            <p className="text-xs font-medium text-amber-400">
               Belum di-ACC admin? Follow up langsung lewat WhatsApp.
             </p>
             <a
@@ -156,19 +156,19 @@ export default function BookingDetailPage() {
         )}
         {booking.status === 'menunggu_bayar' && <PaymentInstructions booking={booking} />}
         {booking.status === 'rejected' && booking.reject_reason && (
-          <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
+          <p className="mt-4 rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">
             Alasan ditolak: {booking.reject_reason}
           </p>
         )}
         {booking.status === 'cancelled' && (
           <div className="mt-4 space-y-2">
             {booking.cancel_reason && (
-              <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600">
+              <p className="rounded-lg bg-slate-950 px-3 py-2 text-xs font-medium text-slate-300">
                 Alasan dibatalkan: {booking.cancel_reason}
               </p>
             )}
             {refund && (
-              <p className={`rounded-lg px-3 py-2 text-xs font-medium ${refund.amount > 0 ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-600'}`}>
+              <p className={`rounded-lg px-3 py-2 text-xs font-medium ${refund.amount > 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-950 text-slate-300'}`}>
                 {REFUND_STATUS_LABELS[refund.status] ?? refund.status}
                 {refund.amount > 0 && ` — ${rupiah(refund.amount)}`}
               </p>
@@ -176,67 +176,67 @@ export default function BookingDetailPage() {
           </div>
         )}
 
-        <div className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2">
+        <div className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-800 pt-5 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Venue &amp; Lapangan</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{booking.court?.venue?.name}</p>
-            <p className="text-sm text-slate-600">{booking.court?.name} ({booking.court?.sport})</p>
-            {booking.court?.venue?.address && <p className="mt-0.5 text-xs text-slate-500">{booking.court.venue.address}</p>}
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Venue &amp; Lapangan</p>
+            <p className="mt-1 text-sm font-semibold text-white">{booking.court?.venue?.name}</p>
+            <p className="text-sm text-slate-300">{booking.court?.name} ({booking.court?.sport})</p>
+            {booking.court?.venue?.address && <p className="mt-0.5 text-xs text-slate-400">{booking.court.venue.address}</p>}
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Jadwal</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Jadwal</p>
+            <p className="mt-1 text-sm font-semibold text-white">
               {start.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-300">
               {start.toLocaleTimeString('id-ID', { timeStyle: 'short' })}–{end.toLocaleTimeString('id-ID', { timeStyle: 'short' })} ({hours} jam)
             </p>
           </div>
         </div>
 
-        <div className="mt-5 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Rincian Harga</p>
+        <div className="mt-5 border-t border-slate-800 pt-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Rincian Harga</p>
           <div className="mt-2 flex items-center justify-between text-sm">
-            <span className="text-slate-600">
+            <span className="text-slate-300">
               {rupiah(booking.court?.price_per_hour ?? 0)}/jam × {hours} jam
             </span>
-            <span className="font-semibold text-slate-900">{rupiah(total)}</span>
+            <span className="font-semibold text-white">{rupiah(total)}</span>
           </div>
           {booking.shuttlecock_qty > 0 && (
-            <div className="mt-1 flex items-center justify-between text-sm text-slate-600">
+            <div className="mt-1 flex items-center justify-between text-sm text-slate-300">
               <span>Shuttlecock × {booking.shuttlecock_qty}</span>
               <span>{rupiah(booking.shuttlecock_amount)}</span>
             </div>
           )}
           {!!booking.member_discount_amount && (
-            <div className="mt-1 flex items-center justify-between text-sm text-emerald-600">
+            <div className="mt-1 flex items-center justify-between text-sm text-emerald-400">
               <span>Diskon member</span>
               <span>-{rupiah(booking.member_discount_amount)}</span>
             </div>
           )}
           {!!booking.discount_amount && (
-            <div className="mt-1 flex items-center justify-between text-sm text-emerald-600">
+            <div className="mt-1 flex items-center justify-between text-sm text-emerald-400">
               <span>Diskon voucher {booking.promo_code}</span>
               <span>-{rupiah(booking.discount_amount)}</span>
             </div>
           )}
-          <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
-            <span className="font-semibold text-slate-900">Total</span>
+          <div className="mt-3 flex items-center justify-between border-t border-slate-800 pt-3">
+            <span className="font-semibold text-white">Total</span>
             <span className="text-lg font-bold text-[#1d5fc4]">
               {rupiah(total + booking.shuttlecock_amount - (booking.discount_amount ?? 0) - booking.member_discount_amount)}
             </span>
           </div>
           {payment && (
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-400">
               Dibayar via {PAYMENT_METHOD_LABELS[payment.method] ?? payment.method}
               {payment.confirmed_at && ` · ${new Date(payment.confirmed_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`}
             </p>
           )}
         </div>
 
-        <div className="mt-5 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Kontak</p>
-          <p className="mt-1 text-sm text-slate-600">{booking.contact_wa}</p>
+        <div className="mt-5 border-t border-slate-800 pt-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Kontak</p>
+          <p className="mt-1 text-sm text-slate-300">{booking.contact_wa}</p>
         </div>
       </Card>
 
@@ -253,27 +253,27 @@ function PaymentInstructions({ booking }: { booking: Booking }) {
 
   if (!hasBank && !hasQris) {
     return (
-      <div className="mt-4 rounded-lg bg-amber-50 p-3 text-xs font-medium text-amber-700 print:hidden">
+      <div className="mt-4 rounded-lg bg-amber-500/10 p-3 text-xs font-medium text-amber-400 print:hidden">
         Menunggu instruksi pembayaran dari admin venue — hubungi admin lewat WhatsApp kalau belum ada info.
       </div>
     );
   }
 
   return (
-    <div className="mt-4 rounded-lg bg-amber-50 p-4 print:hidden">
-      <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Instruksi Pembayaran</p>
-      <p className="mt-1 text-xs text-amber-700">
+    <div className="mt-4 rounded-lg bg-amber-500/10 p-4 print:hidden">
+      <p className="text-xs font-semibold uppercase tracking-wide text-amber-400">Instruksi Pembayaran</p>
+      <p className="mt-1 text-xs text-amber-400">
         Transfer sesuai total di bawah, lalu tunggu admin konfirmasi (biasanya tidak lama setelah transfer masuk).
       </p>
       <div className="mt-3 flex flex-wrap gap-4">
         {hasBank && (
           <div className="text-sm">
-            <p className="font-semibold text-slate-900">{venue!.bank_name}</p>
-            <p className="text-slate-700">{venue!.bank_account_number}</p>
-            <p className="text-xs text-slate-500">a.n. {venue!.bank_account_holder}</p>
+            <p className="font-semibold text-white">{venue!.bank_name}</p>
+            <p className="text-slate-200">{venue!.bank_account_number}</p>
+            <p className="text-xs text-slate-400">a.n. {venue!.bank_account_holder}</p>
           </div>
         )}
-        {hasQris && <img src={venue!.qris_image_url!} alt="QRIS" className="h-32 w-32 rounded-lg border border-amber-200 object-contain bg-white" />}
+        {hasQris && <img src={venue!.qris_image_url!} alt="QRIS" className="h-32 w-32 rounded-lg border border-amber-500/30 object-contain bg-slate-900" />}
       </div>
     </div>
   );
@@ -289,11 +289,11 @@ function ReviewSection({ booking, onSubmitted }: { booking: Booking; onSubmitted
   if (booking.review) {
     return (
       <Card className="mt-4 p-5 print:hidden">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ulasan Anda</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Ulasan Anda</p>
         <div className="mt-2">
           <Stars value={booking.review.rating} />
         </div>
-        {booking.review.comment && <p className="mt-2 text-sm text-slate-600">{booking.review.comment}</p>}
+        {booking.review.comment && <p className="mt-2 text-sm text-slate-300">{booking.review.comment}</p>}
       </Card>
     );
   }
@@ -313,7 +313,7 @@ function ReviewSection({ booking, onSubmitted }: { booking: Booking; onSubmitted
 
   return (
     <Card className="mt-4 space-y-3 p-5 print:hidden">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Beri Ulasan Lapangan Ini</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Beri Ulasan Lapangan Ini</p>
       <Stars value={rating} onChange={setRating} size={22} />
       <Field label="Komentar (opsional)">
         <textarea
@@ -321,10 +321,10 @@ function ReviewSection({ booking, onSubmitted }: { booking: Booking; onSubmitted
           onChange={(e) => setComment(e.target.value)}
           rows={3}
           placeholder="Bagaimana pengalaman main Anda?"
-          className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+          className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
         />
       </Field>
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">{error}</p>}
       <Button onClick={submit} disabled={loading}>
         {loading ? 'Mengirim…' : 'Kirim Ulasan'}
       </Button>
@@ -389,7 +389,7 @@ function RescheduleForm({
         <Input type="date" value={date} min={todayISO()} onChange={(e) => setDate(e.target.value)} className="w-auto" />
       </Field>
       <div>
-        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Pilih Jam</span>
+        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">Pilih Jam</span>
         <SlotGrid slots={slots} selectedHour={selectedHour} onSelectHour={setSelectedHour} />
       </div>
       {selectedHour !== null && (
@@ -397,7 +397,7 @@ function RescheduleForm({
           <select
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
-            className="w-auto rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
+            className="w-auto rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15"
           >
             {Array.from({ length: Math.max(1, Math.min(4, maxDurationFromHour)) }, (_, i) => i + 1).map((h) => (
               <option key={h} value={h}>
@@ -410,7 +410,7 @@ function RescheduleForm({
       <Field label="Nomor WA yang bisa dihubungi">
         <Input value={contactWa} onChange={(e) => setContactWa(e.target.value)} placeholder="0812xxxxxxx" required />
       </Field>
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{error}</p>}
+      {error && <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400">{error}</p>}
       <Button onClick={submit} disabled={loading || selectedHour === null || !contactWa}>
         {loading ? 'Memproses…' : 'Simpan Jadwal Baru'}
       </Button>

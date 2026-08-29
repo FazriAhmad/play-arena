@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+/* Tema gelap — cegah kedip putih sebelum React mount. */
+html,
+body {
+  background-color: #020617;
+}

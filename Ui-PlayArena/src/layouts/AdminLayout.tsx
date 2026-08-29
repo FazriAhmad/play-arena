@@ -45,7 +45,7 @@ export default function AdminLayout() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
       'flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium transition',
-      isActive ? 'bg-[#1d5fc4]/10 text-[#1d5fc4]' : 'text-slate-600 hover:bg-slate-100',
+      isActive ? 'bg-[#1d5fc4]/10 text-[#1d5fc4]' : 'text-slate-300 hover:bg-slate-800',
     );
 
   const sidebar = (
@@ -55,8 +55,8 @@ export default function AdminLayout() {
           P
         </div>
         <div>
-          <p className="font-bold leading-none text-slate-900">PlayArena</p>
-          <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Panel Admin</p>
+          <p className="font-bold leading-none text-white">PlayArena</p>
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Panel Admin</p>
         </div>
       </Link>
 
@@ -69,16 +69,16 @@ export default function AdminLayout() {
         ))}
       </nav>
 
-      <div className="border-t border-slate-100 p-3">
+      <div className="border-t border-slate-800 p-3">
         <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>
-            <p className="text-xs text-slate-500">{ROLE_LABELS[user.role]}</p>
+            <p className="truncate text-sm font-semibold text-white">{user.name}</p>
+            <p className="text-xs text-slate-400">{ROLE_LABELS[user.role]}</p>
           </div>
           <button
             onClick={logout}
             title="Keluar"
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-rose-600"
+            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-rose-400"
           >
             <LogOut size={16} />
           </button>
@@ -88,16 +88,16 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 lg:flex">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-slate-200 bg-white lg:block">
+    <div className="min-h-screen bg-slate-950 lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:block">
         {sidebar}
       </aside>
 
       {open && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="relative h-full w-72 border-r border-slate-200 bg-white">
-            <button onClick={() => setOpen(false)} className="absolute right-3 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100">
+          <div className="relative h-full w-72 border-r border-slate-800 bg-slate-900">
+            <button onClick={() => setOpen(false)} className="absolute right-3 top-4 rounded-lg p-1.5 text-slate-500 hover:bg-slate-800">
               <X size={18} />
             </button>
             {sidebar}
@@ -106,14 +106,14 @@ export default function AdminLayout() {
       )}
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
+        <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-900 px-4 py-3 lg:hidden">
           <div className="flex items-center gap-3">
-            <button onClick={() => setOpen(true)} className="rounded-lg border border-slate-200 p-2 text-slate-600">
+            <button onClick={() => setOpen(true)} className="rounded-lg border border-slate-800 p-2 text-slate-300">
               <Menu size={18} />
             </button>
             <Link to="/" className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-[#1d5fc4] to-[#f97316] text-xs font-bold text-white">P</div>
-              <span className="font-bold text-slate-900">PlayArena</span>
+              <span className="font-bold text-white">PlayArena</span>
             </Link>
           </div>
         </header>

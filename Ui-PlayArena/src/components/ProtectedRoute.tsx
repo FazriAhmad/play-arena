@@ -26,5 +26,5 @@ export function GuestRoute() {
 }
 
 function FullscreenLoading() {
-  return <div className="flex min-h-screen items-center justify-center text-sm text-slate-400">Memuat…</div>;
+  return <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">Memuat…</div>;
 }

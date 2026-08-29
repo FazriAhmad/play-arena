@@ -26,8 +26,8 @@ export default function ManageVenuesPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Kelola Lapangan</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-white">Kelola Lapangan</h1>
+          <p className="mt-1 text-sm text-slate-400">
             {user?.role === 'owner' ? 'Venue dan lapangan yang tampil di direktori publik.' : 'Venue tempat Anda ditugaskan.'}
           </p>
         </div>
@@ -48,21 +48,21 @@ export default function ManageVenuesPage() {
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {loading && <p className="text-sm text-slate-400">Memuat…</p>}
+        {loading && <p className="text-sm text-slate-500">Memuat…</p>}
         {!loading && venues.length === 0 && (
-          <p className="text-sm text-slate-400">Belum ada venue. Tambahkan lewat tombol di atas.</p>
+          <p className="text-sm text-slate-500">Belum ada venue. Tambahkan lewat tombol di atas.</p>
         )}
         {venues.map((v) => (
           <Link key={v.id} to={`/manage/venues/${v.id}`}>
             <Card className="p-4 transition hover:shadow-md">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-slate-900">{v.name}</h3>
-                  <p className="text-xs text-slate-500">{v.city || 'Kota belum diisi'}</p>
+                  <h3 className="font-semibold text-white">{v.name}</h3>
+                  <p className="text-xs text-slate-400">{v.city || 'Kota belum diisi'}</p>
                 </div>
                 <Badge tone={v.is_active ? 'success' : 'danger'}>{v.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
               </div>
-              <p className="mt-2 text-xs text-slate-500">{v.courts_count} lapangan</p>
+              <p className="mt-2 text-xs text-slate-400">{v.courts_count} lapangan</p>
             </Card>
           </Link>
         ))}
@@ -127,7 +127,7 @@ function VenueForm({ onCreated }: { onCreated: () => void }) {
         </Field>
 
         {error && (
-          <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 sm:col-span-2">{error}</p>
+          <p className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-400 sm:col-span-2">{error}</p>
         )}
         <div className="sm:col-span-2">
           <Button type="submit" disabled={loading}>

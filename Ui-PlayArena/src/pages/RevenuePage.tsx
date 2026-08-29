@@ -60,8 +60,8 @@ export default function RevenuePage() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Laporan Pendapatan</h1>
-          <p className="mt-1 text-sm text-slate-500">Pembayaran lunas dikurangi refund, per periode yang dipilih.</p>
+          <h1 className="text-2xl font-bold text-white">Laporan Pendapatan</h1>
+          <p className="mt-1 text-sm text-slate-400">Pembayaran lunas dikurangi refund, per periode yang dipilih.</p>
         </div>
         <Button variant="ghost" onClick={exportCsv} disabled={!currentVenueId || exporting}>
           <Download size={16} /> Ekspor CSV
@@ -69,10 +69,10 @@ export default function RevenuePage() {
       </div>
 
       {venuesLoading ? (
-        <p className="mt-6 text-sm text-slate-400">Memuat…</p>
+        <p className="mt-6 text-sm text-slate-500">Memuat…</p>
       ) : venues.length === 0 ? (
         <Card className="mt-6 p-6">
-          <p className="text-sm text-slate-600">Belum ada venue.</p>
+          <p className="text-sm text-slate-300">Belum ada venue.</p>
         </Card>
       ) : (
         <>
@@ -85,7 +85,7 @@ export default function RevenuePage() {
                   className={`rounded-lg border px-3.5 py-2 text-sm font-medium transition ${
                     v.id === currentVenueId
                       ? 'border-[#1d5fc4] bg-[#1d5fc4]/10 text-[#1d5fc4]'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                      : 'border-slate-700 text-slate-300 hover:border-slate-600'
                   }`}
                 >
                   {v.name}
@@ -104,7 +104,7 @@ export default function RevenuePage() {
           </Card>
 
           {loading ? (
-            <p className="mt-6 text-sm text-slate-400">Memuat laporan…</p>
+            <p className="mt-6 text-sm text-slate-500">Memuat laporan…</p>
           ) : !report ? null : (
             <div className="mt-6 space-y-6">
               <div className="grid gap-4 sm:grid-cols-3">
@@ -129,13 +129,13 @@ export default function RevenuePage() {
 
 function StatCard({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: 'neutral' | 'danger' | 'primary' }) {
   const colors = {
-    neutral: { text: 'text-slate-900', border: 'border-l-slate-300' },
-    danger: { text: 'text-rose-600', border: 'border-l-rose-400' },
+    neutral: { text: 'text-white', border: 'border-l-slate-300' },
+    danger: { text: 'text-rose-400', border: 'border-l-rose-400' },
     primary: { text: 'text-[#1d5fc4]', border: 'border-l-[#f97316]' },
   };
   return (
     <Card className={`border-l-4 p-5 ${colors[tone].border}`}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
       <p className={`mt-2 text-2xl font-bold ${colors[tone].text}`}>{value}</p>
     </Card>
   );
@@ -145,7 +145,7 @@ function DailyTrendCard({ daily }: { daily: RevenueReport['daily'] }) {
   const max = Math.max(1, ...daily.map((d) => d.gross));
   return (
     <Card className="p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tren Pendapatan Harian</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tren Pendapatan Harian</p>
       <div className="mt-5 flex h-32 items-end gap-1 overflow-x-auto">
         {daily.map((d) => (
           <div key={d.date} className="group relative flex-1" style={{ minWidth: 6 }}>
@@ -167,18 +167,18 @@ function ByCourtCard({ rows }: { rows: RevenueReport['by_court'] }) {
   const max = Math.max(1, ...rows.map((r) => r.gross));
   return (
     <Card className="p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pendapatan per Lapangan</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Pendapatan per Lapangan</p>
       {rows.length === 0 ? (
-        <p className="mt-4 text-sm text-slate-400">Belum ada transaksi.</p>
+        <p className="mt-4 text-sm text-slate-500">Belum ada transaksi.</p>
       ) : (
         <div className="mt-4 space-y-2.5">
           {rows.map((r) => (
             <div key={r.court_id}>
               <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-slate-700">{r.name}</span>
-                <span className="text-slate-500">{rupiah(r.gross)}</span>
+                <span className="font-medium text-slate-200">{r.name}</span>
+                <span className="text-slate-400">{rupiah(r.gross)}</span>
               </div>
-              <div className="mt-1 h-2 w-full rounded-full bg-slate-100">
+              <div className="mt-1 h-2 w-full rounded-full bg-slate-800">
                 <div className="h-2 rounded-full bg-[#f59e0b]" style={{ width: `${(r.gross / max) * 100}%` }} />
               </div>
             </div>
@@ -192,16 +192,16 @@ function ByCourtCard({ rows }: { rows: RevenueReport['by_court'] }) {
 function ByMethodCard({ rows }: { rows: RevenueReport['by_method'] }) {
   return (
     <Card className="p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pendapatan per Metode</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Pendapatan per Metode</p>
       {rows.length === 0 ? (
-        <p className="mt-4 text-sm text-slate-400">Belum ada transaksi.</p>
+        <p className="mt-4 text-sm text-slate-500">Belum ada transaksi.</p>
       ) : (
         <div className="mt-4 space-y-3">
           {rows.map((r) => (
-            <div key={r.method} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
-              <span className="font-medium capitalize text-slate-700">{r.method === 'manual' ? 'Transfer Manual' : r.method}</span>
-              <span className="text-slate-600">
-                {rupiah(r.gross)} <span className="text-xs text-slate-400">({r.transactions_count}x)</span>
+            <div key={r.method} className="flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 text-sm">
+              <span className="font-medium capitalize text-slate-200">{r.method === 'manual' ? 'Transfer Manual' : r.method}</span>
+              <span className="text-slate-300">
+                {rupiah(r.gross)} <span className="text-xs text-slate-500">({r.transactions_count}x)</span>
               </span>
             </div>
           ))}
