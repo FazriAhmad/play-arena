@@ -14,10 +14,10 @@ use Illuminate\Http\Request;
 
 /**
  * Modul 07 — Kelola Booking Masuk. Sisi Staff/Owner: gerbang ACC wajib
- * untuk setiap booking baru, konfirmasi pembayaran manual (transfer
- * langsung ke rekening venue, di luar Midtrans — Modul 06 belum
- * terintegrasi), input booking walk-in, dan pembatalan booking (Modul 09,
- * alasan wajib — beda dari pembatalan pelanggan sendiri yang opsional).
+ * untuk setiap booking baru, konfirmasi pembayaran manual (transfer/QRIS
+ * langsung ke rekening venue — TIDAK ada payment gateway sama sekali,
+ * lihat keputusan Modul 06), input booking walk-in, dan pembatalan booking
+ * (Modul 09, alasan wajib — beda dari pembatalan pelanggan yang opsional).
  */
 class ManageBookingController extends Controller
 {
@@ -80,7 +80,7 @@ class ManageBookingController extends Controller
         return response()->json(['data' => $booking->load('refunds')]);
     }
 
-    /** Konfirmasi pembayaran manual — transfer langsung ke rekening venue, di luar Midtrans. */
+    /** Konfirmasi pembayaran manual — transfer/QRIS langsung ke rekening venue, dicek admin dari mutasi. */
     public function confirmPayment(Request $request, Booking $booking): JsonResponse
     {
         $this->authorizeVenueStaff($request->user(), $booking->court->venue);

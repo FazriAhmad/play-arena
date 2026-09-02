@@ -122,7 +122,7 @@ class VenueController extends Controller
     }
 
     /**
-     * Modul 06 (sementara, sambil menunggu Midtrans sandbox key) — QRIS milik
+     * Modul 06 (pembayaran manual, TANPA payment gateway) — QRIS milik
      * venue, dipakai pelanggan transfer manual, di-ACC admin lewat
      * ManageBookingController::confirmPayment yang sudah ada (Modul 07).
      * Endpoint terpisah dari `update()` karena PHP tidak parse file upload

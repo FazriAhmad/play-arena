@@ -26,8 +26,7 @@ const STATUS_TONE: Record<BookingStatus, 'neutral' | 'success' | 'danger'> = {
 };
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  manual: 'Transfer Manual',
-  midtrans: 'Midtrans',
+  manual: 'Transfer Manual / QRIS',
 };
 
 export default function BookingDetailPage() {
@@ -245,7 +244,7 @@ export default function BookingDetailPage() {
   );
 }
 
-/** Modul 06 (sementara, sambil menunggu Midtrans) — transfer manual ke rekening/QRIS venue, admin ACC setelah cek mutasi. */
+/** Modul 06 — transfer manual ke rekening/QRIS venue, admin ACC setelah cek mutasi. Tidak pakai payment gateway. */
 function PaymentInstructions({ booking }: { booking: Booking }) {
   const venue = booking.court?.venue;
   const hasBank = venue?.bank_name && venue.bank_account_number;

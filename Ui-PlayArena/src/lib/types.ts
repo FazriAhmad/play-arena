@@ -63,7 +63,7 @@ export interface OwnerVenue {
   city: string | null;
   address: string | null;
   admin_wa: string | null;
-  /** Modul 06 (sementara, sambil menunggu Midtrans) — info transfer manual & QRIS milik venue. */
+  /** Modul 06 — info rekening transfer & QRIS milik venue (pembayaran manual, tanpa payment gateway). */
   bank_name: string | null;
   bank_account_number: string | null;
   bank_account_holder: string | null;
@@ -102,7 +102,8 @@ export type BookingStatus = 'menunggu_acc' | 'menunggu_bayar' | 'confirmed' | 'r
 
 export interface Payment {
   id: number;
-  method: 'manual' | 'midtrans';
+  /** Cuma 'manual' — pembayaran transfer/QRIS dikonfirmasi admin, tidak ada payment gateway. */
+  method: 'manual';
   amount: number;
   status: string;
   reference: string | null;

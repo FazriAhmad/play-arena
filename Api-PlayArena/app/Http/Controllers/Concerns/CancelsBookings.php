@@ -11,7 +11,7 @@ use App\Models\Refund;
  * sama untuk keduanya: kalau sudah ada pembayaran manual yang lunas
  * (Modul 07) dan pembatalan terjadi >= `full_refund_hours` venue sebelum
  * jadwal main, refund penuh (dicatat, diproses admin manual di luar
- * sistem — belum ada Midtrans buat refund otomatis). Kurang dari itu,
+ * sistem — refund ditransfer balik manual oleh admin). Kurang dari itu,
  * pembayaran hangus sesuai kebijakan venue.
  */
 trait CancelsBookings

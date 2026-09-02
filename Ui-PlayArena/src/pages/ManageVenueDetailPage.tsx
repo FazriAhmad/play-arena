@@ -306,7 +306,7 @@ function VenueEditForm({ venue, onSaved }: { venue: OwnerVenueDetail; onSaved: (
         <Field label="Nomor WA Admin" hint="Dasar link chat pelanggan untuk konfirmasi booking" className="sm:col-span-2">
           <Input value={form.admin_wa} onChange={set('admin_wa')} placeholder="0812xxxxxxx" />
         </Field>
-        <Field label="Nama Bank" hint="Untuk transfer manual, sementara sambil menunggu Midtrans">
+        <Field label="Nama Bank" hint="Rekening tujuan transfer pelanggan, dikonfirmasi manual oleh admin">
           <Input value={form.bank_name} onChange={set('bank_name')} placeholder="BCA" />
         </Field>
         <Field label="Nomor Rekening">
