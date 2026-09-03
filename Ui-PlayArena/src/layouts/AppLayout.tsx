@@ -9,7 +9,7 @@ import AdminLayout from './AdminLayout';
 export default function AppLayout() {
   const { user, logout } = useAuth();
 
-  if (user?.role === 'owner' || user?.role === 'staff') {
+  if (user && ['owner', 'staff', 'petugas'].includes(user.role)) {
     return <AdminLayout />;
   }
 

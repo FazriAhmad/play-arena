@@ -15,7 +15,10 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['owner', 'staff', 'pelanggan'] as $role) {
+        // 'petugas' (Petugas Lapangan) ditambah 2026-08-29: wewenang operasional
+        // sama seperti staff (ACC booking, konfirmasi bayar, blokir slot, lihat
+        // jadwal) TAPI tidak boleh buka Laporan Pendapatan & Analitik.
+        foreach (['owner', 'staff', 'petugas', 'pelanggan'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 

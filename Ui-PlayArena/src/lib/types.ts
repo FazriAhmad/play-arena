@@ -1,4 +1,10 @@
-export type Role = 'owner' | 'staff' | 'pelanggan';
+export type Role = 'owner' | 'staff' | 'petugas' | 'pelanggan';
+
+/** Role yang bisa dibuat Owner lewat halaman Kelola Staff (owner &amp; pelanggan tidak termasuk). */
+export const MANAGED_ROLES: { value: Extract<Role, 'staff' | 'petugas'>; label: string; hint: string }[] = [
+  { value: 'staff', label: 'Staff / Kasir', hint: 'Operasional + Analitik' },
+  { value: 'petugas', label: 'Petugas Lapangan', hint: 'Operasional saja, tanpa Analitik' },
+];
 
 /** Venue ringkas, dipakai untuk dropdown penugasan staff (GET /venues/mine). */
 export interface Venue {
@@ -194,11 +200,14 @@ export interface Staff {
   phone: string;
   is_active: boolean;
   venues: Venue[];
+  /** Dari relasi Spatie — dipakai bedakan Staff/Kasir vs Petugas Lapangan di tabel. */
+  roles?: { id: number; name: Role }[];
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
   owner: 'Owner / Admin',
   staff: 'Staff / Kasir',
+  petugas: 'Petugas Lapangan',
   pelanggan: 'Pelanggan',
 };
 

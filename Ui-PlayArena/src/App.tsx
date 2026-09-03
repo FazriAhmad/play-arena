@@ -55,11 +55,15 @@ function App() {
                   <Route path="/manage/revenue" element={<RevenuePage />} />
                   <Route path="/manage/membership" element={<ManageMembershipPage />} />
                 </Route>
-                <Route element={<RoleRoute role={['owner', 'staff']} />}>
+                {/* Operasional harian — Petugas Lapangan ikut boleh di sini. */}
+                <Route element={<RoleRoute role={['owner', 'staff', 'petugas']} />}>
                   <Route path="/manage/venues" element={<ManageVenuesPage />} />
                   <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
                   <Route path="/manage/bookings" element={<ManageBookingsPage />} />
                   <Route path="/manage/schedule" element={<SchedulePage />} />
+                </Route>
+                {/* Analitik: staff boleh, petugas tidak (dijaga juga di AnalyticsController). */}
+                <Route element={<RoleRoute role={['owner', 'staff']} />}>
                   <Route path="/manage/analytics" element={<AnalyticsPage />} />
                 </Route>
               </Route>
