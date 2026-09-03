@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Building2,
+  CalendarDays,
   Crown,
   LayoutDashboard,
   ListChecks,
@@ -25,6 +26,7 @@ const NAV: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['owner', 'staff'] },
   { to: '/manage/venues', label: 'Kelola Lapangan', icon: Building2, roles: ['owner', 'staff'] },
   { to: '/manage/bookings', label: 'Booking Masuk', icon: ListChecks, roles: ['owner', 'staff'] },
+  { to: '/manage/schedule', label: 'Jadwal', icon: CalendarDays, roles: ['owner', 'staff'] },
   { to: '/manage/analytics', label: 'Analitik', icon: BarChart3, roles: ['owner', 'staff'] },
   { to: '/staff', label: 'Kelola Staff', icon: UserCog, roles: ['owner'] },
   { to: '/manage/promos', label: 'Voucher', icon: Ticket, roles: ['owner'] },
