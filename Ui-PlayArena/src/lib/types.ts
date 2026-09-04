@@ -1,5 +1,13 @@
 export type Role = 'owner' | 'staff' | 'petugas' | 'pelanggan';
 
+/**
+ * Role yang mengelola venue (bukan pelanggan) — dipakai untuk memutuskan
+ * "user ini masuk sisi admin atau tidak": layout mana yang dipakai, apakah
+ * daftar venue dimuat, dan overview mana yang ditampilkan di Dashboard.
+ * Satu sumber supaya role baru tidak lagi kelupaan di salah satunya.
+ */
+export const ADMIN_ROLES: Role[] = ['owner', 'staff', 'petugas'];
+
 /** Role yang bisa dibuat Owner lewat halaman Kelola Staff (owner &amp; pelanggan tidak termasuk). */
 export const MANAGED_ROLES: { value: Extract<Role, 'staff' | 'petugas'>; label: string; hint: string }[] = [
   { value: 'staff', label: 'Staff / Kasir', hint: 'Operasional + Analitik' },

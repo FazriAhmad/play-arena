@@ -57,14 +57,17 @@ function App() {
                   <Route path="/manage/membership" element={<ManageMembershipPage />} />
                   <Route path="/manage/activity" element={<ActivityLogPage />} />
                 </Route>
-                {/* Operasional + analitik — Petugas Lapangan ikut boleh. Yang khusus Owner
-                    cuma Laporan Pendapatan & halaman manajemen di grup RoleRoute "owner" di atas. */}
+                {/* Analitik — Owner & Staff/Kasir saja. Petugas Lapangan dikeluarkan
+                    atas keputusan user 2026-09-04 (membalik keputusan sebelumnya). */}
+                <Route element={<RoleRoute role={['owner', 'staff']} />}>
+                  <Route path="/manage/analytics" element={<AnalyticsPage />} />
+                </Route>
+                {/* Operasional harian — Petugas Lapangan ikut boleh. */}
                 <Route element={<RoleRoute role={['owner', 'staff', 'petugas']} />}>
                   <Route path="/manage/venues" element={<ManageVenuesPage />} />
                   <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
                   <Route path="/manage/bookings" element={<ManageBookingsPage />} />
                   <Route path="/manage/schedule" element={<SchedulePage />} />
-                  <Route path="/manage/analytics" element={<AnalyticsPage />} />
                 </Route>
               </Route>
             </Route>

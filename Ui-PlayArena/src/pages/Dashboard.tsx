@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
-import { ROLE_LABELS, type Booking } from '../lib/types';
+import { ADMIN_ROLES, ROLE_LABELS, type Booking } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
 import { useVenue } from '../store/VenueContext';
 import { Badge, Card } from '../components/ui';
@@ -17,7 +17,7 @@ export default function Dashboard() {
         Masuk sebagai <span className="font-medium text-slate-200">{ROLE_LABELS[user.role]}</span>.
       </p>
 
-      {user.role === 'owner' || user.role === 'staff' ? <OwnerStaffOverview /> : <PelangganOverview />}
+      {ADMIN_ROLES.includes(user.role) ? <OwnerStaffOverview /> : <PelangganOverview />}
     </div>
   );
 }
@@ -126,9 +126,16 @@ function OwnerStaffOverview() {
             <Link to="/manage/bookings" className="font-semibold text-[#1d5fc4] hover:underline">
               Booking Masuk
             </Link>
-            <Link to="/manage/analytics" className="font-semibold text-[#1d5fc4] hover:underline">
-              Lihat Analitik
+            <Link to="/manage/schedule" className="font-semibold text-[#1d5fc4] hover:underline">
+              Jadwal Lapangan
             </Link>
+            {/* Petugas lapangan tidak punya akses analitik — tautannya ikut disembunyikan
+                supaya tidak menawarkan halaman yang cuma akan menendang mereka balik. */}
+            {user?.role !== 'petugas' && (
+              <Link to="/manage/analytics" className="font-semibold text-[#1d5fc4] hover:underline">
+                Lihat Analitik
+              </Link>
+            )}
             {user?.role === 'owner' && (
               <Link to="/manage/revenue" className="font-semibold text-[#1d5fc4] hover:underline">
                 Laporan Pendapatan

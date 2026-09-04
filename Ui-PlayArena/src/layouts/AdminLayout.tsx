@@ -28,7 +28,7 @@ const NAV: NavItem[] = [
   { to: '/manage/venues', label: 'Kelola Lapangan', icon: Building2, roles: ['owner', 'staff', 'petugas'] },
   { to: '/manage/bookings', label: 'Booking Masuk', icon: ListChecks, roles: ['owner', 'staff', 'petugas'] },
   { to: '/manage/schedule', label: 'Jadwal', icon: CalendarDays, roles: ['owner', 'staff', 'petugas'] },
-  { to: '/manage/analytics', label: 'Analitik', icon: BarChart3, roles: ['owner', 'staff', 'petugas'] },
+  { to: '/manage/analytics', label: 'Analitik', icon: BarChart3, roles: ['owner', 'staff'] },
   { to: '/staff', label: 'Kelola Staff', icon: UserCog, roles: ['owner'] },
   { to: '/manage/activity', label: 'Log Aktivitas', icon: History, roles: ['owner'] },
   { to: '/manage/promos', label: 'Voucher', icon: Ticket, roles: ['owner'] },

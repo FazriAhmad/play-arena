@@ -1,15 +1,15 @@
 import { LogOut } from 'lucide-react';
 import { Link, Outlet } from 'react-router-dom';
-import { ROLE_LABELS } from '../lib/types';
+import { ADMIN_ROLES, ROLE_LABELS } from '../lib/types';
 import { useAuth } from '../store/AuthContext';
 import { Button } from '../components/ui';
 import AdminLayout from './AdminLayout';
 
-/** Owner/staff punya banyak menu (Fase 2/3) — dipindah ke sidebar `AdminLayout` sendiri, bukan top-bar ini. */
+/** Owner/staff/petugas punya banyak menu (Fase 2/3) — dipindah ke sidebar `AdminLayout` sendiri, bukan top-bar ini. */
 export default function AppLayout() {
   const { user, logout } = useAuth();
 
-  if (user && ['owner', 'staff', 'petugas'].includes(user.role)) {
+  if (user && ADMIN_ROLES.includes(user.role)) {
     return <AdminLayout />;
   }
 
