@@ -123,6 +123,15 @@ class AuthController extends Controller
             'is_member' => $user->is_member,
             'membership_expires_at' => $user->membership_expires_at,
             'membership_requested_at' => $user->membership_requested_at,
+            // Jadwal tetap mingguan member (2026-09-04) — dipakai UI buat nampilin
+            // slot yang sedang diajukan / sudah disetujui.
+            'membership_schedule' => $user->membership_court_id ? [
+                'court_id' => $user->membership_court_id,
+                'court_name' => $user->membershipCourt?->name,
+                'day_of_week' => (int) $user->membership_day_of_week,
+                'start_hour' => (int) $user->membership_start_hour,
+                'duration_hours' => (int) $user->membership_duration_hours,
+            ] : null,
             'role' => $user->getRoleNames()->first(),
             'venue_ids' => $user->venues()->pluck('venues.id'),
         ];

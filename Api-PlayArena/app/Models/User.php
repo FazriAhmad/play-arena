@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -15,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'phone', 'password', 'is_active', 'is_member', 'membership_expires_at', 'membership_requested_at', 'email_verified_at'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'is_active', 'is_member', 'membership_expires_at', 'membership_requested_at', 'membership_court_id', 'membership_day_of_week', 'membership_start_hour', 'membership_duration_hours', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -55,6 +56,12 @@ class User extends Authenticatable
     public function promos(): HasMany
     {
         return $this->hasMany(Promo::class, 'owner_id');
+    }
+
+    /** Lapangan jadwal tetap mingguan member (2026-09-04) — null kalau belum mengajukan/bukan member. */
+    public function membershipCourt(): BelongsTo
+    {
+        return $this->belongsTo(Court::class, 'membership_court_id');
     }
 
     /** Plan membership bulanan bisnis ini (role owner) — Modul 21. */

@@ -189,6 +189,14 @@ export interface User {
   is_member: boolean;
   membership_expires_at: string | null;
   membership_requested_at: string | null;
+  /** Jadwal tetap mingguan member (2026-09-04) — diisi saat mengajukan, dipakai lagi tiap minggu. */
+  membership_schedule: {
+    court_id: number;
+    court_name: string | null;
+    day_of_week: number;
+    start_hour: number;
+    duration_hours: number;
+  } | null;
   role: Role;
   venue_ids: number[];
 }
@@ -278,6 +286,12 @@ export interface Customer {
   is_member: boolean;
   membership_expires_at: string | null;
   membership_requested_at: string | null;
+  /** Jadwal tetap mingguan yang diajukan/disetujui (2026-09-04) — null kalau pelanggan biasa. */
+  membership_court_id: number | null;
+  membership_day_of_week: number | null;
+  membership_start_hour: number | null;
+  membership_duration_hours: number | null;
+  membership_court: { id: number; name: string } | null;
   bookings_count: number;
   total_spent: number;
   last_booking_at: string | null;

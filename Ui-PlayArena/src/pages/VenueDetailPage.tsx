@@ -22,9 +22,22 @@ function isActiveMember(user: { is_member: boolean; membership_expires_at: strin
   return !!user?.is_member && !!user.membership_expires_at && new Date(user.membership_expires_at) > new Date();
 }
 
-/** Modul 21 — pendaftaran member LEWAT WEB (bukan WA lagi): pelanggan ajukan di sini, admin ACC/tolak dari Kelola Pelanggan. */
-function MembershipBanner({ membership }: { membership: NonNullable<VenueDetail['membership']> }) {
+/**
+ * Modul 21 — pendaftaran member LEWAT WEB (bukan WA), admin ACC/tolak dari Kelola Pelanggan.
+ *
+ * Sejak 2026-09-04 pengajuan sekalian memilih JADWAL TETAP: lapangan, hari, dan jam
+ * yang sama tiap minggu. Begitu di-ACC, bookingnya langsung dibuatkan sebulan penuh.
+ */
+function MembershipBanner({ venue }: { venue: VenueDetail }) {
+  const membership = venue.membership!;
   const { user, refresh } = useAuth();
+  const badmintonCourts = venue.courts.filter((c) => c.sport === 'Bulu Tangkis' && c.is_active);
+  const maxDuration = membership.badminton_quota_hours_per_week ?? 3;
+
+  const [courtId, setCourtId] = useState(String(badmintonCourts[0]?.id ?? ''));
+  const [dayOfWeek, setDayOfWeek] = useState(1);
+  const [startHour, setStartHour] = useState(String(venue.open_hour));
+  const [duration, setDuration] = useState('1');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -32,7 +45,12 @@ function MembershipBanner({ membership }: { membership: NonNullable<VenueDetail[
     setSubmitting(true);
     setError('');
     try {
-      await api.post('/membership/request', {});
+      await api.post('/membership/request', {
+        court_id: Number(courtId),
+        day_of_week: dayOfWeek,
+        start_hour: Number(startHour),
+        duration_hours: Number(duration),
+      });
       await refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Gagal mengirim permintaan.');
@@ -44,52 +62,98 @@ function MembershipBanner({ membership }: { membership: NonNullable<VenueDetail[
   const active = isActiveMember(user);
   const pending = !active && !!user?.membership_requested_at;
   const quota = membership.badminton_quota_hours_per_week && membership.badminton_quota_sessions_per_month;
+  const schedule = user?.membership_schedule;
+  const scheduleText = schedule
+    ? `${DAYS_OF_WEEK[schedule.day_of_week]} ${schedule.start_hour}:00–${schedule.start_hour + schedule.duration_hours}:00 di ${schedule.court_name ?? 'lapangan pilihan Anda'}`
+    : null;
+
+  const selectClass =
+    'w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1d5fc4] focus:ring-2 focus:ring-[#1d5fc4]/15';
 
   return (
     <Card className="mt-4 border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
       {active ? (
-        <p>
-          Anda member — otomatis dapat diskon <strong>{membership.discount_percent}%</strong> di setiap booking{' '}
-          <strong>badminton</strong>.
-          {quota && (
-            <>
-              {' '}
-              Anda juga dapat jatah <strong>{membership.badminton_quota_hours_per_week} jam/minggu</strong> (maks{' '}
-              {membership.badminton_quota_sessions_per_month}x/bulan) <strong>GRATIS</strong>.
-            </>
+        <>
+          <p>
+            Anda member — otomatis dapat diskon <strong>{membership.discount_percent}%</strong> di setiap booking{' '}
+            <strong>badminton</strong>.
+          </p>
+          {scheduleText && (
+            <p className="mt-2">
+              Jadwal tetap Anda: <strong>{scheduleText}</strong> — sudah dibookingkan otomatis tiap minggu selama masa
+              keanggotaan.
+            </p>
           )}
-        </p>
+        </>
       ) : (
         <>
           <p>
-            Jadi member {rupiah(membership.price)}/bulan, dapat diskon <strong>{membership.discount_percent}%</strong> di setiap
-            booking <strong>badminton</strong>
-            {quota && (
-              <>
-                {' '}
-                ({membership.badminton_quota_hours_per_week} jam/minggu &amp; {membership.badminton_quota_sessions_per_month}x/bulan
-                malah <strong>GRATIS</strong>)
-              </>
-            )}
-            .
+            Jadi member {rupiah(membership.price)}/bulan: pilih satu jadwal tetap, lalu jam itu jadi{' '}
+            <strong>milik Anda tiap minggu selama sebulan</strong>
+            {quota && <> (maks {membership.badminton_quota_hours_per_week} jam/minggu, {membership.badminton_quota_sessions_per_month}x/bulan)</>}. Di
+            luar jadwal tetap, booking badminton lain tetap diskon <strong>{membership.discount_percent}%</strong>.
           </p>
           {pending ? (
-            <p className="mt-3 text-xs font-semibold text-amber-200">Permintaan Anda sedang menunggu ACC admin.</p>
-          ) : user ? (
-            <button
-              onClick={requestMembership}
-              disabled={submitting}
-              className="mt-3 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
-            >
-              {submitting ? 'Mengirim…' : 'Ajukan Jadi Member'}
-            </button>
-          ) : (
+            <p className="mt-3 text-xs font-semibold text-amber-200">
+              Permintaan Anda sedang menunggu ACC admin{scheduleText && <> untuk jadwal {scheduleText}</>}.
+            </p>
+          ) : !user ? (
             <Link
               to="/login"
               className="mt-3 inline-block rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
             >
               Login untuk Daftar Member
             </Link>
+          ) : badmintonCourts.length === 0 ? (
+            <p className="mt-3 text-xs text-amber-200">Belum ada lapangan badminton aktif di venue ini.</p>
+          ) : (
+            <div className="mt-4 space-y-3 border-t border-amber-500/20 pt-4">
+              <Field label="Lapangan">
+                <select value={courtId} onChange={(e) => setCourtId(e.target.value)} className={selectClass}>
+                  {badmintonCourts.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <div className="grid grid-cols-3 gap-3">
+                <Field label="Hari">
+                  <select value={dayOfWeek} onChange={(e) => setDayOfWeek(Number(e.target.value))} className={selectClass}>
+                    {DAYS_OF_WEEK.map((d, i) => (
+                      <option key={d} value={i}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Jam mulai">
+                  <Input
+                    type="number"
+                    min={venue.open_hour}
+                    max={venue.close_hour - 1}
+                    value={startHour}
+                    onChange={(e) => setStartHour(e.target.value)}
+                  />
+                </Field>
+                <Field label="Durasi">
+                  <select value={duration} onChange={(e) => setDuration(e.target.value)} className={selectClass}>
+                    {Array.from({ length: maxDuration }, (_, i) => i + 1).map((h) => (
+                      <option key={h} value={h}>
+                        {h} jam
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+              <button
+                onClick={requestMembership}
+                disabled={submitting}
+                className="rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+              >
+                {submitting ? 'Mengirim…' : 'Ajukan Jadi Member'}
+              </button>
+            </div>
           )}
           {error && <p className="mt-2 text-xs font-medium text-rose-400">{error}</p>}
         </>
@@ -139,7 +203,7 @@ export default function VenueDetailPage() {
         </span>
       </div>
 
-      {venue.membership && venue.courts.some((c) => c.sport === 'Bulu Tangkis') && <MembershipBanner membership={venue.membership} />}
+      {venue.membership && venue.courts.some((c) => c.sport === 'Bulu Tangkis') && <MembershipBanner venue={venue} />}
 
       {venue.lat && venue.lng && (
         <Card className="mt-5 overflow-hidden p-1">

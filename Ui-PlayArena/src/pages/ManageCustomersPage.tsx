@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
-import { BOOKING_STATUS_LABELS, rupiah, type Booking, type BookingStatus, type Customer, type CustomerDetail } from '../lib/types';
+import {
+  BOOKING_STATUS_LABELS,
+  DAYS_OF_WEEK,
+  rupiah,
+  type Booking,
+  type BookingStatus,
+  type Customer,
+  type CustomerDetail,
+} from '../lib/types';
 import { Badge, Card } from '../components/ui';
 
 const STATUS_TONE: Record<BookingStatus, 'neutral' | 'success' | 'danger'> = {
@@ -11,6 +19,13 @@ const STATUS_TONE: Record<BookingStatus, 'neutral' | 'success' | 'danger'> = {
   cancelled: 'danger',
   completed: 'success',
 };
+
+/** Jadwal tetap mingguan yang dipilih pelanggan saat mengajukan member (2026-09-04). */
+function scheduleLabel(c: Customer): string | null {
+  if (c.membership_day_of_week === null || c.membership_start_hour === null) return null;
+  const end = c.membership_start_hour + (c.membership_duration_hours ?? 0);
+  return `${DAYS_OF_WEEK[c.membership_day_of_week]} ${c.membership_start_hour}:00–${end}:00 · ${c.membership_court?.name ?? 'lapangan dihapus'}`;
+}
 
 export default function ManageCustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -27,8 +42,21 @@ export default function ManageCustomersPage() {
 
   useEffect(load, []);
 
+  // ACC = sekalian membuatkan booking jadwal tetapnya sebulan ke depan, jadi hasilnya
+  // (termasuk sesi yang bentrok) harus dilaporkan ke admin, bukan diam-diam.
   const setMember = async (customer: Customer, isMember: boolean) => {
-    await api.put(`/manage/customers/${customer.id}`, { is_member: isMember });
+    const res = await api.put<{ schedule: { created: string[]; failed: { date: string; reason: string }[] } | null }>(
+      `/manage/customers/${customer.id}`,
+      { is_member: isMember },
+    );
+    const s = res.schedule;
+    if (s && (s.created.length || s.failed.length)) {
+      const gagal = s.failed.map((f) => `
+· ${f.date}: ${f.reason}`).join('');
+      alert(`${s.created.length} sesi jadwal tetap dibuat untuk ${customer.name}.` + (gagal ? `
+
+Gagal:${gagal}` : ''));
+    }
     load();
   };
 
@@ -70,6 +98,9 @@ export default function ManageCustomersPage() {
                 <p className="mt-0.5 text-xs text-slate-400">
                   {c.email} · {c.phone}
                 </p>
+                {scheduleLabel(c) && (
+                  <p className="mt-1 text-xs font-medium text-amber-400">Jadwal tetap: {scheduleLabel(c)}</p>
+                )}
                 <p className="mt-1 text-xs text-slate-400">
                   {c.bookings_count} booking · {rupiah(c.total_spent)} total belanja
                   {c.last_booking_at && (
