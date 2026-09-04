@@ -186,7 +186,7 @@ export default function VenueDetailPage() {
   if (error || !venue) return <p className="text-sm text-slate-500">Venue tidak ditemukan.</p>;
 
   return (
-    <div>
+    <div className="mx-auto max-w-5xl">
       <Link to="/" className="text-sm font-medium text-[#1d5fc4] hover:underline">
         ← Kembali ke pencarian
       </Link>

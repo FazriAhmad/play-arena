@@ -90,7 +90,7 @@ export default function BookingDetailPage() {
     : null;
 
   return (
-    <div>
+    <div className="mx-auto max-w-5xl">
       <Link to="/bookings" className="text-sm font-medium text-[#1d5fc4] hover:underline print:hidden">
         ← Kembali ke Booking Saya
       </Link>

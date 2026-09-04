@@ -16,7 +16,7 @@ export default function AnnouncementsPage() {
   }, []);
 
   return (
-    <div>
+    <div className="mx-auto max-w-5xl">
       <h1 className="text-2xl font-bold text-white">Pengumuman</h1>
       <p className="mt-1 text-sm text-slate-400">Promo &amp; info terbaru dari venue tempat Anda booking.</p>
 

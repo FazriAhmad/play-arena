@@ -44,7 +44,7 @@ export default function MyBookingsPage() {
   const filtered = bookings.filter((b) => bucketOf(b) === tab);
 
   return (
-    <div>
+    <div className="mx-auto max-w-5xl">
       <h1 className="text-2xl font-bold text-white">Booking Saya</h1>
       <p className="mt-1 text-sm text-slate-400">Riwayat &amp; status booking lapangan Anda.</p>
 

@@ -16,25 +16,28 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="border-b border-slate-800 bg-slate-900 print:hidden">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2.5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Link to="/" className="flex shrink-0 items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#1d5fc4] to-[#f97316] font-bold text-sm text-white">
               P
             </div>
-            <span className="font-bold text-white">PlayArena</span>
+            {/* Di layar sempit cukup lambang "P" — wordmark-nya yang bikin baris header meluber. */}
+            <span className="hidden font-bold text-white sm:inline">PlayArena</span>
           </Link>
 
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-3 sm:gap-4">
             {user ? (
               <>
-                <Link to="/bookings" className="text-sm font-medium text-slate-300 hover:text-[#1d5fc4]">
+                <Link to="/bookings" className="whitespace-nowrap text-sm font-medium text-slate-300 hover:text-[#1d5fc4]">
                   Booking Saya
                 </Link>
-                <Link to="/announcements" className="text-sm font-medium text-slate-300 hover:text-[#1d5fc4]">
+                <Link to="/announcements" className="whitespace-nowrap text-sm font-medium text-slate-300 hover:text-[#1d5fc4]">
                   Pengumuman
                 </Link>
-                <div className="flex items-center gap-2 border-l border-slate-800 pl-4">
-                  <div className="text-right">
+                <div className="flex items-center gap-2 sm:border-l sm:border-slate-800 sm:pl-4">
+                  {/* Nama & peran disembunyikan di layar sempit — barisnya meluber kalau
+                      dipaksa muat bareng logo + dua tautan. Tombol keluar tetap ada. */}
+                  <div className="hidden text-right sm:block">
                     <p className="text-sm font-semibold leading-tight text-white">{user.name}</p>
                     <p className="text-xs leading-tight text-slate-400">{ROLE_LABELS[user.role]}</p>
                   </div>
@@ -61,7 +64,7 @@ export default function AppLayout() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <Outlet />
       </main>
     </div>

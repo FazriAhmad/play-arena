@@ -1,4 +1,4 @@
-import { MapPin, Megaphone, SlidersHorizontal, Star } from 'lucide-react';
+import { ImageOff, MapPin, Megaphone, SlidersHorizontal, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
@@ -81,7 +81,7 @@ export default function SearchPage() {
         </div>
       </Card>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {loading && <p className="col-span-full text-center text-sm text-slate-500">Memuat…</p>}
         {!loading && venues.length === 0 && (
           <p className="col-span-full text-center text-sm text-slate-500">Tidak ada venue yang cocok dengan filter ini.</p>
@@ -89,11 +89,16 @@ export default function SearchPage() {
         {venues.map((v) => (
           <Link key={v.id} to={`/venue/${v.id}`}>
             <Card className="h-full overflow-hidden transition hover:shadow-md">
-              <div className="flex h-32 items-center justify-center bg-slate-800 text-slate-600">
+              {/* Sebagian besar venue belum punya foto — placeholder dibuat bergradasi + ikon
+                  supaya terbaca sebagai "memang belum ada", bukan gambar yang gagal dimuat. */}
+              <div className="flex h-36 items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
                 {v.cover ? (
                   <img src={v.cover} alt={v.name} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="text-xs">Belum ada foto</span>
+                  <div className="flex flex-col items-center gap-1.5 text-slate-600">
+                    <ImageOff size={22} />
+                    <span className="text-[11px]">Belum ada foto</span>
+                  </div>
                 )}
               </div>
               <div className="p-4">
