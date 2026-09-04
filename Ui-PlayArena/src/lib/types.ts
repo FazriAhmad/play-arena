@@ -211,6 +211,31 @@ export const ROLE_LABELS: Record<Role, string> = {
   pelanggan: 'Pelanggan',
 };
 
+/** Log aktivitas staff/petugas (GET /manage/activity-logs) — Owner saja. */
+export interface ActivityLog {
+  id: number;
+  user_id: number | null;
+  user_name: string;
+  user_role: Role;
+  venue_id: number | null;
+  booking_id: number | null;
+  action: string;
+  description: string;
+  created_at: string;
+  venue?: { id: number; name: string } | null;
+}
+
+/** Label ringkas per jenis aksi — dipakai badge di halaman Log Aktivitas. */
+export const ACTIVITY_LABELS: Record<string, string> = {
+  'booking.accept': 'ACC Booking',
+  'booking.reject': 'Tolak Booking',
+  'booking.cancel': 'Batalkan Booking',
+  'booking.walk_in': 'Booking Walk-in',
+  'payment.confirm': 'Konfirmasi Bayar',
+  'slot.block': 'Blokir Slot',
+  'slot.unblock': 'Hapus Blokir',
+};
+
 export const SPORTS = ['Futsal', 'Bulu Tangkis', 'Basket', 'Tenis', 'Voli', 'Tenis Meja', 'Renang'];
 
 export const DAYS_OF_WEEK = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];

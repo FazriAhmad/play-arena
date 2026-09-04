@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AuthorizesVenue;
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\BlockedSlot;
 use App\Models\Booking;
 use App\Models\Court;
@@ -65,12 +66,28 @@ class BlockedSlotController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
+        ActivityLog::record(
+            $request->user(),
+            'slot.block',
+            "Blokir slot {$court->name} · ".$startsAt->translatedFormat('d M Y H:i').'–'.$endsAt->format('H:i')." · alasan: {$data['reason']}",
+            $court->venue_id,
+        );
+
         return response()->json(['data' => $block], 201);
     }
 
     public function destroy(Request $request, BlockedSlot $blockedSlot): JsonResponse
     {
-        $this->authorizeVenueStaff($request->user(), $blockedSlot->court->venue);
+        $court = $blockedSlot->court;
+        $this->authorizeVenueStaff($request->user(), $court->venue);
+
+        ActivityLog::record(
+            $request->user(),
+            'slot.unblock',
+            "Hapus blokir slot {$court->name} · ".$blockedSlot->starts_at->translatedFormat('d M Y H:i').'–'.$blockedSlot->ends_at->format('H:i'),
+            $court->venue_id,
+        );
+
         $blockedSlot->delete();
 
         return response()->json(['message' => 'Blokir dihapus.']);

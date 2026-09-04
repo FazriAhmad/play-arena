@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\AuthorizesVenue;
 use App\Http\Controllers\Concerns\CancelsBookings;
 use App\Http\Controllers\Concerns\CreatesBookings;
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Booking;
 use App\Models\Court;
 use App\Models\Payment;
@@ -54,6 +55,7 @@ class ManageBookingController extends Controller
         abort_unless($booking->status === 'menunggu_acc', 422, 'Booking ini sudah diproses sebelumnya.');
 
         $booking->update(['status' => 'menunggu_bayar']);
+        $this->log($request, $booking, 'booking.accept', 'ACC booking');
 
         return response()->json(['data' => $booking->fresh()]);
     }
@@ -65,6 +67,7 @@ class ManageBookingController extends Controller
 
         $data = $request->validate(['reason' => ['required', 'string', 'max:255']]);
         $booking->update(['status' => 'rejected', 'reject_reason' => $data['reason']]);
+        $this->log($request, $booking, 'booking.reject', "Menolak booking — alasan: {$data['reason']}");
 
         return response()->json(['data' => $booking->fresh()]);
     }
@@ -76,6 +79,7 @@ class ManageBookingController extends Controller
         $data = $request->validate(['reason' => ['required', 'string', 'max:255']]);
 
         $booking = $this->cancelBooking($booking, $data['reason']);
+        $this->log($request, $booking, 'booking.cancel', "Membatalkan booking — alasan: {$data['reason']}");
 
         return response()->json(['data' => $booking->load('refunds')]);
     }
@@ -98,6 +102,7 @@ class ManageBookingController extends Controller
             'confirmed_at' => now(),
         ]);
         $booking->update(['status' => 'confirmed']);
+        $this->log($request, $booking, 'payment.confirm', 'Konfirmasi pembayaran diterima — Rp'.number_format($amount, 0, ',', '.'));
 
         return response()->json(['data' => $booking->fresh()]);
     }
@@ -133,6 +138,23 @@ class ManageBookingController extends Controller
             'confirmed_at' => now(),
         ]);
 
+        $this->log($request, $booking, 'booking.walk_in', "Input booking walk-in a.n. {$data['guest_name']}");
+
         return response()->json(['data' => $booking->fresh()], 201);
+    }
+
+    /** Catat aktivitas yang mengubah data booking, lengkap dengan konteks lapangan &amp; jamnya. */
+    private function log(Request $request, Booking $booking, string $action, string $description): void
+    {
+        $court = $booking->court;
+        $jadwal = $booking->starts_at->translatedFormat('d M Y H:i').'–'.$booking->ends_at->format('H:i');
+
+        ActivityLog::record(
+            $request->user(),
+            $action,
+            "{$description} · {$court->name} · {$jadwal}",
+            $court->venue_id,
+            $booking->id,
+        );
     }
 }

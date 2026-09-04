@@ -11,12 +11,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Modul 18 — Dashboard Analitik. Owner ATAU staff venue terkait (sama
- * seperti Modul 04/07 lewat AuthorizesVenue), TAPI **bukan `petugas`**
- * (Petugas Lapangan, ditambah 2026-08-29) — dia cuma urus operasional
- * harian, analisis performa venue bukan porsinya. Semua angka dihitung
- * dari booking yang benar-benar terjadi (confirmed/completed) — yang
- * masih menunggu ACC/bayar atau sudah dibatalkan/ditolak tidak ikut
+ * Modul 18 — Dashboard Analitik. Owner ATAU staff/petugas venue terkait
+ * (lewat AuthorizesVenue, sama seperti Modul 04/07). **Update 2026-09-04**:
+ * `petugas` sempat dilarang di sini, lalu dibuka lagi atas keputusan user
+ * ("jadi hanya tidak bisa buka laporan saja") — satu-satunya yang tertutup
+ * untuk non-owner sekarang cuma Laporan Pendapatan (Modul 19). Semua angka
+ * dihitung dari booking yang benar-benar terjadi (confirmed/completed) —
+ * yang masih menunggu ACC/bayar atau sudah dibatalkan/ditolak tidak ikut
  * dihitung karena belum tentu (atau tidak jadi) terpakai.
  */
 class AnalyticsController extends Controller
@@ -27,8 +28,6 @@ class AnalyticsController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        abort_if($request->user()->hasRole('petugas'), 403, 'Petugas lapangan tidak punya akses analitik.');
-
         $venue = Venue::findOrFail($request->integer('venue_id'));
         $this->authorizeVenueStaff($request->user(), $venue);
 

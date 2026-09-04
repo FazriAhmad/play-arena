@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { GuestRoute, ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
+import ActivityLogPage from './pages/ActivityLogPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import BookingDetailPage from './pages/BookingDetailPage';
@@ -54,16 +55,15 @@ function App() {
                   <Route path="/manage/announcements" element={<ManageAnnouncementsPage />} />
                   <Route path="/manage/revenue" element={<RevenuePage />} />
                   <Route path="/manage/membership" element={<ManageMembershipPage />} />
+                  <Route path="/manage/activity" element={<ActivityLogPage />} />
                 </Route>
-                {/* Operasional harian — Petugas Lapangan ikut boleh di sini. */}
+                {/* Operasional + analitik — Petugas Lapangan ikut boleh. Yang khusus Owner
+                    cuma Laporan Pendapatan & halaman manajemen di grup RoleRoute "owner" di atas. */}
                 <Route element={<RoleRoute role={['owner', 'staff', 'petugas']} />}>
                   <Route path="/manage/venues" element={<ManageVenuesPage />} />
                   <Route path="/manage/venues/:id" element={<ManageVenueDetailPage />} />
                   <Route path="/manage/bookings" element={<ManageBookingsPage />} />
                   <Route path="/manage/schedule" element={<SchedulePage />} />
-                </Route>
-                {/* Analitik: staff boleh, petugas tidak (dijaga juga di AnalyticsController). */}
-                <Route element={<RoleRoute role={['owner', 'staff']} />}>
                   <Route path="/manage/analytics" element={<AnalyticsPage />} />
                 </Route>
               </Route>

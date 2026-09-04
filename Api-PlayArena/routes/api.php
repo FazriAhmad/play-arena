@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AuthController;
@@ -122,6 +123,9 @@ Route::middleware('auth:sanctum')->group(function () {
         // Modul 19 — laporan pendapatan, Owner saja (data finansial, bukan operasional staff).
         Route::get('/manage/revenue', [RevenueController::class, 'index']);
         Route::get('/manage/revenue/export', [RevenueController::class, 'export']);
+
+        // Log aktivitas staff/petugas — Owner saja (fungsi pengawasan, bukan operasional).
+        Route::get('/manage/activity-logs', [ActivityLogController::class, 'index']);
 
         // Modul 21 — plan membership bulanan, Owner saja (keputusan pemasaran/kepemilikan, sama seperti Modul 14/15).
         Route::get('/manage/membership-plan', [MembershipPlanController::class, 'show']);
